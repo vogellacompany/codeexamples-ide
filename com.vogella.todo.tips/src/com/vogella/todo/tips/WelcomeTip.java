@@ -1,8 +1,6 @@
 package com.vogella.todo.tips;
 
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.eclipse.tips.core.IHtmlTip;
@@ -17,13 +15,7 @@ public class WelcomeTip extends Tip implements IHtmlTip {
 
 	@Override
 	public Date getCreationDate() {
-		SimpleDateFormat sdf = new SimpleDateFormat("09/01/2018");
-		try {
-			Date parse = sdf.parse("pYYMMDD");
-			return parse;
-		} catch (ParseException e) {
-			throw new RuntimeException(e);
-		}
+		return new Date();
 	}
 
 	@Override
