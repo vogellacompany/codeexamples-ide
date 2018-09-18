@@ -1,23 +1,31 @@
-package com.vogella.tasks.services;
+package com.vogella.tasks.services.internal;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.osgi.service.component.annotations.Component;
+import javax.inject.Inject;
 
+import org.eclipse.e4.core.services.events.IEventBroker;
+
+import com.vogella.tasks.events.MyEventConstants;
 import com.vogella.tasks.model.ITodoService;
 import com.vogella.tasks.model.Todo;
 
-@Component
 public class MyTodoServiceImpl implements ITodoService {
 
     private static AtomicInteger current = new AtomicInteger(1);
     private List<Todo> todos;
+
+	// use dependency injection in MyTodoServiceImpl
+	@Inject
+	private IEventBroker broker;
 
     public MyTodoServiceImpl() {
         todos = createInitialModel();
@@ -47,8 +55,14 @@ public class MyTodoServiceImpl implements ITodoService {
         todo.setDone(newTodo.isDone());
         todo.setDueDate(newTodo.getDueDate());
 
-        if (!todoOptional.isPresent()) {
+		// send out events
+		if (todoOptional.isPresent()) {
+			broker.post(MyEventConstants.TOPIC_TODO_UPDATE,
+					createEventData(MyEventConstants.TOPIC_TODO_UPDATE, String.valueOf(todo.getId())));
+		} else {
             todos.add(todo);
+			broker.post(MyEventConstants.TOPIC_TODO_NEW,
+					createEventData(MyEventConstants.TOPIC_TODO_NEW, String.valueOf(todo.getId())));
         }
         return true;
     }
@@ -64,6 +78,10 @@ public class MyTodoServiceImpl implements ITodoService {
 
         deleteTodo.ifPresent(todo -> {
             todos.remove(todo);
+
+			// configure the event
+			broker.post(MyEventConstants.TOPIC_TODO_DELETE,
+					createEventData(MyEventConstants.TOPIC_TODO_DELETE, String.valueOf(todo.getId())));
         });
 
         return deleteTodo.isPresent();
@@ -92,4 +110,12 @@ public class MyTodoServiceImpl implements ITodoService {
         return getTodosInternal().stream().filter(t -> t.getId() == id).findAny();
     }
 
+	private Map<String, String> createEventData(String topic, String todoId) {
+		Map<String, String> map = new HashMap<>();
+		// in case the receiver wants to check the topic
+		map.put(MyEventConstants.TOPIC_TODO, topic);
+		// which todo has changed
+		map.put(Todo.FIELD_ID, todoId);
+		return map;
+	}
 }

@@ -1,14 +1,21 @@
 package com.vogella.tasks.ui.parts;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.list.WritableList;
+import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
+import org.eclipse.e4.ui.di.UIEventTopic;
+import org.eclipse.e4.ui.workbench.modeling.ESelectionService;
 import org.eclipse.jface.databinding.viewers.ViewerSupport;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
@@ -20,6 +27,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 
+import com.vogella.tasks.events.MyEventConstants;
 import com.vogella.tasks.model.ITodoService;
 import com.vogella.tasks.model.Todo;
 
@@ -27,6 +35,9 @@ public class TodoOverviewPart {
 
 	@Inject
 	ITodoService todoService;
+
+	@Inject
+	ESelectionService service;
 
 	private Button btnLoadData;
 	private TableViewer viewer;
@@ -72,6 +83,14 @@ public class TodoOverviewPart {
 		writableList = new WritableList<>();
 		// fill the writable list, when Consumer callback is called. Databinding
 		// will do the rest once the list is filled
+		// after the viewer is instantiated
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				IStructuredSelection selection = viewer.getStructuredSelection();
+				service.setSelection(selection.toList());
+			}
+		});
 		todoService.getTodos(writableList::addAll);
 		ViewerSupport.bind(viewer, writableList,
 				BeanProperties.values(new String[] { Todo.FIELD_SUMMARY, Todo.FIELD_DESCRIPTION }));
@@ -82,6 +101,19 @@ public class TodoOverviewPart {
 		if (viewer != null) {
 			writableList.clear();
 			writableList.addAll(list);
+		}
+	}
+
+	@Inject
+	@Optional
+	private void subscribeTopicTodoAllTopics(
+			@UIEventTopic(MyEventConstants.TOPIC_TODO_ALLTOPICS) Map<String, String> event) {
+		if (viewer != null) {
+			// code if you use databinding for your viewer
+			writableList.clear();
+			todoService.getTodos(writableList::addAll);
+			// if you do not use databinding, use the following snippet:
+			// todoService.getTodos(viewer::setInput);
 		}
 	}
 
