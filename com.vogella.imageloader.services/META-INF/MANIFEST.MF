@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Services
+Bundle-SymbolicName: com.vogella.imageloader.services
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: VOGELLA
+Automatic-Module-Name: com.vogella.imageloader.services
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.core.runtime;bundle-version="3.15.100",
+ org.eclipse.jface;bundle-version="3.14.100",
+ org.eclipse.osgi.services;bundle-version="3.7.100"
+Service-Component: OSGI-INF/com.vogella.imageloader.services.internal.BundleResourceLoaderImpl.xml
+Bundle-ActivationPolicy: lazy
+Export-Package: com.vogella.imageloader.services
