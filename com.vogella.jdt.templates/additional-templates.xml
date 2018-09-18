@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+	<template name="localvariable" description="Local Variable"
+		id="org.eclipse.jdt.ui.templates.localvariable" context="java-statements"
+		enabled="true" autoinsert="false">
+		${variabletype} ${myvar:newName(var)}= new ${variabletype}(${cursor});
+	</template>
+	
+	<template name="string" description="String (empty)"
+		id="org.eclipse.jdt.ui.templates.emptystring" context="java-statements"
+		enabled="true" autoinsert="false">
+		String ${myvar:newName(var)}= "";
+	</template>
+
+	<template name="arrayexample" description="Creates an Array with some example content"
+		id="org.eclipse.jdt.ui.templates.arrayexample" context="java-statements"
+		enabled="true" autoinsert="false">
+		String[] ${myvar:newName(var)} =
+		new String[]{"Windows 7", "MacOS", "Debian", "Ubuntu", "Redhat",
+		"Android", "iPhone", "Suse", "Windows XP", "Windows Mobile", "OS/2", "WebOS"};
+	</template>
+
+</templates>
