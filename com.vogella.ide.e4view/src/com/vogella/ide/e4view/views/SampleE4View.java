@@ -2,7 +2,6 @@ package com.vogella.ide.e4view.views;
 
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -57,9 +56,6 @@ public class SampleE4View extends ViewPart {
 	public static final String ID = "com.vogella.ide.e4view.views.SampleE4View";
 
 	@Inject IWorkbench workbench;
-	@Inject
-	@Named("test")
-	IWorkbench workbench2;
 	
 	private TableViewer viewer;
 	private Action action1;
