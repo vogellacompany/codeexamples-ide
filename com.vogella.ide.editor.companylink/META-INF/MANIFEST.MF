@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Companylink
+Bundle-SymbolicName: com.vogella.ide.editor.companylink;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: VOGELLA
+Automatic-Module-Name: com.vogella.ide.editor.companylink
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.ui.workbench.texteditor,
+ org.eclipse.ui,
+ org.eclipse.jface.text;bundle-version="3.14.0"
