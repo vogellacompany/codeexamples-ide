@@ -1,7 +1,16 @@
 package com.vogella.tasks.ui.parts;
 
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.eclipse.core.databinding.beans.BeanProperties;
+import org.eclipse.core.databinding.observable.list.WritableList;
+import org.eclipse.e4.ui.di.Focus;
+import org.eclipse.jface.databinding.viewers.ViewerSupport;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -9,26 +18,75 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Table;
+
+import com.vogella.tasks.model.ITodoService;
+import com.vogella.tasks.model.Todo;
 
 public class TodoOverviewPart {
 
 	@Inject
-	public void name(Composite parent) {
-		GridLayout gridLayout = new GridLayout(2, false);
-		gridLayout.marginWidth = 5;
-		gridLayout.marginHeight = 5;
-		gridLayout.verticalSpacing = 0;
-		gridLayout.horizontalSpacing = 0;
-		parent.setLayout(gridLayout);
+	ITodoService todoService;
 
-		Button button = new Button(parent, SWT.PUSH);
-		button.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		button.setText("Druecke mich");
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override
+	private Button btnLoadData;
+	private TableViewer viewer;
+
+	private WritableList<Todo> writableList;
+
+	@PostConstruct
+	public void createControls(Composite parent) {
+		parent.setLayout(new GridLayout(1, false));
+
+		btnLoadData = new Button(parent, SWT.PUSH);
+		btnLoadData.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				System.out.println("moin");
-			}
+				// pass in updateViewer method as Consumer
+				todoService.getTodos(TodoOverviewPart.this::updateViewer);
+			};
 		});
+		btnLoadData.setText("Load Data");
+
+		// more code, e.g. your search box
+		// ...
+		// ...
+
+		viewer = new TableViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
+		Table table = viewer.getTable();
+		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+
+		table.setHeaderVisible(true);
+		table.setLinesVisible(true);
+
+		TableViewerColumn column = new TableViewerColumn(viewer, SWT.NONE);
+
+		column.getColumn().setWidth(100);
+		column.getColumn().setText("Summary");
+		column = new TableViewerColumn(viewer, SWT.NONE);
+
+		column.getColumn().setWidth(100);
+		column.getColumn().setText("Description");
+
+		// more code for your table, e.g. filter, etc.
+
+		// use data binding to bind the viewer
+		writableList = new WritableList<>();
+		// fill the writable list, when Consumer callback is called. Databinding
+		// will do the rest once the list is filled
+		todoService.getTodos(writableList::addAll);
+		ViewerSupport.bind(viewer, writableList,
+				BeanProperties.values(new String[] { Todo.FIELD_SUMMARY, Todo.FIELD_DESCRIPTION }));
+
+	}
+
+	public void updateViewer(List<Todo> list) {
+		if (viewer != null) {
+			writableList.clear();
+			writableList.addAll(list);
+		}
+	}
+
+	@Focus
+	private void setFocus() {
+		btnLoadData.setFocus();
 	}
 }
