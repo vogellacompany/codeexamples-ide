@@ -5,6 +5,9 @@ Bundle-SymbolicName: com.vogella.ide.e4view;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: VOGELLA
 Require-Bundle: org.eclipse.core.runtime,
-  org.eclipse.ui
+ org.eclipse.ui,
+ org.eclipse.e4.ui.di;bundle-version="1.2.300",
+ org.eclipse.e4.ui.workbench,
+ org.eclipse.e4.ui.model.workbench
 Automatic-Module-Name: com.vogella.ide.e4view
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

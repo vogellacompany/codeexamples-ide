@@ -8,14 +8,13 @@
             name="Sample Category"
             id="com.vogella.ide.e4view">
       </category>
-      <view
-            id="com.vogella.ide.e4view.views.SampleE4View"
-            name="e4View View"
-            icon="icons/sample.png"
-            class="com.vogella.ide.e4view.views.SampleE4View"
+      <e4view
             category="com.vogella.ide.e4view"
-            inject="true">
-      </view>
+            class="com.vogella.ide.e4view.views.SampleE4View"
+            id="com.vogella.ide.e4view.views.SampleE4View"
+            name="e4View View vogella"
+            restorable="true">
+      </e4view>
    </extension>
    <extension
          point="org.eclipse.ui.perspectiveExtensions">
