@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Langserverdemo
+Bundle-SymbolicName: com.vogella.langserverdemo;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: VOGELLA
+Automatic-Module-Name: com.vogella.langserverdemo
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.lsp4e,
+ org.eclipse.ui,
+ org.eclipse.core.contenttype
