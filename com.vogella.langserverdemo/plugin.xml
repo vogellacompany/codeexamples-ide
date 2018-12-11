@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="dart"
+            id="com.vogella.langserverdemo.contentType"
+            name="Language Server ContentType"
+            priority="normal">
+      </content-type>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editorContentTypeBinding
+            contentTypeId="com.vogella.langserverdemo.contentType"
+            editorId="org.eclipse.ui.genericeditor.GenericEditor">
+      </editorContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.lsp4e.languageServer">
+      <server
+            class="com.vogella.langserverdemo.DartStreamConnectionProvider"
+            id="com.vogella.langserverdemo.server"
+            label="com.vogella.langserverdemo.server">
+      </server>
+      <contentTypeMapping
+            contentType="com.vogella.langserverdemo.contentType"
+            id="com.vogella.langserverdemo.server">
+      </contentTypeMapping>
+   </extension>
+</plugin>
