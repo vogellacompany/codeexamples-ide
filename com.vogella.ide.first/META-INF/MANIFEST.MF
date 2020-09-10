@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: First
+Bundle-SymbolicName: com.vogella.ide.first;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: VOGELLA
+Require-Bundle: javax.inject,
+ org.eclipse.osgi,
+ org.eclipse.jface,
+ org.eclipse.e4.ui.model.workbench,
+ org.eclipse.e4.ui.di,
+ org.eclipse.e4.ui.services,
+ org.eclipse.e4.core.di.annotations
+Bundle-RequiredExecutionEnvironment: JavaSE-14
+Import-Package: com.vogella.tasks.model,
+ javax.annotation;version="1.2.0"
+Automatic-Module-Name: com.vogella.ide.first
