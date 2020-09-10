@@ -1,0 +1,15 @@
+bin/
+target
+*~
+*.rej
+*.bak
+javacore.*
+heapdump.*
+core.*
+Snap.*
+/.settings/
+/.project
+.DS_Store
+.polyglot.META-INF
+.polyglot.ide.product
+.polyglot.feature.xml

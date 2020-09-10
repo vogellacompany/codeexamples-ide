@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?pde version="3.8"?>
 <target name="target-platform">
-	<locations>
+    <locations>
+        <location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+            <repository location="http://download.eclipse.org/releases/latest"/>
+            <unit id="org.eclipse.equinox.sdk.feature.group" version="0.0.0"/>
+            <unit id="org.eclipse.platform.sdk" version="0.0.0"/>
+        </location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="http://download.eclipse.org/releases/latest"/>
-			<unit id="org.eclipse.equinox.sdk.feature.group" version="3.20.200.v20200528-0603"/>
-			<unit id="org.eclipse.sdk.feature.group" version="4.16.0.v20200604-0951"/>
+			<repository location="http://download.eclipse.org/e4/snapshots/org.eclipse.e4.tools/latest/"/>
+			<unit id="org.eclipse.e4.tools.bundle.spy.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.e4.tools.context.spy.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.e4.tools.css.spy.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.e4.tools.event.spy.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.e4.tools.model.spy.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.e4.tools.preference.spy.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.e4.tools.spies.feature.feature.group" version="0.0.0"/>
 		</location>
 	</locations>
 </target>
