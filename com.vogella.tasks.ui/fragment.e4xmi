@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_IVWxcPl3Eeqqw-Y722VVrg">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_IyVoYPl3Eeqqw-Y722VVrg" featurename="descriptors" parentElementId="xpath:/">
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_Re36sPl3Eeqqw-Y722VVrg" elementId="com.vogella.tasks.ui.partdescriptor.overview" label="Overview" category="Task Management" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.TodoOverviewPart"/>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_eed9oPl3Eeqqw-Y722VVrg" elementId="com.vogella.tasks.ui.partdescriptor.details" label="Details" category="Task Management" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.TodoDetailsPart"/>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_hGkoUPl3Eeqqw-Y722VVrg" elementId="com.vogella.tasks.ui.partdescriptor.playground" label="Playground" category="Task Management" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.Playground"/>
+  </fragments>
+</fragment:ModelFragments>
