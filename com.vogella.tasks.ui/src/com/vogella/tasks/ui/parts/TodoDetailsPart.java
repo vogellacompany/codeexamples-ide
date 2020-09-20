@@ -43,9 +43,23 @@ public class TodoDetailsPart {
 		txtSummary = WidgetFactory.text(SWT.BORDER).layoutData(gdFactory.grab(true, false).create())//
 				.create(parent);
 
+		// NEW
+		txtSummary.addModifyListener(e -> { // #<1>
+			if (task.isPresent()) {
+				task.get().setSummary(txtSummary.getText());
+			}
+
+		});
+
 		labelFactory.text("Description").create(parent);
 		txtDescription = WidgetFactory.text(SWT.BORDER | SWT.MULTI | SWT.V_SCROLL)
 				.layoutData(gdFactory.align(SWT.FILL, SWT.FILL).grab(true, true).create()).create(parent);
+
+		txtDescription.addModifyListener(e -> { // #<2>
+			if (task.isPresent()) {
+				task.get().setDescription(txtDescription.getText());
+			}
+		});
 
 		labelFactory.text("Due Date").create(parent);
 

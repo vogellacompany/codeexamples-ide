@@ -4,8 +4,6 @@ Bundle-Name: Ui
 Bundle-SymbolicName: com.vogella.tasks.ui;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: VOGELLA
-Automatic-Module-Name: com.vogella.tasks.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-11
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface,
  org.eclipse.e4.core.di,
@@ -13,6 +11,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.e4.ui.di,
  org.eclipse.e4.core.di.extensions,
  com.vogella.tasks.model;bundle-version="1.0.0",
- org.eclipse.e4.ui.services
+ org.eclipse.e4.ui.services,
+ org.eclipse.e4.ui.model.workbench;bundle-version="2.1.800.v20200828-0938"
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Import-Package: javax.annotation;version="1.2.0",
  javax.inject;version="1.0.0"
+Automatic-Module-Name: com.vogella.tasks.ui
