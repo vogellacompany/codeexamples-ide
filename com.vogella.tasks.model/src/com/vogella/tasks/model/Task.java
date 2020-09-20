@@ -1,8 +1,18 @@
 package com.vogella.tasks.model;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.time.LocalDate;
 
 public class Task {
+
+	private PropertyChangeSupport changes = new PropertyChangeSupport(this);
+
+	public static final String FIELD_ID = "id";
+	public static final String FIELD_SUMMARY = "summary";
+	public static final String FIELD_DESCRIPTION = "description";
+	public static final String FIELD_DONE = "done";
+	public static final String FIELD_DUEDATE = "dueDate";
 
 	private final long id;
 	private String summary = "";
@@ -27,7 +37,7 @@ public class Task {
 	}
 
 	public void setSummary(String summary) {
-		this.summary = summary;
+		changes.firePropertyChange(FIELD_SUMMARY, this.summary, this.summary = summary);
 	}
 
 	public String getDescription() {
@@ -35,15 +45,15 @@ public class Task {
 	}
 
 	public void setDescription(String description) {
-		this.description = description;
+		changes.firePropertyChange(FIELD_DESCRIPTION, this.description, this.description = description);
 	}
-
 	public boolean isDone() {
 		return done;
 	}
 
-	public void setDone(boolean done) {
-		this.done = done;
+
+	public void setDone(boolean isDone) {
+		changes.firePropertyChange(FIELD_DONE, this.done, this.done = isDone);
 	}
 
 	public LocalDate getDueDate() {
@@ -51,7 +61,7 @@ public class Task {
 	}
 
 	public void setDueDate(LocalDate dueDate) {
-		this.dueDate = dueDate;
+		changes.firePropertyChange(FIELD_DUEDATE, this.dueDate, this.dueDate = dueDate);
 	}
 
 	public long getId() {
@@ -65,6 +75,14 @@ public class Task {
 
 	public Task copy() {
 		return new Task(this.id, this.summary, this.description, this.done, this.dueDate);
+	}
+
+	public void addPropertyChangeListener(PropertyChangeListener l) {
+		changes.addPropertyChangeListener(l);
+	}
+
+	public void removePropertyChangeListener(PropertyChangeListener l) {
+		changes.removePropertyChangeListener(l);
 	}
 
 }
