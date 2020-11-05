@@ -3,18 +3,24 @@ package com.vogella.tasks.services.internal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.osgi.service.component.annotations.Component;
+import javax.inject.Inject;
 
+import org.eclipse.e4.core.services.events.IEventBroker;
+
+import com.vogella.tasks.events.TaskEventConstants;
 import com.vogella.tasks.model.Task;
 import com.vogella.tasks.model.TaskService;
 
-@Component
 public class TransientTaskServiceImpl implements TaskService {
+
+	@Inject // <.>
+	private IEventBroker broker;
 
 	private static AtomicInteger current = new AtomicInteger(1);
 	private List<Task> tasks;
@@ -25,6 +31,12 @@ public class TransientTaskServiceImpl implements TaskService {
 
 	@Override
 	public void consume(Consumer<List<Task>> taskConsumer) {
+		// Simulate Server access delay
+//		try {
+//			TimeUnit.SECONDS.sleep(5);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 		// always pass a new copy of the data
 		taskConsumer.accept(tasks.stream().map(Task::copy).collect(Collectors.toList()));
 	}
@@ -38,14 +50,20 @@ public class TransientTaskServiceImpl implements TaskService {
 		Optional<Task> taskOptional = findById(newTask.getId());
 
 		// get the actual object or create a new one
-		Task taks = taskOptional.orElse(new Task(current.getAndIncrement()));
-		taks.setSummary(newTask.getSummary());
-		taks.setDescription(newTask.getDescription());
-		taks.setDone(newTask.isDone());
-		taks.setDueDate(newTask.getDueDate());
+		Task task = taskOptional.orElse(new Task(current.getAndIncrement()));
+		task.setSummary(newTask.getSummary());
+		task.setDescription(newTask.getDescription());
+		task.setDone(newTask.isDone());
+		task.setDueDate(newTask.getDueDate());
 
 		if (!taskOptional.isPresent()) {
-			tasks.add(taks);
+			tasks.add(task);
+			broker.post(TaskEventConstants.TOPIC_TASKS_NEW,
+					Map.of(TaskEventConstants.TOPIC_TASKS_NEW, TaskEventConstants.TOPIC_TASKS_NEW, Task.FIELD_ID,
+							task.getId())); // <.>
+		} else {
+			broker.post(TaskEventConstants.TOPIC_TASKS_UPDATE, Map.of(TaskEventConstants.TOPIC_TASKS,
+					TaskEventConstants.TOPIC_TASKS_UPDATE, Task.FIELD_ID, task.getId())); // <.>
 		}
 		return true;
 	}
@@ -58,7 +76,13 @@ public class TransientTaskServiceImpl implements TaskService {
 	@Override
 	public boolean delete(long id) {
 		Optional<Task> deletedTask = findById(id);
-		deletedTask.ifPresent(t -> tasks.remove(t));
+		deletedTask.ifPresent(t -> {
+			tasks.remove(t);
+			broker.post(TaskEventConstants.TOPIC_TASKS_DELETE, Map.of(TaskEventConstants.TOPIC_TASKS,
+					TaskEventConstants.TOPIC_TASKS_DELETE, Task.FIELD_ID, t.getId())); // <.>
+		});
+
+
 		return deletedTask.isPresent();
 	}
 

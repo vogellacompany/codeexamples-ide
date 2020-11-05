@@ -17,8 +17,12 @@
    <url>${eclipse-repo.url}</url>
    <layout>p2</layout>
   </repository>
+  <repository>
+      <id>justj</id>
+      <url>https://download.eclipse.org/justj/jres/14/updates/release/latest/</url>
+      <layout>p2</layout>
+    </repository>
  </repositories>
-
  <build>
   <plugins>
    <plugin>
@@ -76,8 +80,13 @@
     <module>com.vogella.ide.product</module>
     <module>com.vogella.tasks.model</module>
     <module>com.vogella.tasks.services</module>
+    <module>com.vogella.tasks.ui</module>
     <module>com.vogella.ide.editor.tasks</module>
     <module>com.vogella.contribute.parts</module>
+    <module>com.vogella.swt.widgets</module>
+    <module>com.vogella.tasks.events</module>
+    <module>com.vogella.eclipse.css</module>
+    <module>com.vogella.resources</module>
    <!--TODO ADD YOUR MODULES HERE-->
  </modules>
 </project>

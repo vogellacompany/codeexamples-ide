@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="ASCII"?>
-<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_AG8wAPsAEeqkSvBVXszopA">
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_AG8wAPsAEeqkSvBVXszopA">
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_bWXusPsAEeqkSvBVXszopA" featurename="commands" parentElementId="xpath:/">
-    <elements xsi:type="commands:Command" xmi:id="_dfYCkPsAEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.command.testcommand" commandName="Test Command">
+    <elements xsi:type="commands:Command" xmi:id="_dfYCkPsAEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.command.testcommandj" commandName="BLABLABLA">
       <persistedState key="persistState" value="false"/>
     </elements>
     <elements xsi:type="commands:Command" xmi:id="_sgtIMPsKEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.command.new" commandName="Create task">
       <persistedState key="persistState" value="false"/>
     </elements>
+    <elements xsi:type="commands:Command" xmi:id="_-3Ud4PswEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.command.delete" commandName="Delete">
+      <persistedState key="persistState" value="false"/>
+    </elements>
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_k0YZ4PsDEeqkSvBVXszopA" featurename="handlers" parentElementId="xpath:/">
-    <elements xsi:type="commands:Handler" xmi:id="_nQoZ4PsDEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handler.0" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.handlers.TestHandler" command="_dfYCkPsAEeqkSvBVXszopA">
+    <elements xsi:type="commands:Handler" xmi:id="_nQoZ4PsDEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handler.jjj" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.handlers.TestHandler" command="_dfYCkPsAEeqkSvBVXszopA">
       <persistedState key="persistState" value="false"/>
     </elements>
     <elements xsi:type="commands:Handler" xmi:id="_om6zMPsKEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handler.1" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.handlers.NewTaskHandler" command="_sgtIMPsKEeqkSvBVXszopA">
       <persistedState key="persistState" value="false"/>
     </elements>
+    <elements xsi:type="commands:Handler" xmi:id="__xMsMPswEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handler.2" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.handlers.RemoveTodoHandler" command="_-3Ud4PswEeqkSvBVXszopA">
+      <persistedState key="persistState" value="false"/>
+    </elements>
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_bzE8APsEEeqkSvBVXszopA" featurename="menuContributions" parentElementId="xpath:/">
-    <elements xsi:type="menu:MenuContribution" xmi:id="_eg50MPsEEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.menucontribution.0" parentId="org.eclipse.ui.main.menu">
+    <elements xsi:type="menu:MenuContribution" xmi:id="_eg50MPsEEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.menucontribution.dd" parentId="org.eclipse.ui.main.menu">
       <persistedState key="persistState" value="false"/>
       <children xsi:type="menu:Menu" xmi:id="_pItgYPsEEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.menu.vogella" label="vogella">
-        <children xsi:type="menu:HandledMenuItem" xmi:id="_q5_30PsEEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handledmenuitem.testcommand" label="Test command" command="_dfYCkPsAEeqkSvBVXszopA"/>
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_q5_30PsEEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handledmenuitem.testcommand777" label="Test command" command="_dfYCkPsAEeqkSvBVXszopA"/>
         <children xsi:type="menu:HandledMenuItem" xmi:id="_6ee1MPsLEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handledmenuitem.0" command="_sgtIMPsKEeqkSvBVXszopA"/>
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_X_gsYPzIEeq2IdzpSWmUtQ" elementId="com.vogella.tasks.ui.handledmenuitem.1" command="_-3Ud4PswEeqkSvBVXszopA"/>
+        <children xsi:type="menu:DirectMenuItem" xmi:id="_b4MvwP15EeqXtPi24m31Aw" elementId="com.vogella.tasks.ui.directmenuitem.opencredentials" label="Open Credentials" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.handlers.EnterCredentialsHandler"/>
       </children>
     </elements>
   </fragments>
@@ -29,8 +37,14 @@
     <elements xsi:type="menu:TrimContribution" xmi:id="_oL6rgPsFEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.trimcontribution.0" parentId="org.eclipse.ui.main.toolbar">
       <persistedState key="persistState" value="false"/>
       <children xsi:type="menu:ToolBar" xmi:id="_K1MzsPsGEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.toolbar.0">
-        <children xsi:type="menu:HandledToolItem" xmi:id="_MBNT0PsGEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handledtoolitem." label="" iconURI="platform:/plugin/com.vogella.tasks.ui/icons/pinned_ovr@2x.png" command="_dfYCkPsAEeqkSvBVXszopA"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_MBNT0PsGEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handledtoolitem.5" label="" iconURI="" command="_dfYCkPsAEeqkSvBVXszopA"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_fJZgMPzIEeq2IdzpSWmUtQ" elementId="com.vogella.tasks.ui.handledtoolitem.0" iconURI="platform:/plugin/com.vogella.tasks.ui/icons/pinned_ovr@2x.png" command="_-3Ud4PswEeqkSvBVXszopA"/>
       </children>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_6gHEcP5OEeqbWfUf7NxPCg" featurename="addons" parentElementId="xpath:/">
+    <elements xsi:type="application:Addon" xmi:id="_7gXAgP5OEeqbWfUf7NxPCg" elementId="com.vogella.tasks.ui.addon.0" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.addon.PerspectiveSwitchAddon">
+      <persistedState key="persistState" value="false"/>
     </elements>
   </fragments>
 </fragment:ModelFragments>

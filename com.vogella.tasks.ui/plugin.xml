@@ -5,12 +5,16 @@
          id="com.vogella.tasks.ui.fragment"
          point="org.eclipse.e4.workbench.model">
       <fragment
+            apply="always"
+            uri="commands.e4xmi">
+      </fragment>
+      <fragment
             uri="fragment.e4xmi"
             apply="always">
       </fragment>
       <fragment
             apply="always"
-            uri="commands.e4xmi">
+            uri="testing.e4xmi">
       </fragment>
    </extension>
 
