@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ASCII"?>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_O-IWAPzJEeqdQ7GL3S8LcQ">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_P9sVkPzJEeqdQ7GL3S8LcQ" featurename="commands" parentElementId="xpath:/">
+    <elements xsi:type="commands:Command" xmi:id="_UQoxcPzJEeqdQ7GL3S8LcQ" elementId="com.vogella.tasks.ui.command.copy" commandName="ZZZZZZZZZZZZZZZZZ">
+      <persistedState key="persistState" value="false"/>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_WkFawPzJEeqdQ7GL3S8LcQ" featurename="handlers" parentElementId="xpath:/">
+    <elements xsi:type="commands:Handler" xmi:id="_dGZRMPzJEeqdQ7GL3S8LcQ" elementId="com.vogella.tasks.ui.handler.asdfdsff" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.handlers.VogellaCopyHandler" command="_UQoxcPzJEeqdQ7GL3S8LcQ">
+      <persistedState key="persistState" value="false"/>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_uh2bcPzJEeqdQ7GL3S8LcQ" featurename="menuContributions" parentElementId="xpath:/">
+    <elements xsi:type="menu:MenuContribution" xmi:id="_xnevoPzJEeqdQ7GL3S8LcQ" elementId="com.vogella.tasks.ui.menucontribution.0" parentId="org.eclipse.ui.main.menu">
+      <persistedState key="persistState" value="false"/>
+      <children xsi:type="menu:Menu" xmi:id="_1hixcPzJEeqdQ7GL3S8LcQ" elementId="com.vogella.tasks.ui.menu.sap" label="SAP">
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_2iClIPzJEeqdQ7GL3S8LcQ" elementId="com.vogella.tasks.ui.handledmenuitem.sapcopy" label="Testingcopy" command="_UQoxcPzJEeqdQ7GL3S8LcQ"/>
+      </children>
+    </elements>
+  </fragments>
+</fragment:ModelFragments>

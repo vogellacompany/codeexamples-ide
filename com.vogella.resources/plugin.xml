@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+<extension
+      point="org.eclipse.ui.newWizards">
+   <wizard
+         canFinishEarly="true"
+         category="com.vogella.resources.todo"
+         class="com.vogella.resources.NewTodoProjectWizard"
+         icon="icons/vogella16.jpg"
+         id="com.vogella.resources.wizard.todoproject"
+         name="Todo Project"
+         project="true">
+   </wizard>
+   <category
+         id="com.vogella.resources.todo"
+         name="Vogella">
+   </category>
+</extension>
+
+<extension
+      id="id1"
+      point="org.eclipse.e4.workbench.model">
+   <fragment
+         apply="always"
+         uri="commands.e4xmi">
+   </fragment>
+</extension>
+
+</plugin>

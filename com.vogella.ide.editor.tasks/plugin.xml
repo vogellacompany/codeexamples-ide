@@ -36,6 +36,12 @@
             id="com.vogella.ide.editor.tasks.settings"
             label="Tasks settings">
       </themeElementCategory>
+      <colorDefinition
+            categoryId="com.vogella.ide.editor.tasks.settings"
+            id="com.vogella.ide.editor.tasks.key2"
+            label="Task Description Color"
+            value="0,255,0">
+      </colorDefinition>
    </extension>
    <extension
       point="org.eclipse.ui.genericeditor.contentAssistProcessors">
@@ -89,6 +95,22 @@
 				</adapt>
           </with></enabledWhen>
     </codeMiningProvider>
+ </extension>
+ <extension
+       point="org.eclipse.core.contenttype.contentTypes">
+    <content-type
+          file-extensions="lars"
+          id="com.vogella.ide.editor.tasks.content-type1"
+          name="Lars"
+          priority="normal">
+    </content-type>
+ </extension>
+ <extension
+       point="org.eclipse.ui.editors">
+    <editorContentTypeBinding
+          contentTypeId="com.vogella.ide.editor.tasks.content-type1"
+          editorId="org.eclipse.ui.genericeditor.GenericEditor">
+    </editorContentTypeBinding>
  </extension>
 
 </plugin>

@@ -9,12 +9,15 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
+import org.eclipse.e4.ui.di.Persist;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -28,9 +31,10 @@ import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Text;
 
 import com.vogella.tasks.model.Task;
-
+import com.vogella.tasks.model.TaskService;
 
 public class TodoDetailsPart {
+
 	private Text txtSummary;
 	private Text txtDescription;
 	private DateTime dateTime;
@@ -40,13 +44,18 @@ public class TodoDetailsPart {
 	private java.util.Optional<Task> task = java.util.Optional.ofNullable(null);
 
 	// observable placeholder for a task
-	private WritableValue<Task> observableTodo = new WritableValue<>(); // <.>
-	private DataBindingContext dbc; // <.>
+	private WritableValue<Task> observableTodo = new WritableValue<>();
+	private DataBindingContext dbc;
+	@Inject
+	private MPart part; // <.>
+
+	// pause dirty listener when new Todo selection is set
+	private boolean pauseDirtyListener;
 
 	@PostConstruct
 	public void createControls(Composite parent) {
 		parent.setLayout(new GridLayout(2, false));
-		
+
 		GridDataFactory gdFactory = GridDataFactory.fillDefaults();
 		LabelFactory labelFactory = LabelFactory.newLabel(SWT.NONE);
 
@@ -55,11 +64,9 @@ public class TodoDetailsPart {
 		txtSummary = WidgetFactory.text(SWT.BORDER).layoutData(gdFactory.grab(true, false).create())//
 				.create(parent);
 
-
 		labelFactory.text("Description").create(parent);
 		txtDescription = WidgetFactory.text(SWT.BORDER | SWT.MULTI | SWT.V_SCROLL)
 				.layoutData(gdFactory.align(SWT.FILL, SWT.FILL).grab(true, true).create()).create(parent);
-
 
 		labelFactory.text("Due Date").create(parent);
 
@@ -72,7 +79,7 @@ public class TodoDetailsPart {
 		labelFactory.text("").create(parent);
 
 		btnDone = WidgetFactory.button(SWT.CHECK).text("Done").create(parent);
-		
+
 		bindData(); // <.>
 		updateUserInterface(task);
 	}
@@ -89,9 +96,18 @@ public class TodoDetailsPart {
 			fields.put(Task.FIELD_DUEDATE, WidgetProperties.localDateSelection().observe(dateTime));
 			fields.put(Task.FIELD_DONE, WidgetProperties.buttonSelection().observe(btnDone));
 			fields.forEach((k, v) -> dbc.bindValue(v, BeanProperties.value(k).observeDetail(observableTodo)));
+
+			// set a dirty state if one of the bindings is changed
+			dbc.getBindings().forEach(item -> {
+				Binding binding = item;
+				binding.getTarget().addChangeListener(e -> {
+					if (!pauseDirtyListener && part != null) { //
+						part.setDirty(true);
+					}
+				});
+			});
 		}
 	}
-
 
 	// Add the following new methods to your code
 
@@ -122,12 +138,22 @@ public class TodoDetailsPart {
 			enableUserInterface(false);
 			return; // nothing left to do
 		}
-		
+
 		enableUserInterface(true);
 		// the following check ensures that the user interface is available,
 		// it assumes that you have a text widget called "txtSummary"
 		if (txtSummary != null && !txtSummary.isDisposed()) {
+			pauseDirtyListener = true; //
 			this.observableTodo.setValue(task.get());
+			pauseDirtyListener = false; //
+		}
+	}
+
+	@Persist // <.>
+	public void save(TaskService todoService) {
+		task.ifPresent(todoService::update);
+		if (part != null) {
+			part.setDirty(false);
 		}
 	}
 

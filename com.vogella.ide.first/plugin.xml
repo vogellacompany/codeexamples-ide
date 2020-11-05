@@ -16,10 +16,6 @@
       <product
             application="org.eclipse.ui.ide.workbench"
             name="Custom IDE">
-         <property
-               name="appName"
-               value="Custom IDE">
-         </property>
       </product>
    </extension>
    <extension
