@@ -116,7 +116,7 @@ public class NattableExample {
 		natTable.setConfigRegistry(configRegistry);
 		natTable.addConfiguration(new DefaultNatTableStyleConfiguration());
 		natTable.addConfiguration(new SingleClickSortConfiguration());
-		natTable.addConfiguration(new EditConfiguration());
+		natTable.addConfiguration(new TaskEditConfiguration());
 		natTable.configure();
 
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(natTable);
