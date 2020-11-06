@@ -88,7 +88,8 @@ public class TransientTaskServiceImpl implements TaskService {
 
 	// Example data, change if you like
 	private List<Task> createTestData() {
-		List<Task> list = List.of(create("Application model", "Flexible and extensible"),
+		List<Task> list = List.of(
+				create("Application model", "Dynamics"), create("Application model", "Flexible and extensible"),
 				create("DI", "@Inject as programming mode"), create("OSGi", "Services"),
 				create("SWT", "Widgets"), create("JFace", "Especially Viewers!"),
 				create("CSS Styling", "Style your application"),
@@ -98,7 +99,8 @@ public class TransientTaskServiceImpl implements TaskService {
 	}
 
 	private Task create(String summary, String description) {
-		return new Task(current.getAndIncrement(), summary, description, false, LocalDate.now());
+		return new Task(current.getAndIncrement(), summary, description, false,
+				LocalDate.now().plusDays(current.longValue()));
 	}
 
 	private Optional<Task> findById(long id) {
