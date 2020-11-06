@@ -12,7 +12,6 @@ import org.eclipse.nebula.widgets.nattable.config.ConfigRegistry;
 import org.eclipse.nebula.widgets.nattable.config.DefaultNatTableStyleConfiguration;
 import org.eclipse.nebula.widgets.nattable.data.IColumnPropertyAccessor;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
-import org.eclipse.nebula.widgets.nattable.data.ListDataProvider;
 import org.eclipse.nebula.widgets.nattable.extension.glazedlists.GlazedListsEventLayer;
 import org.eclipse.nebula.widgets.nattable.extension.glazedlists.GlazedListsSortModel;
 import org.eclipse.nebula.widgets.nattable.extension.glazedlists.groupBy.GroupByDataLayer;
@@ -58,16 +57,9 @@ public class NattableExampleGroupBy {
 		parent.setLayout(new GridLayout());
 
 		ConfigRegistry configRegistry = new ConfigRegistry();
-
-		EventList<Task> tasks = GlazedLists.eventList(taskService.getAll());
-		SortedList<Task> sortedList = new SortedList<>(tasks, null);
-
 		IColumnPropertyAccessor<Task> accessor = new TaskColumnPropertyAccessor();
-		IDataProvider bodyDataProvider = new ListDataProvider<Task>(sortedList,
-				accessor);
 
-
-
+		// create the body stack
 		bodyLayerStack = new BodyLayerStack<>(taskService.getAll(), accessor);
 
 
@@ -85,7 +77,7 @@ public class NattableExampleGroupBy {
 						columnHeaderDataLayer));
 		
 		// create the row header layer stack
-		IDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(bodyDataProvider);
+		IDataProvider rowHeaderDataProvider = new DefaultRowHeaderDataProvider(bodyLayerStack.getBodyDataProvider());
 		DataLayer rowHeaderDataLayer = new DataLayer(rowHeaderDataProvider, 40, 20);
 		ILayer rowHeaderLayer = new RowHeaderLayer(rowHeaderDataLayer, bodyLayerStack,
 				bodyLayerStack.getSelectionLayer());
