@@ -4,7 +4,7 @@
     <elements xsi:type="basic:PartDescriptor" xmi:id="_OCqIoB9tEeu1VPliFbK_ZA" elementId="com.vogella.nattable.partdescriptor.tasksoverview-advanced" label="Tasks overview - Advanced" category="vogella" closeable="true" contributionURI="bundleclass://com.vogella.nattable/com.vogella.nattable.parts.NattableExample">
       <persistedState key="persistState" value="false"/>
     </elements>
-    <elements xsi:type="basic:PartDescriptor" xmi:id="_Cq6kwB-jEeu1VPliFbK_ZA" elementId="com.vogella.nattable.partdescriptor.tasksoverview-advanced" label="Tasks overview - With Groups" category="vogella" closeable="true" contributionURI="bundleclass://com.vogella.nattable/com.vogella.nattable.parts.NattableExampleGroupBy">
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_Cq6kwB-jEeu1VPliFbK_ZA" elementId="com.vogella.nattable.partdescriptor.tasksoverview-groupby" label="Tasks overview - With Groups" category="vogella" closeable="true" contributionURI="bundleclass://com.vogella.nattable/com.vogella.nattable.parts.NattableExampleGroupBy">
       <persistedState key="persistState" value="false"/>
     </elements>
   </fragments>

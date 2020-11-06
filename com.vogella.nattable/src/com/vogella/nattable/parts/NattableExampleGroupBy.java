@@ -5,13 +5,17 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
+import org.eclipse.e4.ui.workbench.modeling.ESelectionService;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.nebula.widgets.nattable.NatTable;
 import org.eclipse.nebula.widgets.nattable.config.ConfigRegistry;
 import org.eclipse.nebula.widgets.nattable.config.DefaultNatTableStyleConfiguration;
 import org.eclipse.nebula.widgets.nattable.data.IColumnPropertyAccessor;
 import org.eclipse.nebula.widgets.nattable.data.IDataProvider;
+import org.eclipse.nebula.widgets.nattable.data.IRowDataProvider;
+import org.eclipse.nebula.widgets.nattable.extension.e4.selection.E4SelectionListener;
 import org.eclipse.nebula.widgets.nattable.extension.glazedlists.GlazedListsEventLayer;
 import org.eclipse.nebula.widgets.nattable.extension.glazedlists.GlazedListsSortModel;
 import org.eclipse.nebula.widgets.nattable.extension.glazedlists.groupBy.GroupByDataLayer;
@@ -28,6 +32,7 @@ import org.eclipse.nebula.widgets.nattable.layer.AbstractLayerTransform;
 import org.eclipse.nebula.widgets.nattable.layer.CompositeLayer;
 import org.eclipse.nebula.widgets.nattable.layer.DataLayer;
 import org.eclipse.nebula.widgets.nattable.layer.ILayer;
+import org.eclipse.nebula.widgets.nattable.layer.cell.ColumnLabelAccumulator;
 import org.eclipse.nebula.widgets.nattable.selection.SelectionLayer;
 import org.eclipse.nebula.widgets.nattable.sort.SortHeaderLayer;
 import org.eclipse.nebula.widgets.nattable.sort.config.SingleClickSortConfiguration;
@@ -45,6 +50,9 @@ import ca.odell.glazedlists.SortedList;
 import ca.odell.glazedlists.TransformedList;
 
 public class NattableExampleGroupBy {
+
+	@Inject
+	ESelectionService selectionService;
 	
 	private BodyLayerStack<Task> bodyLayerStack;
 
@@ -61,6 +69,7 @@ public class NattableExampleGroupBy {
 
 		// create the body stack
 		bodyLayerStack = new BodyLayerStack<>(taskService.getAll(), accessor);
+
 
 
 		// create the column header layer stack
@@ -104,7 +113,7 @@ public class NattableExampleGroupBy {
 		natTable.setConfigRegistry(configRegistry);
 		natTable.addConfiguration(new DefaultNatTableStyleConfiguration());
 		natTable.addConfiguration(new SingleClickSortConfiguration());
-		natTable.addConfiguration(new EditConfiguration());
+		natTable.addConfiguration(new TaskEditConfiguration());
 		natTable.configure();
 
 		GridDataFactory.fillDefaults().grab(true, true).applyTo(natTable);
@@ -115,7 +124,11 @@ public class NattableExampleGroupBy {
 		bodyDataLayer.setColumnPercentageSizing(true);
 
 		// Use percentage values for the first three columns column
-		bodyDataLayer.setColumnWidthPercentageByPosition(0, 5);
+		bodyDataLayer.setColumnPercentageSizing(0, false);
+
+		bodyDataLayer.setColumnWidthByPosition(0, 500);
+
+//		bodyDataLayer.setColumnWidthPercentageByPosition(0, 5);
 		bodyDataLayer.setColumnWidthPercentageByPosition(1, 30);
 		bodyDataLayer.setColumnWidthPercentageByPosition(2, 40);
 
@@ -162,17 +175,28 @@ public class NattableExampleGroupBy {
 			// Use the GroupByDataLayer instead of the default DataLayer
 			bodyDataLayer = new GroupByDataLayer<>(getGroupByModel(), this.sortedList, columnPropertyAccessor);
 
-//			ColumnOverrideLabelAccumulator columnLabelAccumulator = new ColumnOverrideLabelAccumulator(bodyDataLayer);
-//			bodyDataLayer.setConfigLabelAccumulator(columnLabelAccumulator);
-//			registerColumnLabels(columnLabelAccumulator);
+			setColumnWidth(bodyDataLayer);
 
 			// get the IDataProvider that was created by the GroupByDataLayer
 			this.bodyDataProvider = bodyDataLayer.getDataProvider();
+
+			// Apply a ColumnLabelAccumulator to address the columns in the
+			// EditConfiguration class
+			// first colum starts at 0, etc
+			ColumnLabelAccumulator columnLabelAccumulator = new ColumnLabelAccumulator(bodyDataProvider);
+			bodyDataLayer.setConfigLabelAccumulator(columnLabelAccumulator);
+
 			// layer for event handling of GlazedLists and PropertyChanges
 			GlazedListsEventLayer<T> glazedListsEventLayer = new GlazedListsEventLayer<>(bodyDataLayer,
 					this.sortedList);
 
 			this.selectionLayer = new SelectionLayer(glazedListsEventLayer);
+			E4SelectionListener<Task> e4SelectionListener = new E4SelectionListener<Task>(selectionService,
+					selectionLayer, (IRowDataProvider<Task>) bodyDataLayer.getDataProvider());
+
+			e4SelectionListener.setFullySelectedRowsOnly(false);
+			e4SelectionListener.setHandleSameRowSelection(false);
+			selectionLayer.addLayerListener(e4SelectionListener);
 
 			// add a tree layer to visualise the grouping
 			treeLayer = new TreeLayer(this.selectionLayer, bodyDataLayer.getTreeRowModel());

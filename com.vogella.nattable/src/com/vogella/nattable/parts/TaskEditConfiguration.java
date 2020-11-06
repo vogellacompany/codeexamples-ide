@@ -13,7 +13,7 @@ import org.eclipse.nebula.widgets.nattable.layer.cell.ColumnLabelAccumulator;
 import org.eclipse.nebula.widgets.nattable.painter.cell.CheckBoxPainter;
 import org.eclipse.nebula.widgets.nattable.style.DisplayMode;
 
-public class EditConfiguration extends AbstractRegistryConfiguration {
+public class TaskEditConfiguration extends AbstractRegistryConfiguration {
 
 	@Override
 	public void configureRegistry(IConfigRegistry configRegistry) {
@@ -23,9 +23,10 @@ public class EditConfiguration extends AbstractRegistryConfiguration {
 	}
 
 	private void registerEditors(IConfigRegistry configRegistry) {
+		registerTextEditor(configRegistry, 0);
 		registerTextEditor(configRegistry, 1);
 		registerTextEditor(configRegistry, 2);
-		registerMarriedEditor(configRegistry, 3);
+		registerBooleanEditor(configRegistry, 3);
 		registerDateEditor(configRegistry, 4);
 	}
 
@@ -54,7 +55,7 @@ public class EditConfiguration extends AbstractRegistryConfiguration {
 //				DisplayMode.NORMAL, ColumnLabelAccumulator.COLUMN_LABEL_PREFIX + columnIndex);
 //	}
 
-	private void registerMarriedEditor(IConfigRegistry configRegistry, int columnIndex) {
+	private void registerBooleanEditor(IConfigRegistry configRegistry, int columnIndex) {
 		// The CheckBoxCellEditor can also be visualized like a check button
 		configRegistry.registerConfigAttribute(CellConfigAttributes.CELL_PAINTER, new CheckBoxPainter(),
 				DisplayMode.NORMAL, ColumnLabelAccumulator.COLUMN_LABEL_PREFIX + columnIndex);
