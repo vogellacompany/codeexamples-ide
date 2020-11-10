@@ -16,7 +16,7 @@
     <elements xsi:type="basic:PartDescriptor" xmi:id="_hGkoUPl3Eeqqw-Y722VVrg" elementId="com.vogella.tasks.ui.partdescriptor.playground" label="Playground" category="Task Management" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.PlaygroundPart">
       <tags>View</tags>
     </elements>
-    <elements xsi:type="basic:PartDescriptor" xmi:id="_F0_s4Pw9Eeqln8kdy7q2pg" elementId="com.vogella.tasks.ui.partdescriptor.combo" label="Combo" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.AutoCompleteFieldPart"/>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_F0_s4Pw9Eeqln8kdy7q2pg" elementId="com.vogella.tasks.ui.partdescriptor.combo" label="Autocompletion Part" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.AutoCompleteFieldPart"/>
     <elements xsi:type="basic:PartDescriptor" xmi:id="_WPZogP2rEeqgPJ3IUrdemw" elementId="com.vogella.tasks.ui.partdescriptor.editor" label="Task editor" category="Task Management" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.TaskEditorPart">
       <tags>Editor</tags>
       <tags>removeOnHide</tags>

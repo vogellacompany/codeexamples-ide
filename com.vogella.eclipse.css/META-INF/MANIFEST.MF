@@ -6,4 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: VOGELLA
 Automatic-Module-Name: com.vogella.eclipse.css
 Bundle-RequiredExecutionEnvironment: JavaSE-14
-Require-Bundle: org.eclipse.e4.ui.css.swt.theme;bundle-version="0.12.700"
+Require-Bundle: org.eclipse.e4.ui.css.swt.theme;bundle-version="0.12.700",
+ org.eclipse.e4.ui.css.core;bundle-version="0.12.1300",
+ org.eclipse.e4.ui.css.swt;bundle-version="0.13.1100",
+ org.eclipse.swt;bundle-version="3.115.0",
+ com.vogella.swt.widgets;bundle-version="1.0.0"

@@ -10,22 +10,19 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.list.WritableList;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.UIEventTopic;
 import org.eclipse.e4.ui.services.EMenuService;
 import org.eclipse.e4.ui.workbench.modeling.ESelectionService;
-import org.eclipse.jface.databinding.viewers.ViewerSupport;
 import org.eclipse.jface.layout.GridDataFactory;
-import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Table;
 
 import com.vogella.tasks.events.TaskEventConstants;
 import com.vogella.tasks.model.Task;
@@ -48,40 +45,32 @@ public class TodoOverviewPart {
 		button(SWT.PUSH).text("Load Data").onSelect(e -> update()).create(parent);
 		label(SWT.NONE).text("Number of tasks: ")
         .layoutData(GridDataFactory.fillDefaults().grab(true, false).create()).create(parent);
-		
-		
-		viewer = new TableViewer(parent, SWT.MULTI | SWT.FULL_SELECTION);
-		Table table = viewer.getTable();
-		table.setHeaderVisible(true);
-		table.setLinesVisible(true);
-		table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		// create column for the summary property
-		TableViewerColumn colSummary = new TableViewerColumn(viewer, SWT.NONE);
-		colSummary.getColumn().setWidth(100);
-		colSummary.getColumn().setText("Summary");
+//		Combo combo = new Combo(parent, SWT.READ_ONLY);
+//		List<Task> tasks = taskService.getAll();
+//		int i = 0;
+//		for (Task task : tasks) {
+//			combo.setItem(i++, task.getSummary());
+//		}
 
-		// create column for description property
-		TableViewerColumn colDescription = new TableViewerColumn(viewer, SWT.NONE);
+		TableViewer viewer = new TableViewer(parent, SWT.READ_ONLY);
+		viewer.getTable().setHeaderVisible(true);
 
-		colDescription.getColumn().setWidth(200);
-		colDescription.getColumn().setText("Description");
 
-		// after the viewer is instantiated
-		viewer.addSelectionChangedListener(event -> {
-			IStructuredSelection selection = viewer.getStructuredSelection();
-			service.setSelection(selection.toList());
+		TableViewerColumn c = new TableViewerColumn(viewer, SWT.NONE);
+		c.getColumn().setText("Summary");
+		c.getColumn().setWidth(200);
+
+		c.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				Task t = (Task) element;
+				return t.getSummary() + " " + t.getId();
+			};
 		});
 
-		menuService.registerContextMenu(viewer.getControl(), "com.vogella.tasks.ui.popupmenu.table");
-
-		// use data binding to bind the viewer
-		writableList = new WritableList<>();
-		// fill the writable list, when Consumer callback is called. Databinding
-		// will do the rest once the list is filled
-		taskService.consume(writableList::addAll);
-		ViewerSupport.bind(viewer, writableList, BeanProperties.values(Task.FIELD_SUMMARY, Task.FIELD_DESCRIPTION));
-
+		viewer.setContentProvider(ArrayContentProvider.getInstance());
+		viewer.setInput(taskService.getAll());
 	}
 
 	public void updateViewer(List<Task> list) {

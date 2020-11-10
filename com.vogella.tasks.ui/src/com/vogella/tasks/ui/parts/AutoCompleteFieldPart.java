@@ -6,22 +6,36 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.eclipse.jface.fieldassist.AutoCompleteField;
 import org.eclipse.jface.fieldassist.ComboContentAdapter;
+import org.eclipse.jface.fieldassist.ContentProposalAdapter;
+import org.eclipse.jface.fieldassist.TextContentAdapter;
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.jface.widgets.WidgetFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Text;
+
+import com.vogella.tasks.model.TaskService;
+import com.vogella.tasks.ui.parts.contentassists.TaskContentProposal;
+import com.vogella.tasks.ui.parts.contentassists.TaskContentProposalProvider;
 
 public class AutoCompleteFieldPart {
 	
 	private Path lastDir;
+
+	@Inject
+	TaskService taskService;
 
 	@PostConstruct
 	public void createControls(Composite parent) {
@@ -40,9 +54,29 @@ public class AutoCompleteFieldPart {
 				List<String> directories = filterPaths(paths);
 				autoCompleteField.setProposals(directories.toArray(new String[directories.size()]));
 			} catch (IOException ex) {
-				// ignore
+				// ignoreO
 			}
 		});
+		Text text = WidgetFactory.text(SWT.BORDER)
+				.layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
+				.create(parent);
+		TaskContentProposalProvider taskContentProposalProvider = new TaskContentProposalProvider(new ArrayList<>());
+		ContentProposalAdapter contentProposal = new ContentProposalAdapter(text,
+				new TextContentAdapter(), taskContentProposalProvider, null, null);
+
+		contentProposal.addContentProposalListener(proposal -> {
+			TaskContentProposal p = (TaskContentProposal) proposal;
+			System.out.println(p.getTask().getSummary());
+		});
+		contentProposal.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
+
+		WidgetFactory.button(SWT.PUSH).onSelect(e -> {
+			taskContentProposalProvider.setProposals(taskService.getAll());
+			contentProposal.refresh();
+
+			// This will work as of the 2020-12 release
+//			contentProposal.openProposalPopup();
+		}).text("Press to add the content proposals from service").create(parent);
 	}
 
 	private Path getPathWithoutFileName(String inputPath) {

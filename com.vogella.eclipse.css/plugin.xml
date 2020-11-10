@@ -14,5 +14,18 @@
             label="Rainbow">
       </theme>
    </extension>
+   <extension
+         point="org.eclipse.e4.ui.css.core.propertyHandler">
+      <handler
+            adapter="org.eclipse.e4.ui.css.swt.dom.CompositeElement"
+            handler="com.vogella.eclipse.css.CheckboxPropertyHandler">
+         <property-name
+               name="check-color">
+         </property-name>
+         <property-name
+               name="center-color">
+         </property-name>
+      </handler>
+   </extension>
 
 </plugin>

@@ -1,7 +1,6 @@
 package com.vogella.tasks.ui.parts;
 
 import static org.eclipse.jface.layout.GridDataFactory.fillDefaults;
-import static org.eclipse.jface.widgets.WidgetFactory.button;
 import static org.eclipse.jface.widgets.WidgetFactory.text;
 
 import java.io.UnsupportedEncodingException;
@@ -17,19 +16,28 @@ import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.fieldassist.SimpleContentProposalProvider;
 import org.eclipse.jface.fieldassist.TextContentAdapter;
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.widgets.WidgetFactory;
+import org.eclipse.nebula.widgets.chips.Chips;
+import org.eclipse.nebula.widgets.floatingtext.FloatingText;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Text;
+
+import com.vogella.swt.widgets.Checkbox;
 
 public class PlaygroundPart {
 	private Text text;
 	private Browser browser;
 	private ControlDecoration deco;
 
+//
 //	@Inject
 //	public void name(@DirectTask Task task) {
 //		System.out.println(task);
@@ -37,8 +45,6 @@ public class PlaygroundPart {
 	@PostConstruct
 	public void createControls(Composite parent) {
 		parent.setLayout(new GridLayout(2, false));
-
-
 
 		text = text(SWT.BORDER).message("Enter City").onModify(e -> toggleDeco(deco, e))
 				.layoutData(fillDefaults().grab(true, false).indent(8, 0).create()).create(parent);
@@ -63,9 +69,19 @@ public class PlaygroundPart {
 			e1.printStackTrace();
 		}
 		
+		Checkbox box = new Checkbox(parent, SWT.NONE);
+		box.setSelection(true);
 
+		WidgetFactory.button(SWT.PUSH).text("Search").onSelect(e -> updateBrowser()).create(parent);
 
-		button(SWT.PUSH).text("Search").onSelect(e -> updateBrowser()).create(parent);
+		Chips chip1 = new Chips(parent, SWT.CLOSE);
+		chip1.setText("Example");
+		chip1.setChipsBackground(Display.getDefault().getSystemColor(SWT.COLOR_RED));
+		chip1.setLayoutData(GridDataFactory.swtDefaults().grab(false, false).span(1, 1).create());
+
+		FloatingText txt1 = new FloatingText(parent, SWT.BORDER);
+		txt1.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+		txt1.getText().setMessage("Enter something");
 
 		browser = new Browser(parent, SWT.NONE);
 		browser.setLayoutData(fillDefaults().grab(true, true).span(2, 1).create());

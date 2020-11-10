@@ -29,7 +29,9 @@
         <children xsi:type="menu:HandledMenuItem" xmi:id="_q5_30PsEEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handledmenuitem.testcommand777" label="Test command" command="_dfYCkPsAEeqkSvBVXszopA"/>
         <children xsi:type="menu:HandledMenuItem" xmi:id="_6ee1MPsLEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handledmenuitem.0" command="_sgtIMPsKEeqkSvBVXszopA"/>
         <children xsi:type="menu:HandledMenuItem" xmi:id="_X_gsYPzIEeq2IdzpSWmUtQ" elementId="com.vogella.tasks.ui.handledmenuitem.1" command="_-3Ud4PswEeqkSvBVXszopA"/>
-        <children xsi:type="menu:DirectMenuItem" xmi:id="_b4MvwP15EeqXtPi24m31Aw" elementId="com.vogella.tasks.ui.directmenuitem.opencredentials" label="Open Credentials" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.handlers.EnterCredentialsHandler"/>
+        <children xsi:type="menu:Menu" xmi:id="_uhkHACNqEeuY7YKff0pD3Q" elementId="com.vogella.tasks.ui.menu.0">
+          <children xsi:type="menu:DirectMenuItem" xmi:id="_b4MvwP15EeqXtPi24m31Aw" elementId="com.vogella.tasks.ui.directmenuitem.opencredentials" label="Open Credentials" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.handlers.EnterCredentialsHandler"/>
+        </children>
       </children>
     </elements>
   </fragments>

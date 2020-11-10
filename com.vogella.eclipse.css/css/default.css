@@ -27,3 +27,10 @@ SashForm {
 Shell {
     background-color: #e3efff #c1d5ef 60%;
 }
+
+Checkbox {
+    check-color: yellow;
+    center-color: gray;
+    color: yellow;
+    background-color: black;
+}
