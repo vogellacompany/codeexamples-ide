@@ -11,6 +11,16 @@
       </vmArgsMac>
    </launcherArgs>
 
+
+   <launcher>
+      <win useIco="false">
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+   </vm>
+
    <plugins>
    </plugins>
 
