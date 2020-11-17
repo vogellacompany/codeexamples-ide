@@ -13,6 +13,7 @@ public class PropertyNameRule implements IRule {
 		this.token = token;
 	}
 
+
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
 		int c = scanner.read();

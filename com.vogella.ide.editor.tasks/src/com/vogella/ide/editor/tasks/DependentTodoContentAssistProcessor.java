@@ -34,7 +34,7 @@ public class DependentTodoContentAssistProcessor implements IContentAssistProces
 
 				String lineProperty = document.get(lineOffset, offset - lineOffset);
 				// Content assist should only be used in the dependent line
-				if (lineProperty.contains("Dependent:")) {
+				if (lineProperty.startsWith("Dependent:")) {
 					IResource[] members = parent.members();
 					
 					// Only take resources, which have the "tasks" file extension and skip the current resource itself

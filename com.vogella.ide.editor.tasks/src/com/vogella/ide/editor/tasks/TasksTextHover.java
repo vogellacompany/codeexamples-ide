@@ -11,6 +11,7 @@ public class TasksTextHover implements ITextHover {
 
 	@Override
 	public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
+
 		int offset= hoverRegion.getOffset();
 		IDocument document = textViewer.getDocument();
 		try {
