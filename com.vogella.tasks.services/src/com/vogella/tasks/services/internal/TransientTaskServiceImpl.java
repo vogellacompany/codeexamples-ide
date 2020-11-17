@@ -20,7 +20,7 @@ import com.vogella.tasks.model.TaskService;
 public class TransientTaskServiceImpl implements TaskService {
 
 	@Inject // <.>
-	private IEventBroker broker;
+	public IEventBroker broker;
 
 	private static AtomicInteger current = new AtomicInteger(1);
 	private List<Task> tasks;
