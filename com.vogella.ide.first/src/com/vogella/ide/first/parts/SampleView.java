@@ -10,6 +10,7 @@ import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
@@ -20,10 +21,12 @@ public class SampleView {
 
 	@PostConstruct
 	public void createPartControl(Composite parent, TaskService service) {
-		myLabelInView = new Label(parent, SWT.BORDER);
+		var label = new Label(parent, SWT.BORDER);
 		myLabelInView.setText("You have " + service.getAll().size() + " tasks");
+		var string = "Hallo";
+		Button b;
 	}
-	
+
 	@Focus
 	public void setFocus() {
 		myLabelInView.setFocus();
@@ -35,7 +38,7 @@ public class SampleView {
 	 * mix E3 and E4 code. <br/>
 	 * With E4 code you will set directly the selection in ESelectionService and
 	 * you do not receive a ISelection
-	 * 
+	 *
 	 * @param s
 	 *            the selection received from JFace (E3 mode)
 	 */
@@ -46,7 +49,7 @@ public class SampleView {
 			return;
 
 		if (s instanceof IStructuredSelection) {
-			IStructuredSelection iss = (IStructuredSelection) s;
+			var iss = (IStructuredSelection) s;
 			if (iss.size() == 1)
 				setSelection(iss.getFirstElement());
 			else
@@ -60,7 +63,7 @@ public class SampleView {
 	 * mode). <br/>
 	 * You should change the parameter type of your received Object to manage
 	 * your specific selection
-	 * 
+	 *
 	 * @param o
 	 *            : the current object received
 	 */
@@ -81,7 +84,7 @@ public class SampleView {
 	 * This method manages the multiple selection of your current objects. <br/>
 	 * You should change the parameter type of your array of Objects to manage
 	 * your specific selection
-	 * 
+	 *
 	 * @param o
 	 *            : the current array of objects received in case of multiple selection
 	 */
