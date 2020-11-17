@@ -95,6 +95,8 @@
     <module>com.vogella.resources</module>
     <module>com.vogella.adapters</module>
     <module>com.vogella.tasks.extendedsupplier</module>
+    <module>com.vogella.nattable</module>
+    <module>com.vogella.preferences.page</module>
      <module>com.vogella.ide.editor.gradle</module>
     <module>target-platform</module>
    <!--TODO ADD YOUR MODULES HERE-->
