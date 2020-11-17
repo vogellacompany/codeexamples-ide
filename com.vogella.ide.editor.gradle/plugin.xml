@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.core.contenttype.contentTypes">
+      <content-type
+            file-extensions="gradle"
+            id="com.vogella.ide.editor.gradle.content"
+            name="Gradle (vogella)"
+            priority="low">
+      </content-type>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editorContentTypeBinding
+            contentTypeId="com.vogella.ide.editor.gradle.content"
+            editorId="org.eclipse.ui.genericeditor.GenericEditor">
+      </editorContentTypeBinding>
+   </extension>
+   <extension
+         point="org.eclipse.ui.genericeditor.presentationReconcilers">
+      <presentationReconciler
+            class="com.vogella.ide.editor.gradle.GradlePresentationReconciler"
+            contentType="com.vogella.ide.editor.gradle.content">
+      </presentationReconciler>
+   </extension>
+
+
+</plugin>
