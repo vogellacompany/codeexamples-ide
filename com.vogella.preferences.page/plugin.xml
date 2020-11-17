@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.vogella.preferences.page.VogellaPrefPage"
+            id="com.vogella.preferences.page.page1"
+            name="vogella Preferences">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.vogella.preferences.page.VogellaPrefInitializer">
+      </initializer>
+   </extension>
+
+</plugin>
