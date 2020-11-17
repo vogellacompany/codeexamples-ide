@@ -16,6 +16,11 @@
             apply="always"
             uri="testing.e4xmi">
       </fragment>
+      <processor
+            apply="always"
+            beforefragment="true"
+            class="com.vogella.tasks.ui.Processor1">
+      </processor>
    </extension>
 
 </plugin>

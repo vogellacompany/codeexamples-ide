@@ -24,7 +24,6 @@ import org.eclipse.jface.widgets.WidgetFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Text;
 
 import com.vogella.tasks.model.TaskService;
 import com.vogella.tasks.ui.parts.contentassists.TaskContentProposal;
@@ -41,31 +40,30 @@ public class AutoCompleteFieldPart {
 	public void createControls(Composite parent) {
 		GridLayoutFactory.fillDefaults().applyTo(parent);
 
-		Combo combo = new Combo(parent, SWT.NONE);
-		AutoCompleteField autoCompleteField = new AutoCompleteField(combo, new ComboContentAdapter());
-
+		var combo = new Combo(parent, SWT.NONE);
+		var autoCompleteField = new AutoCompleteField(combo, new ComboContentAdapter());
 		combo.addModifyListener(e -> {
-			Path dir = getPathWithoutFileName(combo.getText());
+			var dir = getPathWithoutFileName(combo.getText());
 			if (dir == null || dir.equals(lastDir) || !isDirectory(dir)) {
 				return;
 			}
 			lastDir = dir;
-			try (Stream<Path> paths = Files.list(dir)) {
-				List<String> directories = filterPaths(paths);
+			try (var paths = Files.list(dir)) {
+				var directories = filterPaths(paths);
 				autoCompleteField.setProposals(directories.toArray(new String[directories.size()]));
 			} catch (IOException ex) {
 				// ignoreO
 			}
 		});
-		Text text = WidgetFactory.text(SWT.BORDER)
+		var text = WidgetFactory.text(SWT.BORDER)
 				.layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
 				.create(parent);
-		TaskContentProposalProvider taskContentProposalProvider = new TaskContentProposalProvider(new ArrayList<>());
-		ContentProposalAdapter contentProposal = new ContentProposalAdapter(text,
+		var taskContentProposalProvider = new TaskContentProposalProvider(new ArrayList<>());
+		var contentProposal = new ContentProposalAdapter(text,
 				new TextContentAdapter(), taskContentProposalProvider, null, null);
 
 		contentProposal.addContentProposalListener(proposal -> {
-			TaskContentProposal p = (TaskContentProposal) proposal;
+			var p = (TaskContentProposal) proposal;
 			System.out.println(p.getTask().getSummary());
 		});
 		contentProposal.setProposalAcceptanceStyle(ContentProposalAdapter.PROPOSAL_REPLACE);
@@ -80,7 +78,7 @@ public class AutoCompleteFieldPart {
 	}
 
 	private Path getPathWithoutFileName(String inputPath) {
-		int lastIndex = inputPath.lastIndexOf(File.separatorChar);
+		var lastIndex = inputPath.lastIndexOf(File.separatorChar);
 		if (separatorNotFound(lastIndex)) {
 			return null;
 		} else if (endsWithSeparator(inputPath, lastIndex)) {
@@ -124,9 +122,9 @@ public class AutoCompleteFieldPart {
 
 	private List<String> filterPaths(Stream<Path> paths) {
 		return paths.filter(path -> {
-			String[] directoriesInPath = path.toString().split(File.separator);
-			String fileName = directoriesInPath[directoriesInPath.length - 1];
-			String lastDirectory = directoriesInPath[directoriesInPath.length - 2];
+			var directoriesInPath = path.toString().split(File.separator);
+			var fileName = directoriesInPath[directoriesInPath.length - 1];
+			var lastDirectory = directoriesInPath[directoriesInPath.length - 2];
 			return !lastDirectory.equals(".") && !fileName.startsWith(".") && Files.isDirectory(path);
 		}).map(Path::toString).collect(Collectors.toList());
 	}

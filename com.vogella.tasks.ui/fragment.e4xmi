@@ -21,5 +21,9 @@
       <tags>Editor</tags>
       <tags>removeOnHide</tags>
     </elements>
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_25WtwCQtEeuBcN9moNuCRQ" elementId="com.vogella.tasks.ui.partdescriptor.playground3" label="Playground Sync" category="Task Management" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.PlaygroundPart2">
+      <tags>View</tags>
+    </elements>
   </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_CLFA8CTvEeuOWIw49lO70A" featurename="addons" parentElementId="xpath:/"/>
 </fragment:ModelFragments>
