@@ -7,16 +7,21 @@
             <unit id="org.eclipse.equinox.sdk.feature.group" version="0.0.0"/>
             <unit id="org.eclipse.platform.sdk" version="0.0.0"/>
         </location>
+	
+		
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="http://download.eclipse.org/e4/snapshots/org.eclipse.e4.tools/latest/"/>
-			<unit id="org.eclipse.e4.tools.bundle.spy.feature.feature.group" version="0.0.0"/>
-			<unit id="org.eclipse.e4.tools.context.spy.feature.feature.group" version="0.0.0"/>
-			<unit id="org.eclipse.e4.tools.css.spy.feature.feature.group" version="0.0.0"/>
-			<unit id="org.eclipse.e4.tools.event.spy.feature.feature.group" version="0.0.0"/>
-			<unit id="org.eclipse.e4.tools.model.spy.feature.feature.group" version="0.0.0"/>
-			<unit id="org.eclipse.e4.tools.preference.spy.feature.feature.group" version="0.0.0"/>
-			<unit id="org.eclipse.e4.tools.spies.feature.feature.group" version="0.0.0"/>
+			<repository location="https://download.eclipse.org/releases/latest"/>
+			<unit id="org.eclipse.pde.spy.core" version="0.0.0"/>
+			<unit id="org.eclipse.pde.spy.css" version="0.0.0"/>
+			<unit id="org.eclipse.pde.spy.model" version="0.0.0"/>
+			<unit id="org.eclipse.pde.spy.preferences" version="0.0.0"/>
 		</location>
+		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
+			<repository location="https://download.eclipse.org/releases/2022-03"/>
+			<unit id="org.eclipse.pde.spy.bundle" version="0.0.0"/>
+			<unit id="org.eclipse.pde.spy.context" version="0.0.0"/>
+		</location>
+	
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="http://download.eclipse.org/nattable/releases/1.6.0/repository/"/>
 			 <unit id="org.eclipse.nebula.widgets.nattable.core.feature.feature.group" version="0.0.0"/>
