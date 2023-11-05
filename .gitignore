@@ -13,3 +13,4 @@ Snap.*
 .polyglot.META-INF
 .polyglot.ide.product
 .polyglot.feature.xml
+.tycho-consumer-pom.xml

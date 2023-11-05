@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Custom IDE" uid="ide" id="com.vogella.ide.first.customide2" application="org.eclipse.ui.ide.workbench" version="1.0.0" useFeatures="true" includeLaunchers="true">
+<product name="Custom IDE" uid="ide" id="com.vogella.ide.first.customide2" application="org.eclipse.ui.ide.workbench" version="1.0.0" type="features" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -10,7 +10,6 @@
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
    </launcherArgs>
-
 
    <launcher>
       <win useIco="false">
@@ -35,7 +34,6 @@
       <feature id="org.eclipse.emf.common" installMode="root"/>
       <feature id="org.eclipse.equinox.p2.core.feature" installMode="root"/>
       <feature id="org.eclipse.ecf.core.feature" installMode="root"/>
-      <feature id="org.eclipse.ecf.filetransfer.httpclient45.feature" installMode="root"/>
       <feature id="org.eclipse.equinox.p2.rcp.feature" installMode="root"/>
       <feature id="org.eclipse.ecf.filetransfer.feature" installMode="root"/>
       <feature id="org.eclipse.ecf.core.ssl.feature" installMode="root"/>
