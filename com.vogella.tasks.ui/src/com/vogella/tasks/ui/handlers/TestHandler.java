@@ -9,7 +9,6 @@ import org.eclipse.swt.widgets.Shell;
 public class TestHandler {
 
 	public TestHandler() {
-		System.out.println("Helper");
 	}
     @Execute
 	public void execute(@Optional Shell shell) {

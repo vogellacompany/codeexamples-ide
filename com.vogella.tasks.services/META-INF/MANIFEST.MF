@@ -15,5 +15,5 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.e4.core.di,
  org.eclipse.e4.ui.model.workbench,
  org.eclipse.osgi.services 
-Bundle-ActivationPolicy: lazy
 Service-Component: OSGI-INF/com.vogella.tasks.services.internal.TaskServiceContextFunction.xml
+Bundle-ActivationPolicy: lazy

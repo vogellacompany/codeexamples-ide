@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="ASCII"?>
-<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_IVWxcPl3Eeqqw-Y722VVrg">
-  <imports xsi:type="commands:Command" xmi:id="_ffuTcPsxEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.command.delete"/>
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:application="http://www.eclipse.org/ui/2010/UIModel/application" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_IVWxcPl3Eeqqw-Y722VVrg">
+  <imports xsi:type="commands:BindingContext" xmi:id="_fCvmEH2tEe6OsaNlBmbCdg" elementId="com.vogella.tasks.ui.bindingcontext.part"/>
+  <imports xsi:type="commands:Command" xmi:id="_gHmqcH2vEe6OsaNlBmbCdg" elementId="com.vogella.tasks.ui.command.delete"/>
+  <imports xsi:type="commands:Command" xmi:id="_jndOUH4kEe6nirT9i2BzIQ" elementId="com.vogella.tasks.ui.command.new"/>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_IyVoYPl3Eeqqw-Y722VVrg" featurename="descriptors" parentElementId="xpath:/">
-    <elements xsi:type="basic:PartDescriptor" xmi:id="_Re36sPl3Eeqqw-Y722VVrg" elementId="com.vogella.tasks.ui.partdescriptor.overview" label="Overview" category="Task Management" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.TodoOverviewPart">
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_Re36sPl3Eeqqw-Y722VVrg" elementId="com.vogella.tasks.ui.partdescriptor.overview" label="Overview" bindingContexts="_fCvmEH2tEe6OsaNlBmbCdg" category="Task Management" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.TodoOverviewPart">
       <tags>View</tags>
-      <handlers xmi:id="_JV3YEPzsEeqwRJXpuUN7UQ" elementId="com.vogella.tasks.ui.handler.0" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.handlers.ActiveWhenHandlerForPart" command="_ffuTcPsxEeqkSvBVXszopA"/>
+      <handlers xmi:id="_JV3YEPzsEeqwRJXpuUN7UQ" elementId="com.vogella.tasks.ui.handler.0" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.handlers.ActiveWhenHandlerForPart"/>
       <menus xsi:type="menu:PopupMenu" xmi:id="_5k9zcPswEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.popupmenu.table" label="Table">
-        <children xsi:type="menu:HandledMenuItem" xmi:id="_9PHJ8PswEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handledmenuitem.delete" label="Delete" command="_ffuTcPsxEeqkSvBVXszopA"/>
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_9PHJ8PswEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handledmenuitem.delete" label="Delete" command="_gHmqcH2vEe6OsaNlBmbCdg"/>
         <children xsi:type="menu:DirectMenuItem" xmi:id="_MU5uQP2rEeqgPJ3IUrdemw" elementId="com.vogella.tasks.ui.directmenuitem.openedit" label="Open edit" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.handlers.OpenEditorHandler"/>
       </menus>
+      <menus xmi:id="_7S8WwH4lEe6nirT9i2BzIQ" elementId="com.vogella.tasks.ui.menu.0">
+        <tags>ViewMenu</tags>
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_-U7hEH4lEe6nirT9i2BzIQ" elementId="com.vogella.tasks.ui.handledmenuitem.delete" label="Delete" command="_gHmqcH2vEe6OsaNlBmbCdg"/>
+      </menus>
+      <toolbar xmi:id="_USU3YH4kEe6nirT9i2BzIQ" elementId="com.vogella.tasks.ui.toolbar.0">
+        <children xsi:type="menu:DirectToolItem" xmi:id="_WIoRsH4kEe6nirT9i2BzIQ" elementId="com.vogella.tasks.ui.directtoolitem.0" iconURI="platform:/plugin/com.vogella.tasks.ui/icons/taskdetail.png" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.handlers.NewTaskHandler"/>
+        <children xsi:type="menu:HandledToolItem" xmi:id="_mm0icH4kEe6nirT9i2BzIQ" elementId="com.vogella.tasks.ui.handledtoolitem.new" label="New" iconURI="platform:/plugin/com.vogella.tasks.ui/icons/taskdetail.png" command="_jndOUH4kEe6nirT9i2BzIQ"/>
+      </toolbar>
     </elements>
     <elements xsi:type="basic:PartDescriptor" xmi:id="_eed9oPl3Eeqqw-Y722VVrg" elementId="com.vogella.tasks.ui.partdescriptor.details" label="Details" category="Task Management" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.TodoDetailsPart">
       <tags>View</tags>
@@ -25,5 +35,7 @@
       <tags>View</tags>
     </elements>
   </fragments>
-  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_CLFA8CTvEeuOWIw49lO70A" featurename="addons" parentElementId="xpath:/"/>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_CLFA8CTvEeuOWIw49lO70A" featurename="addons" parentElementId="xpath:/">
+    <elements xsi:type="application:Addon" xmi:id="_9FgEgH2sEe6OsaNlBmbCdg" elementId="com.vogella.tasks.ui.addon.0" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.addon.AddViewsToPerspectiveAddon"/>
+  </fragments>
 </fragment:ModelFragments>

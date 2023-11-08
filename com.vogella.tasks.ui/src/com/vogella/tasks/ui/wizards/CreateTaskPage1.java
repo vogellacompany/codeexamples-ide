@@ -26,7 +26,7 @@ public class CreateTaskPage1 extends WizardPage {
         // usage of the new operator
         // NO automatic dependency injection
 		TodoDetailsPart part = new TodoDetailsPart(); // <.>
-		part.createControls(container); // <.>
+//		part.createControls(container); // <.>
 		part.setTasks(Collections.singletonList(task)); // <.>
         setPageComplete(true);
         setControl(container);

@@ -19,10 +19,14 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.e4.core.services;bundle-version="2.2.400",
  org.eclipse.osgi.services;bundle-version="3.9.0",
  com.vogella.swt.widgets;bundle-version="1.0.0",
- org.eclipse.ui;bundle-version="3.118.0"
+ org.eclipse.ui;bundle-version="3.118.0",
+ org.eclipse.e4.core.contexts;bundle-version="1.12.100"
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Import-Package: com.vogella.tasks.events,
  com.vogella.tasks.model,
  javax.annotation;version="1.2.0",
  javax.inject;version="1.0.0"
 Automatic-Module-Name: com.vogella.tasks.ui
+Bundle-ActivationPolicy: lazy
+Service-Component: OSGI-INF/com.vogella.tasks.ui.parts.MeinServerConnection.xml,
+ OSGI-INF/com.vogella.tasks.ui.parts.ServerConnection.xml
