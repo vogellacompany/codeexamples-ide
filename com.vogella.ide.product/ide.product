@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="Custom IDE" uid="ide" id="com.vogella.ide.first.customide2" application="org.eclipse.ui.ide.workbench" version="1.0.0" type="features" includeLaunchers="true" autoIncludeRequirements="true">
+<product name="Custom IDE" uid="ide" id="com.vogella.ide.first.customide2" application="org.eclipse.ui.ide.workbench" version="1.0.0" type="mixed" includeLaunchers="true" autoIncludeRequirements="true">
 
    <configIni use="default">
    </configIni>
@@ -21,6 +21,8 @@
    </vm>
 
    <plugins>
+      <plugin id="org.eclipse.ui.genericeditor"/>
+      <plugin id="vpms"/>
    </plugins>
 
    <features>
