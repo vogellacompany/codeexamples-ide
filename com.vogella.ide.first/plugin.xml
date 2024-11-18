@@ -16,14 +16,6 @@
       <product
             application="org.eclipse.ui.ide.workbench"
             name="Custom IDE">
-      </product>
-   </extension>
-   <extension
-         id="customide2"
-         point="org.eclipse.core.runtime.products">
-      <product
-            application="org.eclipse.ui.ide.workbench"
-            name="Custom IDE">
          <property
                name="appName"
                value="Custom IDE">

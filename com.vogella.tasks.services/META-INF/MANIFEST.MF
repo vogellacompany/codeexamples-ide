@@ -4,11 +4,11 @@ Bundle-Name: Services
 Bundle-SymbolicName: com.vogella.tasks.services
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: VOGELLA
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Automatic-Module-Name: com.vogella.tasks.services
 Import-Package: com.vogella.tasks.events,
  com.vogella.tasks.model,
- javax.inject;version="1.0.0"
+ jakarta.inject;version="[2.0.0,3.0.0)"
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.e4.core.services,
  org.eclipse.e4.core.contexts,

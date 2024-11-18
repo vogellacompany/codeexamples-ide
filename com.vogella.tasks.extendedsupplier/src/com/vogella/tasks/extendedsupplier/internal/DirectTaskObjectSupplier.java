@@ -1,6 +1,6 @@
 package com.vogella.tasks.extendedsupplier.internal;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import org.eclipse.e4.core.di.suppliers.ExtendedObjectSupplier;
 import org.eclipse.e4.core.di.suppliers.IObjectDescriptor;

@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.vogella.swt.widgets
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: VOGELLA
 Automatic-Module-Name: com.vogella.swt.widgets
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.eclipse.jface,
  org.eclipse.core.runtime
 Export-Package: com.vogella.swt.widgets

@@ -1,6 +1,6 @@
 package com.vogella.tasks.ui.parts;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.jface.databinding.swt.ISWTObservableValue;

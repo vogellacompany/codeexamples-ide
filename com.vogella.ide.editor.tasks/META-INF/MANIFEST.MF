@@ -5,7 +5,7 @@ Bundle-SymbolicName: com.vogella.ide.editor.tasks;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: VOGELLA
 Automatic-Module-Name: com.vogella.ide.editor.tasks
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Require-Bundle: org.eclipse.text,
  org.eclipse.ui,
  org.eclipse.ui.editors,
