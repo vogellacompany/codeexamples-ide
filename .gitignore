@@ -15,3 +15,4 @@ Snap.*
 .polyglot.feature.xml
 .tycho-consumer-pom.xml
 .polyglot.category.xml
+.polyglot.target-platform.target
