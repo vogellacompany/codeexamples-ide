@@ -43,6 +43,20 @@
             </execution>
         </executions>
     </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-report-plugin</artifactId>
+            <version>3.0.0-M9</version>
+
+             <executions>
+                <execution>
+                    <phase>verify</phase>
+                    <goals>
+                        <goal>report</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
     <plugin>
     <groupId>org.eclipse.tycho</groupId>
     <artifactId>target-platform-configuration</artifactId>
@@ -77,7 +91,6 @@
   <modules>
     <module>com.vogella.ide.first</module>
     <module>com.vogella.ide.feature</module>
-    <module>com.vogella.ide.product</module>
     <module>com.vogella.tasks.model</module>
     <module>com.vogella.tasks.services</module>
     <module>com.vogella.tasks.ui</module>
@@ -91,10 +104,14 @@
     <module>com.vogella.adapters</module>
     <module>com.vogella.tasks.extendedsupplier</module>
     <module>com.vogella.preferences.page</module>
-    <module>com.vogella.ide.editor.gradle</module>
-    <module>target-platform</module>
-    <module>updatesite</module>
+   <module>com.vogella.ide.editor.gradle</module>
 
-   <!--TODO ADD YOUR MODULES HERE-->
+    <!--Tests-->
+    <module>com.vogella.tasks.services.tests</module>
+    <module>updatesite</module>
+    <!--releng-->
+    <module>com.vogella.ide.product</module>
+
+  
  </modules>
 </project>
