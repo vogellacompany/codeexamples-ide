@@ -1,0 +1,37 @@
+{
+	"name": "AsciiDoc",
+	"scopeName": "source.asciidoc",
+	"fileTypes": [
+		"adoc",
+		"asciidoc"
+	],
+	"patterns": [
+		{
+			"name": "markup.heading.asciidoc",
+			"match": "^(={1,5})\\s+.*$"
+		},
+		{
+			"name": "markup.bold.asciidoc",
+			"begin": "\\*\\*",
+			"end": "\\*\\*"
+		},
+		{
+			"name": "markup.italic.asciidoc",
+			"begin": "__",
+			"end": "__"
+		},
+		{
+			"name": "markup.inline.raw.code.asciidoc",
+			"begin": "`",
+			"end": "`"
+		},
+		{
+			"name": "markup.underline.link.asciidoc",
+			"match": "https?://[^\\s\\]]+"
+		},
+		{
+			"name": "markup.image.asciidoc",
+			"match": "image::[^\\[]+\\[.*?\\]"
+		},
+	]
+}

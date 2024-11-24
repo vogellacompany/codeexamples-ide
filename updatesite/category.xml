@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
    <feature id="com.vogella.ide.feature">
-      <category name="new_category_1"/>
+      <category name="vogella_ide_extensions"/>
    </feature>
-   <category-def name="new_category_1" label="New Category 1"/>
+   <bundle id="com.vogella.ide.editor.asciidoc">
+      <category name="vogella_minimal_asciidoc_editor"/>
+   </bundle>
+   <category-def name="vogella_ide_extensions" label="IDE extensions from vogella"/>
+   <category-def name="vogella_minimal_asciidoc_editor" label="Minimal Asciidoc Editor"/>
 </site>

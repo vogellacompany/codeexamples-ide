@@ -1,0 +1,45 @@
+{
+  "scopeName": "source.shell",
+  "name": "Shell Script",
+  "fileTypes": ["sh", "bash"],
+  "patterns": [
+    {
+      "name": "comment.line.number-sign.shell",
+      "match": "#.*$"
+    },
+    {
+      "name": "string.quoted.double.shell",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "variable.other.shell",
+          "match": "\\$[a-zA-Z_][a-zA-Z0-9_]*"
+        }
+      ]
+    },
+    {
+      "name": "string.quoted.single.shell",
+      "begin": "'",
+      "end": "'"
+    },
+    {
+      "name": "variable.other.shell",
+      "match": "\\$[a-zA-Z_][a-zA-Z0-9_]*"
+    },
+    {
+      "name": "keyword.control.shell",
+      "match": "\\b(if|then|else|fi|for|while|do|done|case|esac)\\b"
+    },
+    {
+      "name": "keyword.operator.shell",
+      "match": "\\b(and|or|not)\\b"
+    },
+    {
+      "name": "support.function.builtin.shell",
+      "match": "\\b(echo|cd|exit|pwd|read)\\b"
+    }
+  ],
+  "repository": {},
+  "uuid": "eae8d676-1b23-11e0-ac64-0800200c9a66"
+}

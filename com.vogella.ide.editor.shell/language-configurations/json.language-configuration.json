@@ -1,0 +1,24 @@
+{
+  "comments": {
+    "lineComment": "//"
+  },
+  "brackets": [["{", "}"]],
+  "folding": {
+    "markers": {
+      "start": "^\\s*//\\s*#region\\b",
+      "end": "^\\s*//\\s*#endregion\\b"
+    }
+  },
+  "foldingRanges": {
+    "foldingRules": [
+      {
+        "start": "^(={1,5})\\s+.*$",
+        "end": "^(={1,5})\\s+.*$"
+      },
+      {
+        "start": "^\\[source,\\s*\\w+\\]\\s*\\n^----$",
+        "end": "^----$"
+      }
+    ]
+  }
+}
