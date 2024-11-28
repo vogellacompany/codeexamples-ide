@@ -1,4 +1,4 @@
- 
+
 package com.vogella.tasks.ui.handlers;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public class ActiveWhenHandlerForPart {
 		MPerspective activePerspective = modelService.getActivePerspective(window);
 		List<MPartSashContainerElement> children = activePerspective.getChildren();
 		if (!children.isEmpty()) {
-			
+
 		}
 	}
 }

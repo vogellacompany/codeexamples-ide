@@ -53,10 +53,9 @@ public class Snippet066TableViewerWithLabelDecorator {
 	private static class StatusLabelDecorator implements ILabelDecorator {
 		private static final String ERROR_IMG_ID_POSTFIX = "_ERROR";
 		private static final int ERROR_OVERLAY_SIZE = 16;
-		private static final ImageDescriptor ERROR_OVERLAY = ImageDescriptor.createFromImageDataProvider(
-				_zoom ->
-				Display.getCurrent().getSystemImage(SWT.ICON_ERROR).getImageData().scaledTo(ERROR_OVERLAY_SIZE,
-						ERROR_OVERLAY_SIZE));
+		private static final ImageDescriptor ERROR_OVERLAY = ImageDescriptor
+				.createFromImageDataProvider(_zoom -> Display.getCurrent().getSystemImage(SWT.ICON_ERROR).getImageData()
+						.scaledTo(ERROR_OVERLAY_SIZE, ERROR_OVERLAY_SIZE));
 		private static final String WORD_PATTERN = "(\\w)+";
 		private final ImageRegistry imageRegistry = new ImageRegistry();
 
@@ -176,8 +175,7 @@ public class Snippet066TableViewerWithLabelDecorator {
 	}
 
 	private void createFirstNameColumn(TableViewer v, final String title, final int bound) {
-		TableViewerColumn column;
-		column = createTableViewerColumn(v, title, bound);
+		TableViewerColumn column = createTableViewerColumn(v, title, bound);
 		column.setLabelProvider(new StyledCellLabelProvider() {
 			@Override
 			public void update(final ViewerCell cell) {

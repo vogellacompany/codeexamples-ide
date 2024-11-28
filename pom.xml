@@ -18,8 +18,24 @@
           <artifactId>tycho-p2-director-plugin</artifactId>
           <version>${tycho.version}</version>
         </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-surefire-plugin</artifactId>
+          <version>${tycho.version}</version>
+          <configuration>
+            <dependencies>
+              <dependency>
+                <type>eclipse-plugin</type>
+                <artifactId>org.eclipse.osgi.compatibility.state</artifactId>
+                <version>0.0.0</version>
+              </dependency>
+            </dependencies>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
+    
+    
 
     <plugins>
       <plugin>
@@ -118,7 +134,6 @@
     <module>com.vogella.ide.editor.gradle</module>
     <module>com.vogella.ide.editor.asciidoc</module>
     <module>com.vogella.ide.editor.shell</module>
-    <module>com.vogella.ide.editor.ini</module>
     <module>com.vogella.languageserver.dart</module>
 
     <!--Tests-->

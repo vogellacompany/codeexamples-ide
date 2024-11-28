@@ -10,15 +10,15 @@ public class MeinServerConnection {
 
 	@Reference
 	IServerConnection service;
-	
+
 	public MeinServerConnection() {
-		
+
 		counter++;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.valueOf(counter);
 	}
-	
+
 }

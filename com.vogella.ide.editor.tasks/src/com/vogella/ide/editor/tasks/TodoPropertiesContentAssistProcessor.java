@@ -23,8 +23,8 @@ public class TodoPropertiesContentAssistProcessor implements IContentAssistProce
 		IDocument document = viewer.getDocument();
 
 		try {
-			int lineOfOffset = document.getLineOfOffset(offset);
-			int lineOffset = document.getLineOffset(lineOfOffset);
+			int lineNumber = document.getLineOfOffset(offset);
+			int lineOffset = document.getLineOffset(lineNumber);
 
 			int lineTextLenght = offset - lineOffset;
 			String lineStartToOffsetValue = document.get(lineOffset, lineTextLenght).toLowerCase();

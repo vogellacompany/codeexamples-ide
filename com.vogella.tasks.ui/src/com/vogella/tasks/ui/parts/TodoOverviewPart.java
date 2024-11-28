@@ -46,10 +46,9 @@ public class TodoOverviewPart {
 		fillDefaults().numColumns(1).applyTo(parent);
 
 		button(SWT.PUSH).text("Load Data").onSelect(e -> update()).create(parent);
-		label(SWT.NONE).text("Number of tasks: ")
-        .layoutData(GridDataFactory.fillDefaults().grab(true, false).create()).create(parent);
-		
-		
+		label(SWT.NONE).text("Number of tasks: ").layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
+				.create(parent);
+
 		viewer = new TableViewer(parent, SWT.MULTI | SWT.FULL_SELECTION);
 		Table table = viewer.getTable();
 		table.setHeaderVisible(true);
@@ -102,8 +101,7 @@ public class TodoOverviewPart {
 
 	@Inject
 	@Optional
-	private void subscribeTopicTaskAllTopics(
-			@UIEventTopic(TaskEventConstants.TOPIC_TASKS_ALLTOPICS) Map<String, String> event) {
+	private void subscribeTopicTaskAllTopics() {
 		if (viewer != null) {
 			writableList.clear();
 			updateViewer(taskService.getAll());

@@ -38,6 +38,8 @@ public class AbstractConnectionProvider  implements StreamConnectionProvider {
 		launcher = LSPLauncher.createServerLauncher(ls, in2, out2);
 		inputStream = in;
 		outputStream = out;
+		
+		
 		launcher.startListening();
 	}
 
@@ -45,28 +47,12 @@ public class AbstractConnectionProvider  implements StreamConnectionProvider {
 	public InputStream getInputStream() {
 		return new FilterInputStream(inputStream) {
 			@Override
-			public int read() throws IOException {
-				int res = super.read();
-				System.err.print((char) res);
-				return res;
-			}
-
-			@Override
 			public int read(byte[] b, int off, int len) throws IOException {
-				int bytes = super.read(b, off, len);
-				byte[] payload = new byte[bytes];
-				System.arraycopy(b, off, payload, 0, bytes);
-				System.err.print(new String(payload));
-				return bytes;
-			}
-
-			@Override
-			public int read(byte[] b) throws IOException {
-				int bytes = super.read(b);
-				byte[] payload = new byte[bytes];
-				System.arraycopy(b, 0, payload, 0, bytes);
-				System.err.print(new String(payload));
-				return bytes;
+				int bytesRead = super.read(b, off, len);
+				if (bytesRead > 0) {
+					System.err.print(new String(b, off, bytesRead));
+				}
+				return bytesRead;
 			}
 		};
 	}
@@ -75,72 +61,27 @@ public class AbstractConnectionProvider  implements StreamConnectionProvider {
 	public OutputStream getOutputStream() {
 		return new FilterOutputStream(outputStream) {
 			@Override
-			public void write(int b) throws IOException {
-				System.err.print((char) b);
-				super.write(b);
-			}
-
-			@Override
-			public void write(byte[] b) throws IOException {
-				System.err.print(new String(b));
-				super.write(b);
-			}
-
-			@Override
 			public void write(byte[] b, int off, int len) throws IOException {
-				byte[] actual = new byte[len];
-				System.arraycopy(b, off, actual, 0, len);
-				System.err.print(new String(actual));
+				System.err.print(new String(b, off, len));
 				super.write(b, off, len);
 			}
 		};
 	}
+	
 
 	@Override
 	public void stop() {
+		// Clean up resources if needed
+		try {
+			inputStream.close();
+			outputStream.close();
+		} catch (IOException e) {
+			System.err.println("Error closing streams: " + e.getMessage());
+		}
 	}
 
 	@Override
 	public InputStream getErrorStream() {
-		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	/*
-	 * 
-	 * 
-	 * try {
-				DidChangeConfigurationParams params = new DidChangeConfigurationParams();
-				Map<String, Object> msbuildProjectTools = new HashMap<>();
-				List<String> completionsFromProject = new ArrayList<>();
-				completionsFromProject.add("Property"); //$NON-NLS-1$
-				completionsFromProject.add("ItemType"); //$NON-NLS-1$
-				completionsFromProject.add("ItemMetadata"); //$NON-NLS-1$
-				completionsFromProject.add("Target"); //$NON-NLS-1$
-				completionsFromProject.add("Task"); //$NON-NLS-1$
-
-				List<String> experimentalFeatures = new ArrayList<>();
-				experimentalFeatures.add("empty-completion-lists"); //$NON-NLS-1$
-				experimentalFeatures.add("expressions"); //$NON-NLS-1$
-
-				Map<String, Object> language = new HashMap<>();
-				language.put("enable", true); //$NON-NLS-1$
-				language.put("disableHover", false); //$NON-NLS-1$
-				language.put("logLevel", "Information"); //$NON-NLS-1$ //$NON-NLS-2$
-				language.put("experimentalFeatures", experimentalFeatures); //$NON-NLS-1$
-				language.put("completionsFromProject", completionsFromProject); //$NON-NLS-1$
-				msbuildProjectTools.put("language", language); //$NON-NLS-1$
-
-				params.setSettings(
-						Collections.singletonMap("msbuildProjectTools", //$NON-NLS-1$
-								Collections.singletonMap("language", language)));//$NON-NLS-1$
-
-				info.getLanguageClient().getWorkspaceService().didChangeConfiguration(params);
-
-				CompletableFuture<Hover> hover = info.getLanguageClient().getTextDocumentService().hover(LSPEclipseUtils.toTextDocumentPosistionParams(info.getFileUri(), offset, info.getDocument()));
-				requests.add(hover.thenAccept(hoverResults::add));
-			} catch (BadLocationException e) {
-				LanguageServerPlugin.logError(e);
-			}
-	 */
 }

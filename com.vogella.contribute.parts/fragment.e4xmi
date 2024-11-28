@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="ASCII"?>
-<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_JcbM8PKBEeqbJOLr1ERteg">
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:advanced="http://www.eclipse.org/ui/2010/UIModel/application/ui/advanced" xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic" xmlns:basic_1="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmi:id="_JcbM8PKBEeqbJOLr1ERteg">
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_1wqXgPKBEeqbJOLr1ERteg" featurename="descriptors" parentElementId="xpath:/">
     <elements xsi:type="basic:PartDescriptor" xmi:id="_D8j1gPKCEeqbJOLr1ERteg" elementId="com.vogella.contribute.parts.partdescriptor.additionalinfo" label="Additional Info" category="vogella" closeable="true" contributionURI="bundleclass://com.vogella.contribute.parts/com.vogella.contribute.parts.AdditionalInformationPart">
       <tags>View</tags>
       <tags>categoryTag:vogella</tags>
+    </elements>
+  </fragments>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_hAZU8K1uEe-NPpZ0aQLDpQ" featurename="snippets" parentElementId="xpath:/">
+    <elements xsi:type="advanced:Perspective" xmi:id="_joupIK1uEe-NPpZ0aQLDpQ" elementId="com.vogella.contribute.parts.perspective.abapdevelopmenttools" label="ABAP Development Tools">
+      <children xsi:type="basic_1:PartSashContainer" xmi:id="_njE-0K1uEe-NPpZ0aQLDpQ" elementId="com.vogella.contribute.parts.partsashcontainer.0">
+        <children xsi:type="basic_1:PartStack" xmi:id="_nxa80K1uEe-NPpZ0aQLDpQ" elementId="com.vogella.contribute.parts.partstack.0">
+          <children xsi:type="basic_1:Part" xmi:id="_oDGisK1uEe-NPpZ0aQLDpQ" elementId="com.vogella.contribute.parts.part.additional" contributionURI="bundleclass://com.vogella.contribute.parts/com.vogella.contribute.parts.AdditionalInformationPart" label="Additional" closeable="true"/>
+        </children>
+      </children>
     </elements>
   </fragments>
 </fragment:ModelFragments>

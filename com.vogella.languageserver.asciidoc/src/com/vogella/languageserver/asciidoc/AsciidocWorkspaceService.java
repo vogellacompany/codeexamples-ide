@@ -4,7 +4,7 @@ import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
-public class EclipseConWorkspaceService implements WorkspaceService {
+public class AsciidocWorkspaceService implements WorkspaceService {
 
 
 	@Override

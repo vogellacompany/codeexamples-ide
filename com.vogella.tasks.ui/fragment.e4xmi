@@ -20,7 +20,7 @@
         <children xsi:type="menu:HandledToolItem" xmi:id="_mm0icH4kEe6nirT9i2BzIQ" elementId="com.vogella.tasks.ui.handledtoolitem.new" label="New" iconURI="platform:/plugin/com.vogella.tasks.ui/icons/taskdetail.png" command="_jndOUH4kEe6nirT9i2BzIQ"/>
       </toolbar>
     </elements>
-    <elements xsi:type="basic:PartDescriptor" xmi:id="_eed9oPl3Eeqqw-Y722VVrg" elementId="com.vogella.tasks.ui.partdescriptor.details" label="Details" category="Task Management" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.TodoDetailsPart">
+    <elements xsi:type="basic:PartDescriptor" xmi:id="_eed9oPl3Eeqqw-Y722VVrg" elementId="com.vogella.tasks.ui.partdescriptor.details" label="Details" iconURI="platform:/plugin/com.vogella.tasks.ui/icons/taskdetail.png" category="Task Management" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.TodoDetailsPart">
       <tags>View</tags>
     </elements>
     <elements xsi:type="basic:PartDescriptor" xmi:id="_hGkoUPl3Eeqqw-Y722VVrg" elementId="com.vogella.tasks.ui.partdescriptor.playground" label="Playground" category="Task Management" closeable="true" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.parts.PlaygroundPart">

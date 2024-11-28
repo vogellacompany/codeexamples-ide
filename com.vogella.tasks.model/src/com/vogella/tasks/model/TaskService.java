@@ -10,6 +10,7 @@ public interface TaskService {
 	 * Get all tasks
 	 */
 	List<Task> getAll();
+
 	/**
 	 * Updates existing task or create new task
 	 * 
@@ -24,11 +25,12 @@ public interface TaskService {
 	 * @param task
 	 * @return empty optional if not found, otherwise Optional holder the task
 	 */
-	
+
 	Optional<Task> get(long id);
 
 	/**
-	 *  Deletes the task with the id
+	 * Deletes the task with the id
+	 * 
 	 * @param id task id to delete
 	 * @return true if task existed and was deleted, false otherwise
 	 */
@@ -39,7 +41,7 @@ public interface TaskService {
 	 * 
 	 * @param tasksConsumer
 	 */
-	
+
 	void consume(Consumer<List<Task>> tasksConsumer);
-	
+
 }

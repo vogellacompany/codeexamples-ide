@@ -30,7 +30,7 @@ import com.vogella.tasks.ui.parts.contentassists.TaskContentProposal;
 import com.vogella.tasks.ui.parts.contentassists.TaskContentProposalProvider;
 
 public class AutoCompleteFieldPart {
-	
+
 	private Path lastDir;
 
 	@Inject
@@ -55,12 +55,11 @@ public class AutoCompleteFieldPart {
 				// ignoreO
 			}
 		});
-		var text = WidgetFactory.text(SWT.BORDER)
-				.layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
+		var text = WidgetFactory.text(SWT.BORDER).layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
 				.create(parent);
 		var taskContentProposalProvider = new TaskContentProposalProvider(new ArrayList<>());
-		var contentProposal = new ContentProposalAdapter(text,
-				new TextContentAdapter(), taskContentProposalProvider, null, null);
+		var contentProposal = new ContentProposalAdapter(text, new TextContentAdapter(), taskContentProposalProvider,
+				null, null);
 
 		contentProposal.addContentProposalListener(proposal -> {
 			var p = (TaskContentProposal) proposal;

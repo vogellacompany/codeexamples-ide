@@ -57,6 +57,10 @@
          class="com.vogella.ide.editor.tasks.TodoPropertiesContentAssistProcessorOsgiService"
          contentType="com.vogella.ide.contenttype.tasks">
    </contentAssistProcessor>
+     <contentAssistProcessor
+           class="com.vogella.ide.editor.tasks.SimpleContentAssists"
+           contentType="com.vogella.ide.contenttype.tasks">
+     </contentAssistProcessor>
 	</extension>
 	<extension
        point="org.eclipse.core.filebuffers.documentSetup">
@@ -121,6 +125,13 @@
           name="Hyperlink to other tasks files"
           targetId="org.eclipse.ui.genericeditor.GenericEditor">
     </hyperlinkDetector>
+ </extension>
+ <extension
+       point="org.eclipse.ui.genericeditor.quickAssistProcessors">
+    <quickAssistProcessor
+          class="com.vogella.ide.editor.tasks.TodoQuickAssistProcessor"
+          contentType="com.vogella.ide.contenttype.tasks">
+    </quickAssistProcessor>
  </extension>
 
 </plugin>

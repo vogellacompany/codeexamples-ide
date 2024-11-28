@@ -11,6 +11,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
@@ -55,6 +56,16 @@ public class TodoMarkerDocumentSetup implements IDocumentSetupParticipant {
 	
 	private void createMarker(DocumentEvent event, IResource adapter) throws CoreException {
 		String docText = event.getDocument().get();
+		// Get the last line number
+		IDocument document = event.getDocument();
+		int lineCount = document.getNumberOfLines(); // Get total number of lines
+		int lastLineOffset = 0;
+		try {
+			lastLineOffset = document.getLineOffset(lineCount - 1);
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		} // Get the offset for the last line
+
 
 		for (String todoProperty : TodoPropertiesContentAssistProcessor.PROPOSALS) {
 			List<IMarker> markers = Arrays
@@ -69,6 +80,9 @@ public class TodoMarkerDocumentSetup implements IDocumentSetupParticipant {
 				marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
 				marker.setAttribute(IMarker.LOCATION, "Missing line");
 				marker.setAttribute(TODO_PROPERTY, todoProperty);
+				// Optionally, set additional attributes like line offset, if needed
+				marker.setAttribute(IMarker.CHAR_START, lastLineOffset);
+				marker.setAttribute(IMarker.CHAR_END, lastLineOffset);
 			}
 		}
 	}

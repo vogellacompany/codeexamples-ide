@@ -29,4 +29,8 @@
          id="com.vogella.ide.editor.asciidoc"
          version="0.0.0"/>
 
+   <plugin
+         id="com.vogella.preferences.page"
+         version="0.0.0"/>
+
 </feature>

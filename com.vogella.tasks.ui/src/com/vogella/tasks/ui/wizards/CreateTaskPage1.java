@@ -14,22 +14,22 @@ public class CreateTaskPage1 extends WizardPage {
 	private Task task;
 
 	public CreateTaskPage1(Task todo) {
-        super("page1");
-        this.task = todo;
+		super("page1");
+		this.task = todo;
 		setTitle("Creates a new task");
 		setDescription("Enter the data");
-    }
+	}
 
-    @Override
+	@Override
 	public void createControl(Composite parent) {
-        Composite container = new Composite(parent, SWT.NONE);
-        // usage of the new operator
-        // NO automatic dependency injection
+		Composite container = new Composite(parent, SWT.NONE);
+		// usage of the new operator
+		// NO automatic dependency injection
 		TodoDetailsPart part = new TodoDetailsPart(); // <.>
 //		part.createControls(container); // <.>
 		part.setTasks(Collections.singletonList(task)); // <.>
-        setPageComplete(true);
-        setControl(container);
-    }
+		setPageComplete(true);
+		setControl(container);
+	}
 
 }

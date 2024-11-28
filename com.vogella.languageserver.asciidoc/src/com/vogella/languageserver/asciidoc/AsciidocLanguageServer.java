@@ -20,10 +20,9 @@ public class AsciidocLanguageServer implements LanguageServer {
 
 	public AsciidocLanguageServer() {
 		textService = new AsciidocTextDocumentService(this);
-		workspaceService = new EclipseConWorkspaceService();
+		workspaceService = new AsciidocWorkspaceService();
 	}
 
-	
 	/**
 	 * Here we tell the framework which functionality our server supports
 	 */
@@ -31,9 +30,9 @@ public class AsciidocLanguageServer implements LanguageServer {
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		final InitializeResult res = new InitializeResult(new ServerCapabilities());
 		res.getCapabilities().setCompletionProvider(new CompletionOptions());
-		res.getCapabilities().setCodeActionProvider(Boolean.TRUE);
-		res.getCapabilities().setHoverProvider(Boolean.TRUE);
-		res.getCapabilities().setReferencesProvider(Boolean.TRUE);
+//		res.getCapabilities().setCodeActionProvider(Boolean.TRUE);
+//		res.getCapabilities().setHoverProvider(Boolean.TRUE);
+//		res.getCapabilities().setReferencesProvider(Boolean.TRUE);
 		res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 //		res.getCapabilities().setDefinitionProvider(Boolean.TRUE);
 //		res.getCapabilities().setDocumentSymbolProvider(Boolean.TRUE);
@@ -43,11 +42,12 @@ public class AsciidocLanguageServer implements LanguageServer {
 
 	@Override
 	public CompletableFuture<Object> shutdown() {
-		return CompletableFuture.supplyAsync(() -> Boolean.TRUE);
+		return CompletableFuture.supplyAsync(() -> Boolean.FALSE);
 	}
 
 	@Override
 	public void exit() {
+		System.out.println("Shutdown");
 	}
 
 	@Override

@@ -1,4 +1,4 @@
- 
+
 package com.vogella.tasks.ui.handlers;
 
 import org.eclipse.e4.core.di.annotations.CanExecute;
@@ -18,5 +18,5 @@ public class VogellaCopyHandler {
 	public boolean check() {
 		return true;
 	}
-		
+
 }

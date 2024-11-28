@@ -10,20 +10,19 @@ import com.vogella.tasks.services.internal.TransientTaskServiceImpl;
 
 class TransientTaskServiceImplTests {
 
-    @Test 
-    @DisplayName("TransientTaskServiceImpl can be initialized")
-    void assertThatTaskServiceCanBeInitialized() {
-        TransientTaskServiceImpl service = new TransientTaskServiceImpl();
-        assertNotNull(service);
-        assertTrue(service.getAll().size()>0);
-    }
+	@Test
+	@DisplayName("TransientTaskServiceImpl can be initialized")
+	void assertThatTaskServiceCanBeInitialized() {
+		TransientTaskServiceImpl service = new TransientTaskServiceImpl();
+		assertNotNull(service);
+		assertTrue(service.getAll().size() > 0);
+	}
 
-    
-    @Test
-    @DisplayName("TransientTaskServiceImpl provides at least one task ")
-    void assertThatTaskServiceProvidesData() {
-        TransientTaskServiceImpl service = new TransientTaskServiceImpl();
-        assertTrue(service.getAll().size()>0);
-    }
+	@Test
+	@DisplayName("TransientTaskServiceImpl provides at least one task ")
+	void assertThatTaskServiceProvidesData() {
+		TransientTaskServiceImpl service = new TransientTaskServiceImpl();
+		assertTrue(service.getAll().size() > 0);
+	}
 
 }

@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Server
+Bundle-SymbolicName: com.vogella.lsp.asciidoc.server
+Bundle-Version: 1.0.0.qualifier
+Export-Package: com.vogella.lsp.asciidoc.server
+Require-Bundle: org.eclipse.lsp4j;bundle-version="0.24.0",
+ org.eclipse.lsp4j.jsonrpc;bundle-version="0.23.1"
+Bundle-Vendor: VOGELLA
+Automatic-Module-Name: com.vogella.lsp.asciidoc.server
+Bundle-RequiredExecutionEnvironment: JavaSE-21

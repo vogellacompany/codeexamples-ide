@@ -3,9 +3,7 @@ package com.vogella.tasks.ui.addon;
 import jakarta.inject.Inject;
 
 import org.eclipse.e4.core.di.annotations.Optional;
-import org.eclipse.e4.core.di.extensions.EventTopic;
 import org.eclipse.e4.ui.di.UIEventTopic;
-import org.eclipse.e4.ui.model.application.MApplication;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPerspective;
 import org.eclipse.e4.ui.model.application.ui.basic.MWindow;
 import org.eclipse.e4.ui.workbench.UIEvents;
@@ -22,8 +20,7 @@ public class PerspectiveSwitchAddon {
 	@Optional
 	public void subscribeTopicSelectedElement(
 			@UIEventTopic(UIEvents.ElementContainer.TOPIC_SELECTEDELEMENT) Event event) {
-		
-		
+
 		Object newValue = event.getProperty(EventTags.NEW_VALUE);
 
 		// only run this, if the NEW_VALUE is a MPerspective

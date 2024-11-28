@@ -26,7 +26,7 @@
             label="Solution Server">
       </server>
       <contentTypeMapping
-            contentType="com.vogella.editor.asciidoc.contenttype"
+            contentType="org.eclipsecon.solution-contenttype"
             id="org.eclipsecon.languageserverplugin.solutionserver">
       </contentTypeMapping>
    </extension>

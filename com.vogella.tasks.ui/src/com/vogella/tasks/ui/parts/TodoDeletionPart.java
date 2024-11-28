@@ -21,12 +21,11 @@ import org.eclipse.swt.widgets.Composite;
 import com.vogella.tasks.model.Task;
 import com.vogella.tasks.model.TaskService;
 
-
 public class TodoDeletionPart {
-	
+
 	@Inject
 	private TaskService taskService;
-	
+
 	private ComboViewer viewer;
 
 	@PostConstruct

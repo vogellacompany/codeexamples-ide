@@ -4,11 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.typed.BeanProperties;
@@ -16,8 +11,6 @@ import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
-import org.eclipse.e4.ui.di.Persist;
-import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -31,7 +24,11 @@ import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Text;
 
 import com.vogella.tasks.model.Task;
-import com.vogella.tasks.model.TaskService;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 public class TodoDetailsPart {
 
@@ -46,8 +43,7 @@ public class TodoDetailsPart {
 	// observable placeholder for a task
 	private WritableValue<Task> observableTodo = new WritableValue<>();
 	private DataBindingContext dbc;
-	@Inject
-	private MPart part; // <.>
+	// <.>
 
 	// pause dirty listener when new Todo selection is set
 	private boolean pauseDirtyListener;
@@ -101,9 +97,9 @@ public class TodoDetailsPart {
 			dbc.getBindings().forEach(item -> {
 				Binding binding = item;
 				binding.getTarget().addChangeListener(e -> {
-					if (!pauseDirtyListener && part != null) { //
-						part.setDirty(true);
-					}
+//					if (!pauseDirtyListener && part != null) { //
+////						part.setDirty(true);
+//					}
 				});
 			});
 		}
@@ -146,14 +142,6 @@ public class TodoDetailsPart {
 			pauseDirtyListener = true; //
 			this.observableTodo.setValue(task.get());
 			pauseDirtyListener = false; //
-		}
-	}
-
-	@Persist // <.>
-	public void save(TaskService todoService) {
-		task.ifPresent(todoService::update);
-		if (part != null) {
-			part.setDirty(false);
 		}
 	}
 

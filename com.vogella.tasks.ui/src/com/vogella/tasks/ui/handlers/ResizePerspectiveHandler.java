@@ -15,7 +15,6 @@ public class ResizePerspectiveHandler {
 	@Execute
 	public void execute(EModelService modelService, MApplication app) {
 
-
 		MWindow window = modelService.createModelElement(MWindow.class);
 		window.setWidth(200);
 		window.setHeight(300);
@@ -25,7 +24,7 @@ public class ResizePerspectiveHandler {
 		createModelElement2.setCloseable(true);
 		createModelElement.getChildren().add(createModelElement2);
 		window.getChildren().add(createModelElement);
-		
+
 		// add the new window to the application
 		app.getChildren().add(window);
 //		List<MPartSashContainerElement> children = activePerspective.getChildren();

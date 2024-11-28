@@ -2,9 +2,6 @@ package com.vogella.tasks.ui.addon;
 
 import java.util.List;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
-
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.UIEventTopic;
 import org.eclipse.e4.ui.model.application.MApplication;
@@ -15,6 +12,9 @@ import org.eclipse.e4.ui.model.application.ui.basic.MPartStack;
 import org.eclipse.e4.ui.workbench.UIEvents;
 import org.eclipse.e4.ui.workbench.modeling.EModelService;
 import org.eclipse.e4.ui.workbench.modeling.EPartService;
+
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 public class AddViewsToPerspectiveAddon {
 
@@ -53,6 +53,7 @@ public class AddViewsToPerspectiveAddon {
 					stack.get(0).getChildren().add(detailsPart);
 				}
 			}
+			
 		}
 	}
 

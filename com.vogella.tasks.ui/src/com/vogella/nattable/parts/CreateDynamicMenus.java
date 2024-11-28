@@ -1,4 +1,4 @@
- 
+
 package com.vogella.nattable.parts;
 
 import java.util.List;
@@ -16,5 +16,5 @@ public class CreateDynamicMenus {
 		createModelElement.setLabel("Tuet");
 		items.add(createModelElement);
 	}
-		
+
 }

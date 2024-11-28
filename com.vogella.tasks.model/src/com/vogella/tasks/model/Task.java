@@ -47,10 +47,10 @@ public class Task {
 	public void setDescription(String description) {
 		changes.firePropertyChange(FIELD_DESCRIPTION, this.description, this.description = description);
 	}
+
 	public boolean isDone() {
 		return done;
 	}
-
 
 	public void setDone(boolean isDone) {
 		changes.firePropertyChange(FIELD_DONE, this.done, this.done = isDone);

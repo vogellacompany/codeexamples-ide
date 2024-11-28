@@ -8,16 +8,14 @@ import com.vogella.tasks.ui.dialogs.PasswordDialog;
 
 public class EnterCredentialsHandler {
 
-    @Execute
-    public void execute(
-            Shell shell) {
-        PasswordDialog dialog = new PasswordDialog(shell);
+	@Execute
+	public void execute(Shell shell) {
+		PasswordDialog dialog = new PasswordDialog(shell);
 
-        // get the new values from the dialog
-        if (dialog.open() == Window.OK) {
-            String user = dialog.getUser();
-            String pw = dialog.getPassword();
-			// TODO use user and pw to connect to server
-        }
-    }
+		// get the new values from the dialog
+		if (dialog.open() == Window.OK) {
+			dialog.getUser();
+			dialog.getPassword();
+		}
+	}
 }

@@ -10,12 +10,13 @@ public class TestHandler {
 
 	public TestHandler() {
 	}
-    @Execute
+
+	@Execute
 	public void execute(@Optional Shell shell) {
-        MessageDialog.openInformation(shell, "First", "Hello, e4 API world");
-    }
-    
-    @CanExecute
+		MessageDialog.openInformation(shell, "First", "Hello, e4 API world");
+	}
+
+	@CanExecute
 	public boolean test() {
 		return true;
 	}

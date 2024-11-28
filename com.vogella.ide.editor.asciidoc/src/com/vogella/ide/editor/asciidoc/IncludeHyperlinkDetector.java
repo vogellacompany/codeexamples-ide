@@ -7,6 +7,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -25,73 +26,71 @@ import org.eclipse.ui.PlatformUI;
 public class IncludeHyperlinkDetector extends AbstractHyperlinkDetector {
 
 	private static final String HYPERLINK_PROPERTY = "include::";
-	private static final String IMAGE_PROPERTY = "image::";
 
 	@Override
 	public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks) {
-		
+
 		IDocument document = textViewer.getDocument();
-		IEclipseContext context = PlatformUI.getWorkbench().getService(IEclipseContext.class);
-		Object object = context.get("activeEditor");
-		
-		if (object instanceof IEditorPart activeEditor) {
-			
-			IEditorInput editorInput = activeEditor.getEditorInput();
-			IResource adapter = editorInput.getAdapter(IResource.class);
-			IContainer parent = adapter.getParent();
-			
-			try {
-				int offset = region.getOffset();
+		IContainer parent = getParentFolder();
 
-				IRegion lineInformationOfOffset = document.getLineInformationOfOffset(offset);
-				String lineContent = document.get(lineInformationOfOffset.getOffset(),
-						lineInformationOfOffset.getLength());
+		try {
+			int offset = region.getOffset();
 
-				// Content assist should only be used in the dependent line
-				if (lineContent.startsWith(HYPERLINK_PROPERTY)) {
-					String dependentResourceName = lineContent
-							.substring(HYPERLINK_PROPERTY.length(), lineContent.indexOf("[")).trim();
+			IRegion lineInformationOfOffset = document.getLineInformationOfOffset(offset);
+			String lineContent = document.get(lineInformationOfOffset.getOffset(), lineInformationOfOffset.getLength());
 
-					Region targetRegion = new Region(lineInformationOfOffset.getOffset() + HYPERLINK_PROPERTY.length(),
-							lineInformationOfOffset.getLength() - HYPERLINK_PROPERTY.length());
+			if (lineContent.startsWith(HYPERLINK_PROPERTY)) {
+				String dependentResourceName = lineContent
+						.substring(HYPERLINK_PROPERTY.length(), lineContent.indexOf("[")).trim();
 
-					IResource[] members = parent.members();
+				Region targetRegion = new Region(lineInformationOfOffset.getOffset() + HYPERLINK_PROPERTY.length(),
+						lineInformationOfOffset.getLength() - HYPERLINK_PROPERTY.length());
 
-					// Only take resources, which have the "adoc" file extension and skip the
-					// current resource itself
-					return Arrays.stream(members)
-							.filter(res -> res instanceof IFile && res.getName().equals(dependentResourceName)
-									&& res.getFileExtension().equals("adoc"))
-							.map(res -> new ResourceHyperlink(targetRegion, res.getName(), (IFile) res))
-							.toArray(IHyperlink[]::new);
+				String fileName;
+//				// we support subfolder in the same level as we are
+				if (dependentResourceName.startsWith("../")||dependentResourceName.startsWith("./") ) {
+
+					String folder = dependentResourceName.substring(0, dependentResourceName.lastIndexOf("/"));
+					dependentResourceName = dependentResourceName.substring(dependentResourceName.lastIndexOf("/")+1, dependentResourceName.length());
+					IContainer subfolder = parent.getFolder(new Path(folder));
+					parent = subfolder;
+
 				}
-				// Content assist should only be used in the dependent line
-				if (lineContent.startsWith(IMAGE_PROPERTY)) {
-					String dependentResourceName = lineContent
-							.substring(IMAGE_PROPERTY.length(), lineContent.indexOf("[")).trim();
-
-					Region targetRegion = new Region(lineInformationOfOffset.getOffset() + IMAGE_PROPERTY.length(),
-							lineInformationOfOffset.getLength() - IMAGE_PROPERTY.length());
-
-					IContainer imgFolder = parent.getFolder(IPath.fromOSString("img"));
-
-
-					// Only take resources, which have the "adoc" file extension and skip the
-					// current resource itself
-					return Arrays.stream(imgFolder.members())
-							.filter(res -> res instanceof IFile && res.getName().equals(dependentResourceName)
-									&& res.getFileExtension().equals("png"))
-							.map(res -> new ResourceHyperlink(targetRegion, res.getName(), (IFile) res))
-							.toArray(IHyperlink[]::new);
+				if (!parent.exists()) {
+					return null;
 				}
 				
-				
-			} catch (CoreException | BadLocationException e) {
-				e.printStackTrace();
+				fileName= dependentResourceName;
+				IResource[] members = parent.members();
+				// Only take resources, which have the "adoc" file extension and skip the
+				// current resource itself
+				IHyperlink[] result = Arrays.stream(members)
+						.filter(res -> res instanceof IFile && res.getName().equals(fileName))
+						.map(res -> new ResourceHyperlink(targetRegion, res.getName(), (IFile) res))
+						.toArray(IHyperlink[]::new);
+
+				return result.length == 0 ? null : result;
 			}
+
+		} catch (CoreException | BadLocationException e) {
+			e.printStackTrace();
 		}
 		// do not return new IHyperlink[0] because the array may only be null or not
 		// empty
+		return null;
+	}
+
+	private IContainer getParentFolder() {
+		IEclipseContext context = PlatformUI.getWorkbench().getService(IEclipseContext.class);
+		Object object = context.get("activeEditor");
+
+		if (object instanceof IEditorPart activeEditor) {
+
+			IEditorInput editorInput = activeEditor.getEditorInput();
+			IResource adapter = editorInput.getAdapter(IResource.class);
+			IContainer parent = adapter.getParent();
+			return parent;
+		}
 		return null;
 	}
 

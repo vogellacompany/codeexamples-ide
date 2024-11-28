@@ -9,18 +9,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import jakarta.inject.Inject;
-
 import org.eclipse.e4.core.services.events.IEventBroker;
 
 import com.vogella.tasks.events.TaskEventConstants;
 import com.vogella.tasks.model.Task;
 import com.vogella.tasks.model.TaskService;
 
+import jakarta.inject.Inject;
+
+
 public class TransientTaskServiceImpl implements TaskService {
 
 	@Inject // <.>
-	public IEventBroker broker;
+	private IEventBroker broker;
 
 	private static AtomicInteger current = new AtomicInteger(1);
 	private List<Task> tasks;
@@ -41,7 +42,6 @@ public class TransientTaskServiceImpl implements TaskService {
 		taskConsumer.accept(tasks.stream().map(Task::copy).collect(Collectors.toList()));
 	}
 
-
 	// create or update an existing instance of object
 	@Override
 	public synchronized boolean update(Task newTask) {
@@ -58,9 +58,8 @@ public class TransientTaskServiceImpl implements TaskService {
 
 		if (!taskOptional.isPresent()) {
 			tasks.add(task);
-			broker.post(TaskEventConstants.TOPIC_TASKS_NEW,
-					Map.of(TaskEventConstants.TOPIC_TASKS_NEW, TaskEventConstants.TOPIC_TASKS_NEW, Task.FIELD_ID,
-							task.getId())); // <.>
+			broker.post(TaskEventConstants.TOPIC_TASKS_NEW, Map.of(TaskEventConstants.TOPIC_TASKS_NEW,
+					TaskEventConstants.TOPIC_TASKS_NEW, Task.FIELD_ID, task.getId())); // <.>
 		} else {
 			broker.post(TaskEventConstants.TOPIC_TASKS_UPDATE, Map.of(TaskEventConstants.TOPIC_TASKS,
 					TaskEventConstants.TOPIC_TASKS_UPDATE, Task.FIELD_ID, task.getId())); // <.>
@@ -82,18 +81,15 @@ public class TransientTaskServiceImpl implements TaskService {
 					TaskEventConstants.TOPIC_TASKS_DELETE, Task.FIELD_ID, t.getId())); // <.>
 		});
 
-
 		return deletedTask.isPresent();
 	}
 
 	// Example data, change if you like
 	private List<Task> createTestData() {
-		List<Task> list = List.of(
-				create("Application model", "Dynamics"), create("Application model", "Flexible and extensible"),
-				create("DI", "@Inject as programming mode"), create("OSGi", "Services"),
-				create("SWT", "Widgets"), create("JFace", "Especially Viewers!"),
-				create("CSS Styling", "Style your application"),
-				create("Eclipse services", "Selection, model, Part"),
+		List<Task> list = List.of(create("Application model", "Dynamics"),
+				create("Application model", "Flexible and extensible"), create("DI", "@Inject as programming mode"),
+				create("OSGi", "Services"), create("SWT", "Widgets"), create("JFace", "Especially Viewers!"),
+				create("CSS Styling", "Style your application"), create("Eclipse services", "Selection, model, Part"),
 				create("Renderer", "Different UI toolkit"), create("Compatibility Layer", "Run Eclipse 3.x"));
 		return new ArrayList<>(list);
 	}

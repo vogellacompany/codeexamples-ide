@@ -9,19 +9,19 @@ public class TaskWizard extends Wizard {
 	private Task task;
 
 	public TaskWizard(Task todo) {
-        this.task = todo;
-        setWindowTitle("New Wizard");
-    }
+		this.task = todo;
+		setWindowTitle("New Wizard");
+	}
 
-    @Override
-    public void addPages() {
+	@Override
+	public void addPages() {
 		addPage(new CreateTaskPage1(task));
 		addPage(new CreateTaskPage2());
-    }
+	}
 
-    @Override
-    public boolean performFinish() {
-        return true;
-    }
+	@Override
+	public boolean performFinish() {
+		return true;
+	}
 
 }

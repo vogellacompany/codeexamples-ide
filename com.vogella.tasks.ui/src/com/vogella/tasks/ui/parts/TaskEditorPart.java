@@ -109,7 +109,6 @@ public class TaskEditorPart {
 		}
 	}
 
-
 	// allows to disable/ enable the user interface fields
 	// if no task is set
 	private void enableUserInterface(boolean enabled) {

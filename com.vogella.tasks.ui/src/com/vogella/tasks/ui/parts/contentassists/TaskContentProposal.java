@@ -6,16 +6,15 @@ import com.vogella.tasks.model.Task;
 
 public class TaskContentProposal extends ContentProposal {
 
-    private Task task;
+	private Task task;
 
-    public TaskContentProposal(String content, Task task) {
-        super(content);
-        this.task = task;
-    }
+	public TaskContentProposal(String content, Task task) {
+		super(content);
+		this.task = task;
+	}
 
-    public Task getTask() {
-        return task;
-    }
-
+	public Task getTask() {
+		return task;
+	}
 
 }

@@ -57,8 +57,32 @@
           activate="true"
           class="com.vogella.ide.editor.asciidoc.IncludeHyperlinkDetector"
           id="com.vogella.ide.editor.asciidoc.hyperlinkDetector"
-          name="Hyperlink for other include files"
+          name="Hyperlink for include statements in Asciidoc files"
+          targetId="org.eclipse.ui.genericeditor.GenericEditor">
+    </hyperlinkDetector>
+    <hyperlinkDetector
+          activate="true"
+          class="com.vogella.ide.editor.asciidoc.ImageHyperlinkDetector"
+          id="com.vogella.ide.editor.asciidoc.hyperlinkDetector1"
+          name="Hyperlink for images in Asciidoc"
           targetId="org.eclipse.ui.genericeditor.GenericEditor">
     </hyperlinkDetector>
  </extension>
+ <extension
+       point="org.eclipse.ui.genericeditor.hoverProviders">
+    <hoverProvider
+          class="com.vogella.ide.editor.asciidoc.ImageHover"
+          contentType="com.vogella.editor.asciidoc.contenttype">
+    </hoverProvider>
+ </extension>
+ <extension
+       point="org.eclipse.ui.ide.unassociatedEditorStrategy">
+    <strategy
+          class="com.vogella.ide.editor.asciidoc.UnassociatedEditorStrategy1"
+          id="com.vogella.ide.editor.asciidoc.strategy1"
+          interactive="true"
+          label="label">
+    </strategy>
+ </extension>
+
 </plugin>
