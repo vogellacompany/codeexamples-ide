@@ -84,5 +84,15 @@
           label="label">
     </strategy>
  </extension>
+ <extension
+       point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
+    <target
+          id="com.vogella.ide.editor.asciidoc.hyperlinkDetector"
+          name="name">
+       <context
+             type="com.vogella.ide.editor.asciidoc.Context1">
+       </context>
+    </target>
+ </extension>
 
 </plugin>

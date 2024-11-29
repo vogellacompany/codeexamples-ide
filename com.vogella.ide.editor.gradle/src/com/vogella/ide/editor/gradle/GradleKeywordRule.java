@@ -14,7 +14,7 @@ public class GradleKeywordRule extends WordRule {
 			"testInstrumentationRunner", "buildTypes", "release", "dependencies", "androidTestCompile", "minifyEnabled",
 			"proguardFiles", "compile", "testCompile", "apply", "plugin", "launcherArgs" };
 
-	private IToken wordToken = new Token(new TextAttribute(new Color(Display.getCurrent(), new RGB(139,0,139))));
+	private IToken wordToken = new Token(new TextAttribute(new Color(Display.getCurrent(), new RGB(0, 0, 255))));
 	
 	public GradleKeywordRule() {
 		super(new Detector());

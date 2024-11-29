@@ -2,6 +2,7 @@ package com.vogella.lsp.asciidoc.server;
 
 import java.util.concurrent.CompletableFuture;
 
+import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
@@ -29,22 +30,20 @@ public class AsciidocLanguageServer implements LanguageServer {
 	@Override
 	public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
 		final InitializeResult res = new InitializeResult(new ServerCapabilities());
-		res.getCapabilities().setCompletionProvider(new CompletionOptions());
-//		res.getCapabilities().setCodeActionProvider(Boolean.TRUE);
-//		res.getCapabilities().setHoverProvider(Boolean.TRUE);
-//		res.getCapabilities().setReferencesProvider(Boolean.TRUE);
 		res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
-//		res.getCapabilities().setDefinitionProvider(Boolean.TRUE);
+		res.getCapabilities().setCompletionProvider(new CompletionOptions());
 		res.getCapabilities().setDocumentSymbolProvider(Boolean.TRUE);
-
+		res.getCapabilities().setHoverProvider(Boolean.TRUE);
+		res.getCapabilities().setDefinitionProvider(Boolean.TRUE);
+		res.getCapabilities().setCodeActionProvider(Boolean.TRUE);
+		res.getCapabilities().setCodeLensProvider(new CodeLensOptions(false));
+//		res.getCapabilities().setReferencesProvider(Boolean.TRUE);
 		return CompletableFuture.supplyAsync(() -> res);
 	}
 
 	@Override
 	public CompletableFuture<Object> shutdown() {
-		return CompletableFuture.supplyAsync(() -> {
-			return Boolean.FALSE;
-		});
+		return CompletableFuture.supplyAsync(() -> Boolean.FALSE);
 	}
 
 	@Override
