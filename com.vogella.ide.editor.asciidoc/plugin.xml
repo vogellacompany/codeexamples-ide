@@ -22,7 +22,7 @@
    <extension
          point="org.eclipse.tm4e.registry.grammars">
       <grammar
-            path="syntaxes/asciidoc.tmLanguage"
+            path="syntaxes/asciidoc.json"
             scopeName="com.vogella.ide.editor.asciidoc.grammar">
       </grammar>
       <scopeNameContentTypeBinding

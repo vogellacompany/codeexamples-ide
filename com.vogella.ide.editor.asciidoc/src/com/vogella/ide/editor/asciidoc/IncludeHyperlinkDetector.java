@@ -6,7 +6,6 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.text.BadLocationException;
@@ -18,9 +17,6 @@ import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 public class IncludeHyperlinkDetector extends AbstractHyperlinkDetector {
@@ -47,23 +43,31 @@ public class IncludeHyperlinkDetector extends AbstractHyperlinkDetector {
 						lineInformationOfOffset.getLength() - HYPERLINK_PROPERTY.length());
 
 				String fileName;
-//				// we support subfolder in the same level as we are
-				if (dependentResourceName.startsWith("../")||dependentResourceName.startsWith("./") ) {
 
-					String folder = dependentResourceName.substring(0, dependentResourceName.lastIndexOf("/"));
-					dependentResourceName = dependentResourceName.substring(dependentResourceName.lastIndexOf("/")+1, dependentResourceName.length());
-					IContainer subfolder = parent.getFolder(new Path(folder));
-					parent = subfolder;
-
+				// Check if the dependent resource starts with "./" or "../"
+				if (dependentResourceName.startsWith("../") || dependentResourceName.startsWith("./")) {
+					
+					if (containsSubfolder(dependentResourceName)) {
+						// Handle cases with subdirectories
+						int lastSlashIndex = dependentResourceName.lastIndexOf("/");
+						String folder = dependentResourceName.substring(0, lastSlashIndex);
+						dependentResourceName = dependentResourceName.substring(lastSlashIndex + 1);
+						IContainer subfolder = parent.getFolder(new Path(folder));
+						parent = subfolder;
+					} else {
+						// Handle cases like "../exercise_settings.adoc" without a folder structure
+						dependentResourceName = dependentResourceName.substring(3); // Remove "../"
+					}
 				}
+
 				if (!parent.exists()) {
 					return null;
 				}
-				
-				fileName= dependentResourceName;
+
+				fileName = dependentResourceName;
 				IResource[] members = parent.members();
-				// Only take resources, which have the "adoc" file extension and skip the
-				// current resource itself
+				// Only take resources with the "adoc" file extension and skip the current
+				// resource itself
 				IHyperlink[] result = Arrays.stream(members)
 						.filter(res -> res instanceof IFile && res.getName().equals(fileName))
 						.map(res -> new ResourceHyperlink(targetRegion, res.getName(), (IFile) res))
@@ -78,6 +82,12 @@ public class IncludeHyperlinkDetector extends AbstractHyperlinkDetector {
 		// do not return new IHyperlink[0] because the array may only be null or not
 		// empty
 		return null;
+	}
+
+	public static boolean containsSubfolder(String relativePath) {
+		String normalizedPath = relativePath.replace("\\", "/"); // Normalize for cross-platform
+		int lastIndexOfParent = normalizedPath.lastIndexOf("../");
+		return lastIndexOfParent != -1 && normalizedPath.indexOf("/", lastIndexOfParent + 3) != -1;
 	}
 
 	private IContainer getParentFolder() {
