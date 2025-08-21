@@ -137,10 +137,7 @@
     <module>com.vogella.languageserver.dart</module>
 
     <!--Tests-->
-    <!--
-    
     <module>com.vogella.tasks.services.tests</module>
--->
     <module>updatesite</module>
     <!--releng-->
     <!-- <module>com.vogella.ide.product</module> -->
