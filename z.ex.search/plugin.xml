@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            defaultHandler="z.ex.search.NextPrevSearchEntryHandler:next"
+            id="z.ex.search.nextSearchEntry"
+            name="Next Search Entry">
+      </command>
+      <command
+            categoryId="org.eclipse.ui.category.navigate"
+            defaultHandler="z.ex.search.NextPrevSearchEntryHandler:previous"
+            id="z.ex.search.prevSearchEntry"
+            name="Previous Search Entry">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="z.ex.search.nextSearchEntry"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="ALT+.">
+      </key>
+      <key
+            commandId="z.ex.search.prevSearchEntry"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="ALT+,">
+      </key>
+   </extension>
+
+</plugin>

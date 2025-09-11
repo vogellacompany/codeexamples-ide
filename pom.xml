@@ -6,7 +6,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <tycho.version>4.0.13</tycho.version>
+    <tycho.version>5.0.0</tycho.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -34,8 +34,8 @@
         </plugin>
       </plugins>
     </pluginManagement>
-    
-    
+
+
 
     <plugins>
       <plugin>
@@ -135,10 +135,11 @@
     <module>com.vogella.ide.editor.asciidoc</module>
     <module>com.vogella.ide.editor.shell</module>
     <module>com.vogella.languageserver.dart</module>
+     <module>z.ex.search</module>
 
     <!--Tests-->
     <!--
-    
+
     <module>com.vogella.tasks.services.tests</module>
 -->
     <module>updatesite</module>

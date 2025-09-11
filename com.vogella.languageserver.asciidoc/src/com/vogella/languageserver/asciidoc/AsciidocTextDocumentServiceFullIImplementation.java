@@ -246,29 +246,5 @@ public class AsciidocTextDocumentServiceFullIImplementation implements TextDocum
 	public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
 		return null;
 	}
-	
-	private List<Diagnostic> validate(AsciidocDocumentModel model) {
-	    List<Diagnostic> diagnostics = new ArrayList<>();
-	    
-	    // Simulate finding a placeholder issue
-	    for (int i = 0; i < model.getResolvedLines().size(); i++) {
-	        String line = model.getLines().get(i);
-	        int index = line.indexOf("PLACEHOLDER_TEXT");
-	        if (index != -1) {
-	            // Create a diagnostic for the placeholder text issue
-	            Diagnostic diagnostic = new Diagnostic();
-	            diagnostic.setSeverity(DiagnosticSeverity.Warning);
-	            diagnostic.setMessage("Found placeholder text that should be replaced.");
-	            diagnostic.setCode("placeholder.text.issue");
-	            diagnostic.setRange(new Range(
-	                    new Position(i, index), 
-	                    new Position(i, index + "PLACEHOLDER_TEXT".length())));
-	            diagnostics.add(diagnostic);
-	        }
-	    }
-
-	    return diagnostics;
-	}
-
 
 }

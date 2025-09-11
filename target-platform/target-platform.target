@@ -3,29 +3,29 @@
 <target name="target-platform">
 	<locations>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="http://download.eclipse.org/releases/2024-12"/>
-			<unit id="org.eclipse.equinox.sdk.feature.group" version="0.0.0"/>
-			<unit id="org.eclipse.platform.feature.group" version="0.0.0"/>
-			<unit id="org.eclipse.pde.spies.feature.group" version="0.0.0"/>
+			<repository location="http://download.eclipse.org/releases/2025-09"/>
+			<unit id="org.eclipse.equinox.sdk.feature.group"/>
+			<unit id="org.eclipse.platform.feature.group"/>
+			<unit id="org.eclipse.pde.spies.feature.group"/>
 		</location>
 
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/releases//2024-12"/>
-			<unit id="org.eclipse.jdt.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.jdt.feature.group"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/tm4e/releases/latest/"/>
-			<unit id="org.eclipse.tm4e.feature.feature.group" version="0.0.0"/>
+			<unit id="org.eclipse.tm4e.feature.feature.group"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/lsp4e/releases/latest/"/>
-			<unit id="org.eclipse.lsp4e" version="0.0.0"/>
+			<unit id="org.eclipse.lsp4e"/>
 		</location>
 		
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/lsp4j/builds/main/"/>
-			<unit id="org.eclipse.lsp4j" version="0.0.0"/>
-			<unit id="org.eclipse.lsp4j.jsonrpc" version="0.0.0"/>
+			<unit id="org.eclipse.lsp4j"/>
+			<unit id="org.eclipse.lsp4j.jsonrpc"/>
 		</location>
 		
 		<location includeDependencyDepth="infinite" includeDependencyScopes="compile" includeSource="true" missingManifest="generate" type="Maven">

@@ -6,6 +6,14 @@
    <bundle id="com.vogella.ide.editor.asciidoc">
       <category name="vogella_minimal_asciidoc_editor"/>
    </bundle>
+   <bundle id="z.ex.search">
+      <category name="search_extension"/>
+   </bundle>
    <category-def name="vogella_ide_extensions" label="IDE extensions from vogella"/>
    <category-def name="vogella_minimal_asciidoc_editor" label="Minimal Asciidoc Editor"/>
+   <category-def name="search_extension" label="Search Extension">
+      <description>
+         Adds &quot;Alt+&quot; and &quot;Alt-&quot; shortcut to perform a next search.
+      </description>
+   </category-def>
 </site>
