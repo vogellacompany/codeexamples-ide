@@ -18,14 +18,8 @@
 			<unit id="org.eclipse.tm4e.feature.feature.group"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/lsp4e/releases/latest/"/>
+			<repository location="https://download.eclipse.org/lsp4e/releases/0.27.8/"/>
 			<unit id="org.eclipse.lsp4e"/>
-		</location>
-		
-		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/lsp4j/builds/main/"/>
-			<unit id="org.eclipse.lsp4j"/>
-			<unit id="org.eclipse.lsp4j.jsonrpc"/>
 		</location>
 		
 		<location includeDependencyDepth="infinite" includeDependencyScopes="compile" includeSource="true" missingManifest="generate" type="Maven">
