@@ -9,7 +9,7 @@ This repository contains Eclipse IDE plugin examples and educational code sample
 - **Purpose**: Collection of Eclipse IDE plugin examples and educational samples
 - **Project Type**: Eclipse Plugin Development (PDE) using Tycho Maven build system
 - **Size**: ~103 Java files, ~44 XML files, 3.5MB total
-- **Target Runtime**: Eclipse IDE 2024-03, Java SE-21
+- **Target Runtime**: Eclipse IDE 2025-09, Java SE-21
 - **Languages**: Java (primary), XML (configuration), Properties files
 - **Frameworks**: Eclipse RCP, OSGi, SWT, JFace, LSP4J (Language Server Protocol)
 - **Build System**: Maven 3.9+ with Eclipse Tycho 5.0.0
@@ -54,13 +54,13 @@ mvn clean compile  # Expect failures on com.vogella.ide.editor.asciidoc and com.
 
 1. **TextMate dependency issues (com.vogella.ide.editor.asciidoc):**
    - **Error**: Missing `org.eclipse.tm4e.registry`
-   - **Workaround**: Module temporarily disabled in pom.xml
-   - **Root cause**: Eclipse 2024-03 target platform lacks compatible TextMate bundles
+   - **Workaround**: Ensure Eclipse 2025-09 target platform includes compatible TextMate bundles
+   - **Root cause**: Target platform requires consistent Eclipse release version
 
 2. **Eclipse workbench version conflicts (com.vogella.contribute.parts):**
    - **Error**: Missing `org.eclipse.ui.workbench 3.134.0`
-   - **Workaround**: Skip this module or use newer target platform
-   - **Resolution**: Update target platform to Eclipse 2024-12 (requires dependency resolution)
+   - **Workaround**: Skip this module or use Eclipse 2025-09 target platform
+   - **Resolution**: Target platform uses Eclipse 2025-09 release
 
 3. **Java version mismatches:**
    - **Error**: `UnsupportedClassVersionError` class file version conflicts (class file version 65.0 vs 61.0)
@@ -178,7 +178,7 @@ mvn package -pl com.vogella.tasks.model,com.vogella.ide.first,com.vogella.ide.ed
 ## Key Dependencies & Technologies
 
 **Eclipse Platform Dependencies:**
-- Eclipse Platform 4.31+ (2024-03 release)
+- Eclipse Platform 4.33+ (2025-09 release)
 - OSGi Framework 1.10+
 - SWT/JFace UI toolkit
 - Eclipse JDT (Java Development Tools)
