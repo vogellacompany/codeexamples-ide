@@ -132,7 +132,9 @@
     <module>com.vogella.tasks.extendedsupplier</module>
     <module>com.vogella.preferences.page</module>
     <module>com.vogella.ide.editor.gradle</module>
+    <!-- Temporarily disabled due to tm4e dependency issues
     <module>com.vogella.ide.editor.asciidoc</module>
+    -->
     <module>com.vogella.ide.editor.shell</module>
     <module>com.vogella.languageserver.dart</module>
      <module>z.ex.search</module>
