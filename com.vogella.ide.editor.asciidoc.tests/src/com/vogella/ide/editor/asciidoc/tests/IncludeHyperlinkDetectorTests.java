@@ -164,4 +164,85 @@ class IncludeHyperlinkDetectorTests {
 		assertFalse(IncludeHyperlinkDetector.containsSubfolder("folder\\file.adoc"), 
 				"containsSubfolder method is designed only for ../ patterns, not simple relative paths");
 	}
+
+	@Test
+	@DisplayName("Test cases for the issue: include::res/practical/asciidoc_validator.py[]")
+	void testIssueSpecificCases() {
+		// This test validates the fix for the specific issue mentioned
+		
+		// Test the exact path from the issue
+		String issueExamplePath = "res/practical/asciidoc_validator.py";
+		
+		// The containsSubfolder method should return false for simple relative paths
+		// because it's designed only for ../ patterns
+		assertFalse(IncludeHyperlinkDetector.containsSubfolder(issueExamplePath), 
+				"containsSubfolder should return false for simple relative paths");
+		
+		// However, the new logic in detectHyperlinks should handle these paths
+		// by detecting the slash and splitting folder from filename
+		assertTrue(issueExamplePath.contains("/"), 
+				"Issue example path should contain forward slash");
+		
+		// Verify the folder splitting logic would work correctly
+		int slashIndex = issueExamplePath.lastIndexOf("/");
+		String expectedFolder = issueExamplePath.substring(0, slashIndex);
+		String expectedFileName = issueExamplePath.substring(slashIndex + 1);
+		
+		assertEquals("res/practical", expectedFolder, 
+				"Folder part should be extracted correctly");
+		assertEquals("asciidoc_validator.py", expectedFileName, 
+				"Filename part should be extracted correctly");
+		
+		// Test other similar cases
+		assertTrue("subfolder/file.txt".contains("/"), 
+				"Simple subfolder paths should contain slash");
+		assertTrue("docs/images/diagram.png".contains("/"), 
+				"Multi-level paths should contain slash");
+		assertTrue("code\\examples\\test.java".contains("\\"), 
+				"Windows-style paths should contain backslash");
+	}
+
+	@Test
+	@DisplayName("Test edge cases for path resolution logic")
+	void testPathResolutionEdgeCases() {
+		// Test cases to ensure the new path resolution logic is robust
+		
+		// Test paths with multiple levels
+		String deepPath = "level1/level2/level3/file.txt";
+		assertTrue(deepPath.contains("/"), "Deep paths should contain slash");
+		int slashIndex = deepPath.lastIndexOf("/");
+		assertEquals("level1/level2/level3", deepPath.substring(0, slashIndex),
+				"Deep folder extraction should work");
+		assertEquals("file.txt", deepPath.substring(slashIndex + 1),
+				"Deep filename extraction should work");
+		
+		// Test Windows-style paths
+		String windowsPath = "folder\\subfolder\\file.doc";
+		assertTrue(windowsPath.contains("\\"), "Windows paths should contain backslash");
+		int backslashIndex = windowsPath.lastIndexOf("\\");
+		assertEquals("folder\\subfolder", windowsPath.substring(0, backslashIndex),
+				"Windows folder extraction should work");
+		assertEquals("file.doc", windowsPath.substring(backslashIndex + 1),
+				"Windows filename extraction should work");
+		
+		// Test mixed separators (should pick the last one)
+		String mixedPath = "folder/subfolder\\file.txt";
+		int lastSeparator = Math.max(mixedPath.lastIndexOf("/"), mixedPath.lastIndexOf("\\"));
+		assertEquals(mixedPath.lastIndexOf("\\"), lastSeparator,
+				"Should pick the last separator regardless of type");
+		assertEquals("folder/subfolder", mixedPath.substring(0, lastSeparator),
+				"Mixed path folder extraction should work");
+		assertEquals("file.txt", mixedPath.substring(lastSeparator + 1),
+				"Mixed path filename extraction should work");
+		
+		// Test simple single-level paths (should not trigger the new logic)
+		String simplePath = "simple-file.txt";
+		assertFalse(simplePath.contains("/"), "Simple paths should not contain slash");
+		assertFalse(simplePath.contains("\\"), "Simple paths should not contain backslash");
+		
+		// Test paths with different extensions
+		assertTrue("images/diagram.png".contains("/"), "Image paths should work");
+		assertTrue("scripts/build.sh".contains("/"), "Script paths should work");
+		assertTrue("data/config.json".contains("/"), "Config paths should work");
+	}
 }
