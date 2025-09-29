@@ -58,6 +58,14 @@ public class IncludeHyperlinkDetector extends AbstractHyperlinkDetector {
 						// Handle cases like "../exercise_settings.adoc" without a folder structure
 						dependentResourceName = dependentResourceName.substring(3); // Remove "../"
 					}
+				} else if (dependentResourceName.contains("/") || dependentResourceName.contains("\\")) {
+					// Handle simple relative paths like "res/practical/asciidoc_validator.py"
+					int lastSlashIndex = Math.max(dependentResourceName.lastIndexOf("/"), 
+												  dependentResourceName.lastIndexOf("\\"));
+					String folder = dependentResourceName.substring(0, lastSlashIndex);
+					dependentResourceName = dependentResourceName.substring(lastSlashIndex + 1);
+					IContainer subfolder = parent.getFolder(new Path(folder));
+					parent = subfolder;
 				}
 
 				if (!parent.exists()) {
