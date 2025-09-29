@@ -146,4 +146,22 @@ class IncludeHyperlinkDetectorTests {
 		assertTrue(IncludeHyperlinkDetector.containsSubfolder("../parent/../child/file.adoc"), 
 				"Complex path with parent navigation should contain subfolder");
 	}
+
+	@Test
+	@DisplayName("containsSubfolder handles simple relative paths")
+	void testContainsSubfolderSimpleRelativePaths() {
+		// Test the issue case: simple relative paths without ./ or ../
+		assertFalse(IncludeHyperlinkDetector.containsSubfolder("res/practical/asciidoc_validator.py"), 
+				"containsSubfolder method is designed only for ../ patterns, not simple relative paths");
+		
+		assertFalse(IncludeHyperlinkDetector.containsSubfolder("folder/file.adoc"), 
+				"containsSubfolder method is designed only for ../ patterns, not simple relative paths");
+		
+		assertFalse(IncludeHyperlinkDetector.containsSubfolder("deep/nested/path/file.txt"), 
+				"containsSubfolder method is designed only for ../ patterns, not simple relative paths");
+		
+		// Test backslashes too
+		assertFalse(IncludeHyperlinkDetector.containsSubfolder("folder\\file.adoc"), 
+				"containsSubfolder method is designed only for ../ patterns, not simple relative paths");
+	}
 }
