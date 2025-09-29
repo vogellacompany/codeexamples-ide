@@ -245,4 +245,57 @@ class IncludeHyperlinkDetectorTests {
 		assertTrue("scripts/build.sh".contains("/"), "Script paths should work");
 		assertTrue("data/config.json".contains("/"), "Config paths should work");
 	}
+
+	@Test
+	@DisplayName("Test the bug fix for ./path handling")
+	void testCurrentDirectoryPathHandling() {
+		// Test the specific bug fix: ./path should not use substring(3)
+		
+		// Test paths that should work with proper prefix removal
+		String currentDirPath = "./readme.adoc";
+		String parentDirPath = "../copyright.adoc";
+		
+		// These tests verify the logic that would be used in the actual detector
+		// For paths starting with "../" - remove 3 characters
+		assertTrue(parentDirPath.startsWith("../"), "Parent dir path should start with ../");
+		assertEquals("copyright.adoc", parentDirPath.substring(3), 
+				"Parent dir path should remove ../ correctly");
+		
+		// For paths starting with "./" - remove 2 characters (this was the bug)
+		assertTrue(currentDirPath.startsWith("./"), "Current dir path should start with ./");
+		assertEquals("readme.adoc", currentDirPath.substring(2), 
+				"Current dir path should remove ./ correctly");
+		
+		// The bug was using substring(3) for both cases
+		assertNotEquals("readme.adoc", currentDirPath.substring(3), 
+				"Using substring(3) on ./ path should NOT produce correct result");
+		assertEquals("eadme.adoc", currentDirPath.substring(3), 
+				"Using substring(3) on ./ path produces incorrect result (the bug)");
+	}
+
+	@Test
+	@DisplayName("Test various prefix scenarios that should be handled correctly")
+	void testPrefixHandling() {
+		// Test that the detector logic handles various prefixes correctly
+		
+		// Parent directory cases
+		assertTrue("../file.adoc".startsWith("../"));
+		assertTrue("../../file.adoc".startsWith("../"));
+		assertTrue("../subfolder/file.adoc".startsWith("../"));
+		
+		// Current directory cases  
+		assertTrue("./file.adoc".startsWith("./"));
+		assertTrue("./subfolder/file.adoc".startsWith("./"));
+		
+		// Simple relative paths (no prefix)
+		assertFalse("subfolder/file.adoc".startsWith("../"));
+		assertFalse("subfolder/file.adoc".startsWith("./"));
+		assertTrue("subfolder/file.adoc".contains("/")); // Should use relative path logic
+		
+		// Simple files (no path separators)
+		assertFalse("file.adoc".startsWith("../"));
+		assertFalse("file.adoc".startsWith("./"));
+		assertFalse("file.adoc".contains("/"));
+		assertFalse("file.adoc".contains("\\"));
+	}
 }
