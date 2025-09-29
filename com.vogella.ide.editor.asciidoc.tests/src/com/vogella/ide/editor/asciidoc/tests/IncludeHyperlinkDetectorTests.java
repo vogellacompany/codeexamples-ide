@@ -321,9 +321,10 @@ class IncludeHyperlinkDetectorTests {
 				"After removing '../' prefix, filename should be 'copyright.adoc'");
 		
 		// Verify this is not a complex path scenario
-		assertFalse(issueExamplePath.contains("/", 3), 
+		String pathAfterPrefix = issueExamplePath.substring(3);
+		assertFalse(pathAfterPrefix.contains("/"), 
 				"After '../', there should be no additional path separators");
-		assertFalse(issueExamplePath.contains("\\", 3), 
+		assertFalse(pathAfterPrefix.contains("\\"), 
 				"After '../', there should be no Windows-style path separators");
 		
 		// Test the string processing that the hyperlink detector would perform
