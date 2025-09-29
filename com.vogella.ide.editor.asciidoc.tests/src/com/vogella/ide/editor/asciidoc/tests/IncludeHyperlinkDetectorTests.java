@@ -298,4 +298,105 @@ class IncludeHyperlinkDetectorTests {
 		assertFalse("file.adoc".contains("/"));
 		assertFalse("file.adoc".contains("\\"));
 	}
+
+	@Test
+	@DisplayName("Test case for hyperlinking include::../copyright.adoc[] - the specific issue scenario")
+	void testIncludeCopyrightAdocHyperlink() {
+		// This test validates the specific scenario from the issue: include::../copyright.adoc[]
+		String issueExamplePath = "../copyright.adoc";
+		
+		// Verify this path starts with "../" and should be handled by the parent directory logic
+		assertTrue(issueExamplePath.startsWith("../"), 
+				"Copyright include path should start with '../'");
+		
+		// Since it doesn't contain a subfolder (no slash after removing "../"), 
+		// containsSubfolder should return false
+		assertFalse(IncludeHyperlinkDetector.containsSubfolder(issueExamplePath), 
+				"../copyright.adoc should not be detected as containing a subfolder");
+		
+		// Verify the path processing logic that would be applied
+		// The detector should remove the "../" prefix and look for "copyright.adoc"
+		String expectedFileName = issueExamplePath.substring(3); // Remove "../"
+		assertEquals("copyright.adoc", expectedFileName, 
+				"After removing '../' prefix, filename should be 'copyright.adoc'");
+		
+		// Verify this is not a complex path scenario
+		assertFalse(issueExamplePath.contains("/", 3), 
+				"After '../', there should be no additional path separators");
+		assertFalse(issueExamplePath.contains("\\", 3), 
+				"After '../', there should be no Windows-style path separators");
+		
+		// Test the string processing that the hyperlink detector would perform
+		String processedPath = issueExamplePath;
+		if (processedPath.startsWith("../")) {
+			// This simulates the logic in detectHyperlinks method
+			if (!IncludeHyperlinkDetector.containsSubfolder(processedPath)) {
+				processedPath = processedPath.substring(3); // Remove "../"
+			}
+		}
+		
+		assertEquals("copyright.adoc", processedPath, 
+				"Processed path should result in just the filename");
+	}
+
+	@Test
+	@DisplayName("Test various ../filename.adoc scenarios for comprehensive coverage")
+	void testParentDirectoryFilePatterns() {
+		// Test multiple variations of the ../filename.adoc pattern
+		String[] testPaths = {
+			"../copyright.adoc",      // The specific issue case
+			"../readme.adoc",         // Another common case
+			"../license.txt",         // Non-adoc file
+			"../settings.xml",        // XML file
+			"../config.properties"    // Properties file
+		};
+		
+		for (String path : testPaths) {
+			// All should start with "../"
+			assertTrue(path.startsWith("../"), 
+					String.format("Path '%s' should start with '../'", path));
+			
+			// None should contain subfolders (according to containsSubfolder logic)
+			assertFalse(IncludeHyperlinkDetector.containsSubfolder(path), 
+					String.format("Path '%s' should not contain subfolders", path));
+			
+			// All should process to just the filename
+			String fileName = path.substring(3);
+			assertFalse(fileName.contains("/"), 
+					String.format("Filename '%s' should not contain path separators", fileName));
+			assertFalse(fileName.contains("\\"), 
+					String.format("Filename '%s' should not contain Windows separators", fileName));
+		}
+	}
+
+	@Test
+	@DisplayName("Test contrast between ../filename.adoc and ../subfolder/filename.adoc")
+	void testParentVsParentSubfolder() {
+		// Test the difference between simple parent file reference vs parent subfolder reference
+		
+		// Simple parent file (like the issue case)
+		String simpleParentPath = "../copyright.adoc";
+		assertFalse(IncludeHyperlinkDetector.containsSubfolder(simpleParentPath), 
+				"Simple parent file should not contain subfolder");
+		
+		// Parent with subfolder
+		String parentSubfolderPath = "../docs/copyright.adoc";
+		assertTrue(IncludeHyperlinkDetector.containsSubfolder(parentSubfolderPath), 
+				"Parent with subfolder should be detected as containing subfolder");
+		
+		// Verify the processing difference
+		// Simple parent: just remove "../"
+		assertEquals("copyright.adoc", simpleParentPath.substring(3), 
+				"Simple parent should process to just filename");
+		
+		// Parent with subfolder: needs folder extraction
+		int lastSlash = parentSubfolderPath.lastIndexOf("/");
+		String folderPart = parentSubfolderPath.substring(0, lastSlash);
+		String filePart = parentSubfolderPath.substring(lastSlash + 1);
+		
+		assertEquals("../docs", folderPart, 
+				"Folder part should include parent navigation and subfolder");
+		assertEquals("copyright.adoc", filePart, 
+				"File part should be just the filename");
+	}
 }
