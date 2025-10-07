@@ -39,53 +39,34 @@ public class AsciidocContentAssistProcessor implements IContentAssistProcessor {
 	);
 
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
-
 		String typedText = getTypedTextAtOffset(viewer, offset);
 
-		String fullStatement = getFullStatementAtOffset(viewer, offset);
-
 		// If "image::" is typed, suggest image files
-		if (typedText.startsWith("image") || isCursorInImageSyntax(fullStatement) || isCursorBeforeImage(typedText)) {
-			List<String> imageFiles = getImageFiles(typedText.substring(typedText.length()), viewer);
-
-			if (isCursorInImageSyntax(fullStatement)) {
-
-			}
-			return imageFiles.stream().map(filePath -> new CompletionProposal("image::" + filePath + "[]", // The
-																											// completion
-																											// text to
-																											// insert
-					offset - typedText.length(), // The offset to replace
-					typedText.length(), // The length of the typed text to be replaced
-					("image::" + filePath + "[]").length() // The cursor position after the inserted text
-			)).toArray(ICompletionProposal[]::new);
+		if (typedText.startsWith("image::")) {
+			String pathAfterImage = typedText.substring("image::".length());
+			List<String> imageFiles = getImageFiles(pathAfterImage);
+			return imageFiles.stream()
+					.map(filePath -> new CompletionProposal("image::" + filePath + "[]", 
+							offset - typedText.length(), 
+							typedText.length(), 
+							("image::" + filePath + "[]").length()))
+					.toArray(ICompletionProposal[]::new);
 		}
 
 		// If "include::" is typed, suggest .adoc files
-		if (typedText.startsWith("include")) {
-			List<String> includeFiles = getIncludeFiles(typedText.substring(typedText.length()));
+		if (typedText.startsWith("include::")) {
+			String pathAfterInclude = typedText.substring("include::".length());
+			List<String> includeFiles = getIncludeFiles(pathAfterInclude);
 			return includeFiles.stream()
-					.map(filePath -> new CompletionProposal("include::" + filePath + "[]", offset - typedText.length(),
-							typedText.length(), offset + "include::".length() + filePath.length() + 2)) // +2 for the
-																										// "[]" brackets
+					.map(filePath -> new CompletionProposal("include::" + filePath + "[]", 
+							offset - typedText.length(),
+							typedText.length(), 
+							("include::" + filePath + "[]").length()))
 					.toArray(ICompletionProposal[]::new);
 		}
 
 		// Filter proposals that match the typed text for other cases
 		return getMatchingProposals(typedText, offset);
-	}
-
-	// Get the full statement at the cursor position
-	private String getFullStatementAtOffset(ITextViewer viewer, int offset) {
-		try {
-			IDocument document = viewer.getDocument();
-			int lineStartOffset = document.getLineOffset(document.getLineOfOffset(offset));
-			int lineEndOffset = document.getLineOffset(document.getLineOfOffset(offset) + 1) - 1; // Get the end of the
-																									// line
-			return document.get(lineStartOffset, lineEndOffset - lineStartOffset + 1); // Include full line text
-		} catch (BadLocationException e) {
-			return "";
-		}
 	}
 
 	private ICompletionProposal[] getMatchingProposals(String typedText, int offset) {
@@ -108,43 +89,75 @@ public class AsciidocContentAssistProcessor implements IContentAssistProcessor {
 		}
 	}
 
-	private List<String> getImageFiles(String typedText, ITextViewer viewer) {
+	private List<String> getImageFiles(String pathAfterImage) {
 		String directoryPath = getDirectoryPath();
 		if (directoryPath == null) {
-			return Collections.emptyList(); // Return empty list if directory is not found
+			return Collections.emptyList();
 		}
 
-		File folder = new File(directoryPath + File.separator + "img");
-		File[] files = folder
-				.listFiles((dir, name) -> name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg"));
-		if (files == null)
+		// Images are expected in an "img" subdirectory
+		File folder = new File(directoryPath, "img");
+		if (!folder.exists() || !folder.isDirectory()) {
 			return Collections.emptyList();
+		}
 
-		return Arrays.stream(files).map(File::getName).filter(fileName -> fileName.startsWith(typedText))
-				.collect(Collectors.toList());
-	}
-
-	private boolean isCursorInImageSyntax(String typedText) {
-		// Check if the cursor is inside 'image' keyword (but not after the '::')
-		return typedText.startsWith("image") && !typedText.startsWith("image::");
-	}
-
-	private boolean isCursorBeforeImage(String typedText) {
-		// Check if the cursor is before 'image::' and suggest completions
-		return typedText.startsWith("image::");
-	}
-
-	// Method to get files for include::
-	private List<String> getIncludeFiles(String typedText) {
-		String directoryPath = getDirectoryPath();
-		File folder = new File(directoryPath); // Or another path relative to the current file
-		File[] files = folder.listFiles((dir, name) -> name.endsWith(".adoc") && name.startsWith(typedText));
-
+		File[] files = folder.listFiles((dir, name) -> 
+			(name.toLowerCase().endsWith(".png") || name.toLowerCase().endsWith(".jpg")) 
+			&& name.startsWith(pathAfterImage)
+		);
+		
 		if (files == null) {
 			return Collections.emptyList();
 		}
 
 		return Arrays.stream(files).map(File::getName).collect(Collectors.toList());
+	}
+
+	// Method to get files for include::
+	private List<String> getIncludeFiles(String pathAfterInclude) {
+		String directoryPath = getDirectoryPath();
+		if (directoryPath == null) {
+			return Collections.emptyList();
+		}
+		
+		// Parse the path to extract directory and filename prefix
+		String targetDirectory = directoryPath;
+		String filePrefix = pathAfterInclude;
+		
+		// Handle paths with directory separators
+		if (pathAfterInclude.contains("/") || pathAfterInclude.contains("\\")) {
+			int lastSeparatorIndex = Math.max(
+				pathAfterInclude.lastIndexOf("/"),
+				pathAfterInclude.lastIndexOf("\\")
+			);
+			
+			String relativePath = pathAfterInclude.substring(0, lastSeparatorIndex);
+			filePrefix = pathAfterInclude.substring(lastSeparatorIndex + 1);
+			
+			// Build the target directory path
+			targetDirectory = new File(directoryPath, relativePath).getAbsolutePath();
+		}
+		
+		File folder = new File(targetDirectory);
+		if (!folder.exists() || !folder.isDirectory()) {
+			return Collections.emptyList();
+		}
+		
+		// Filter files by extension and prefix
+		final String finalPrefix = filePrefix;
+		File[] files = folder.listFiles((dir, name) -> 
+			name.endsWith(".adoc") && name.startsWith(finalPrefix)
+		);
+		
+		if (files == null) {
+			return Collections.emptyList();
+		}
+		
+		// Build the full path for each file (including the directory part)
+		String pathPrefix = pathAfterInclude.substring(0, pathAfterInclude.length() - filePrefix.length());
+		return Arrays.stream(files)
+			.map(file -> pathPrefix + file.getName())
+			.collect(Collectors.toList());
 	}
 
 	private String getDirectoryPath() {
