@@ -17,6 +17,9 @@ import org.eclipse.swt.widgets.Composite;
  */
 public class AsciidocMergeViewer extends TextMergeViewer {
 
+    /** RGB color for hyperlinks (blue) */
+    private static final RGB HYPERLINK_COLOR = new RGB(0, 0, 255);
+
     public AsciidocMergeViewer(Composite parent, int style, CompareConfiguration configuration) {
         super(parent, style, configuration);
     }
@@ -37,8 +40,8 @@ public class AsciidocMergeViewer extends TextMergeViewer {
             
             sourceViewer.setHyperlinkDetectors(hyperlinkDetectors, IDocument.DEFAULT_CONTENT_TYPE);
             
-            // Install hyperlink presenter
-            IHyperlinkPresenter hyperlinkPresenter = new MultipleHyperlinkPresenter(new RGB(0, 0, 255));
+            // Install hyperlink presenter with blue color
+            IHyperlinkPresenter hyperlinkPresenter = new MultipleHyperlinkPresenter(HYPERLINK_COLOR);
             sourceViewer.setHyperlinkPresenter(hyperlinkPresenter);
         }
     }
