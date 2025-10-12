@@ -24,13 +24,13 @@ When comparing two versions of an Asciidoc file, you can:
 - Click on `link:` statements to navigate to linked resources
 - All hyperlinks are available in both the left and right panes of the compare editor
 
-#### Syntax Highlighting in Compare Mode
-The compare editor automatically provides color-coded highlighting for:
+#### Diff Highlighting in Compare Mode
+Eclipse's compare framework automatically provides color-coded highlighting for changes:
 - **Red highlighting**: Deleted lines (content removed in the newer version)
 - **Green highlighting**: Added lines (content added in the newer version)
 - **Gray highlighting**: Unchanged lines
 
-This makes it easy to review changes to Asciidoc documentation files using Eclipse's built-in compare functionality.
+This standard Eclipse feature makes it easy to review changes to Asciidoc documentation files.
 
 ## Implementation Details
 
@@ -43,8 +43,10 @@ The compare mode support is implemented through:
 The merge viewer:
 - Extends Eclipse's standard `TextMergeViewer` for text comparison
 - Configures hyperlink detectors for the compare view text viewers
-- Installs hyperlink presenters with blue color (RGB 0,0,255) for clickable links
+- Installs hyperlink presenters with blue hyperlinks (RGB 0,0,255)
 - Supports all three hyperlink types: include, image, and link statements
+
+Note: Diff highlighting (red for deleted, green for added lines) is provided by Eclipse's compare framework, not by this custom viewer.
 
 ### Extension Point Configuration
 The plugin registers the merge viewer for:
