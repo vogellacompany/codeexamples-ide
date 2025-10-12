@@ -2,12 +2,12 @@ package com.vogella.ide.editor.asciidoc;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.contentmergeviewer.TextMergeViewer;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlinkPresenter;
 import org.eclipse.jface.text.hyperlink.MultipleHyperlinkPresenter;
 import org.eclipse.jface.text.source.SourceViewer;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 
@@ -38,7 +38,8 @@ public class AsciidocMergeViewer extends TextMergeViewer {
                 new LinkHyperlinkDetector()
             };
             
-            sourceViewer.setHyperlinkDetectors(hyperlinkDetectors, IDocument.DEFAULT_CONTENT_TYPE);
+            // Use SWT.MOD1 for Ctrl (Windows/Linux) or Cmd (Mac) modifier key
+            sourceViewer.setHyperlinkDetectors(hyperlinkDetectors, SWT.MOD1);
             
             // Install hyperlink presenter with blue color
             IHyperlinkPresenter hyperlinkPresenter = new MultipleHyperlinkPresenter(HYPERLINK_COLOR);
