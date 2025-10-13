@@ -83,15 +83,6 @@
     </hoverProvider>
  </extension>
  <extension
-       point="org.eclipse.ui.ide.unassociatedEditorStrategy">
-    <strategy
-          class="com.vogella.ide.editor.asciidoc.UnassociatedEditorStrategy1"
-          id="com.vogella.ide.editor.asciidoc.strategy1"
-          interactive="true"
-          label="label">
-    </strategy>
- </extension>
- <extension
        point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
     <target
           id="com.vogella.ide.editor.asciidoc.hyperlinkDetector"
