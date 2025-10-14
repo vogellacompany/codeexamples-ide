@@ -101,18 +101,6 @@
        </context>
     </target>
  </extension>
- <extension
-       point="org.eclipse.compare.contentMergeViewers">
-    <viewer
-          class="com.vogella.ide.editor.asciidoc.AsciidocMergeViewerCreator"
-          extensions="adoc"
-          id="com.vogella.ide.editor.asciidoc.mergeViewer"
-          label="Asciidoc Merge Viewer">
-    </viewer>
-    <contentTypeBinding
-          contentMergeViewerId="com.vogella.ide.editor.asciidoc.mergeViewer"
-          contentTypeId="com.vogella.editor.asciidoc.contenttype">
-    </contentTypeBinding>
- </extension>
+
 
 </plugin>
