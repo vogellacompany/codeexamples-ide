@@ -5,13 +5,13 @@
          point="org.eclipse.lsp4e.languageServer">
       <server
             class="com.vogella.lsp.asciidoc.client.ConnectionProviderSolution"
-            id="org.vogella.lsp.asciidoc.server"
+            id="com.vogella.lsp.asciidoc.client.server"
             label="AsciiDoc Language Server">
       </server>
       <contentTypeMapping
-            id="org.vogella.lsp.asciidoc.contentTypeMapping"
+            id="com.vogella.lsp.asciidoc.client.contentTypeMapping"
             contentType="com.vogella.editor.asciidoc.contenttype"
-            server="org.vogella.lsp.asciidoc.server"
+            server="com.vogella.lsp.asciidoc.client.server"
             languageId="asciidoc">
       </contentTypeMapping>
    </extension>
