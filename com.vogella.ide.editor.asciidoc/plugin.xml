@@ -44,6 +44,7 @@
             icon="icons/asciidoc.png">
       </icon>
    </extension>
+   <!-- Disabled: Now provided by LSP server (see com.vogella.lsp.asciidoc.server)
    <extension
          point="org.eclipse.ui.genericeditor.contentAssistProcessors">
       <contentAssistProcessor
@@ -51,6 +52,8 @@
             contentType="com.vogella.editor.asciidoc.contenttype">
       </contentAssistProcessor>
    </extension>
+   -->
+ <!-- Disabled: Now provided by LSP server (see com.vogella.lsp.asciidoc.server)
  <extension
        point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
     <hyperlinkDetector
@@ -82,6 +85,7 @@
           contentType="com.vogella.editor.asciidoc.contenttype">
     </hoverProvider>
  </extension>
+ -->
  <extension
        point="org.eclipse.ui.ide.unassociatedEditorStrategy">
     <strategy

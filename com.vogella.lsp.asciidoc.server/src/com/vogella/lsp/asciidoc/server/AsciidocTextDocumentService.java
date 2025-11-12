@@ -101,32 +101,141 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
 			DocumentSymbolParams params) {
 		return CompletableFuture.supplyAsync(() -> {
-			// Create a list to hold the symbols
+			String uri = params.getTextDocument().getUri();
+			AsciidocDocumentModel model = docs.get(uri);
+
+			if (model == null) {
+				return Collections.emptyList();
+			}
+
+			List<String> lines = model.getLines();
 			List<Either<SymbolInformation, DocumentSymbol>> symbols = new ArrayList<>();
+			List<DocumentSymbol> headerStack = new ArrayList<>();
 
-			// Create a symbol for a class
-			DocumentSymbol classSymbol = new DocumentSymbol();
-			classSymbol.setName("MyClass");
-			classSymbol.setKind(SymbolKind.Class);
-			classSymbol.setRange(new Range(new Position(0, 0), new Position(0, 10)));
-			classSymbol.setSelectionRange(new Range(new Position(0, 0), new Position(0, 10)));
+			for (int i = 0; i < lines.size(); i++) {
+				String line = lines.get(i);
+				String trimmedLine = line.trim();
+				DocumentSymbol symbol = null;
 
-			// Create a symbol for a method inside the class
-			DocumentSymbol methodSymbol = new DocumentSymbol();
-			methodSymbol.setName("myMethod");
-			methodSymbol.setKind(SymbolKind.Method);
-			methodSymbol.setRange(new Range(new Position(1, 0), new Position(1, 10)));
-			methodSymbol.setSelectionRange(new Range(new Position(1, 0), new Position(1, 10)));
+				// Parse headers (= Title, == Section, === Subsection, etc.)
+				// Note: In AsciiDoc, ==== is a delimiter (not a header), so we exclude it
+				if (line.startsWith("=") && !line.trim().equals("====")) {
+					int level = 0;
+					while (level < line.length() && line.charAt(level) == '=') {
+						level++;
+					}
 
-			// Add the method symbol as a child of the class symbol
-			classSymbol.setChildren(List.of(methodSymbol));
+					if (level < line.length() && line.charAt(level) == ' ') {
+						String title = line.substring(level).trim();
+						symbol = createSymbol(title, SymbolKind.String, i, line, level);
 
-			// Add the class symbol to the list of symbols
-			symbols.add(Either.forRight(classSymbol));
+						// Build hierarchy based on header level
+						while (!headerStack.isEmpty() && getHeaderLevel(headerStack.get(headerStack.size() - 1)) >= level) {
+							headerStack.remove(headerStack.size() - 1);
+						}
 
-			// Return the list of symbols
+						if (headerStack.isEmpty()) {
+							symbols.add(Either.forRight(symbol));
+						} else {
+							DocumentSymbol parent = headerStack.get(headerStack.size() - 1);
+							if (parent.getChildren() == null) {
+								parent.setChildren(new ArrayList<>());
+							}
+							parent.getChildren().add(symbol);
+						}
+
+						headerStack.add(symbol);
+					}
+				}
+				// Parse include statements (must be at start of line after trimming)
+				else if (trimmedLine.startsWith("include::")) {
+					int startIdx = trimmedLine.indexOf("include::");
+					int endIdx = trimmedLine.indexOf("[", startIdx);
+					if (endIdx != -1) {
+						String includePath = trimmedLine.substring(startIdx + 9, endIdx);
+						symbol = createSymbol("include: " + includePath, SymbolKind.File, i, line, 0);
+						addSymbolToHierarchy(symbol, headerStack, symbols);
+					}
+				}
+				// Parse image references (must be at start of line after trimming)
+				else if (trimmedLine.startsWith("image::")) {
+					int startIdx = trimmedLine.indexOf("image::");
+					int endIdx = trimmedLine.indexOf("[", startIdx);
+					if (endIdx != -1) {
+						String imagePath = trimmedLine.substring(startIdx + 7, endIdx);
+						symbol = createSymbol("image: " + imagePath, SymbolKind.File, i, line, 0);
+						addSymbolToHierarchy(symbol, headerStack, symbols);
+					}
+				}
+				// Parse source code blocks
+				else if (trimmedLine.startsWith("[source")) {
+					int commaIdx = trimmedLine.indexOf(",");
+					int bracketIdx = trimmedLine.indexOf("]");
+					String language = "";
+					if (commaIdx != -1 && bracketIdx != -1 && commaIdx < bracketIdx) {
+						// Extract only the first parameter (language), not additional attributes
+						String afterComma = trimmedLine.substring(commaIdx + 1, bracketIdx).trim();
+						int nextComma = afterComma.indexOf(",");
+						language = nextComma != -1 ? afterComma.substring(0, nextComma).trim() : afterComma;
+					}
+					String label = language.isEmpty() ? "source block" : "source: " + language;
+					symbol = createSymbol(label, SymbolKind.Module, i, line, 0);
+					addSymbolToHierarchy(symbol, headerStack, symbols);
+				}
+				// Parse tables
+				else if (trimmedLine.equals("|===")) {
+					symbol = createSymbol("table", SymbolKind.Array, i, line, 0);
+					addSymbolToHierarchy(symbol, headerStack, symbols);
+				}
+			}
+
 			return symbols;
 		});
+	}
+
+	private DocumentSymbol createSymbol(String name, SymbolKind kind, int lineNumber, String lineText, int level) {
+		DocumentSymbol symbol = new DocumentSymbol();
+		symbol.setName(name);
+		symbol.setKind(kind);
+
+		// Store the header level in the detail field for hierarchy management
+		if (level > 0) {
+			symbol.setDetail("level:" + level);
+		}
+
+		Position start = new Position(lineNumber, 0);
+		Position end = new Position(lineNumber, lineText.length());
+		Range range = new Range(start, end);
+
+		symbol.setRange(range);
+		symbol.setSelectionRange(range);
+
+		return symbol;
+	}
+
+	private void addSymbolToHierarchy(DocumentSymbol symbol, List<DocumentSymbol> headerStack,
+			List<Either<SymbolInformation, DocumentSymbol>> symbols) {
+		if (headerStack.isEmpty()) {
+			symbols.add(Either.forRight(symbol));
+		} else {
+			DocumentSymbol parent = headerStack.get(headerStack.size() - 1);
+			if (parent.getChildren() == null) {
+				parent.setChildren(new ArrayList<>());
+			}
+			parent.getChildren().add(symbol);
+		}
+	}
+
+	private int getHeaderLevel(DocumentSymbol symbol) {
+		String detail = symbol.getDetail();
+		if (detail != null && detail.startsWith("level:")) {
+			try {
+				return Integer.parseInt(detail.substring(6));
+			} catch (NumberFormatException e) {
+				return 0;
+			}
+		}
+		return 0;
 	}
 
 	@Override
