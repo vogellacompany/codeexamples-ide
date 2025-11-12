@@ -1,11 +1,22 @@
 package com.vogella.lsp.asciidoc.server;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -24,6 +35,8 @@ import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
+import org.eclipse.lsp4j.DocumentLink;
+import org.eclipse.lsp4j.DocumentLinkParams;
 import org.eclipse.lsp4j.DocumentOnTypeFormattingParams;
 import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbol;
@@ -46,7 +59,21 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
 public class AsciidocTextDocumentService implements TextDocumentService {
+	private static final Logger LOGGER = Logger.getLogger(AsciidocTextDocumentService.class.getName());
+
+	// Regex patterns for link detection (compiled once for performance)
+	// Note: Brackets are optional to handle partial/malformed syntax gracefully
+	private static final Pattern INCLUDE_PATTERN = Pattern.compile("include::([^\\[\\s]+)(?:\\[.*?\\])?");
+	private static final Pattern IMAGE_PATTERN = Pattern.compile("image::([^\\[\\s]+)(?:\\[.*?\\])?");
+	private static final Pattern LINK_PATTERN = Pattern.compile("link:([^\\[\\s]+)(?:\\[.*?\\])?");
+
+	// Default directory for images (can be configured if needed)
+	private static final String DEFAULT_IMAGE_DIR = "img/";
+
 	private final Map<String, AsciidocDocumentModel> docs = Collections.synchronizedMap(new HashMap<>());
+
+	// Cache for document links to avoid repeated file I/O operations
+	private final Map<String, List<DocumentLink>> linkCache = Collections.synchronizedMap(new HashMap<>());
 
 	private final AsciidocLanguageServer languageServer;
 
@@ -310,6 +337,144 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
+	public CompletableFuture<List<DocumentLink>> documentLink(DocumentLinkParams params) {
+		return CompletableFuture.supplyAsync(() -> {
+			String uri = params.getTextDocument().getUri();
+
+			// Check cache first to avoid repeated file I/O
+			List<DocumentLink> cachedLinks = linkCache.get(uri);
+			if (cachedLinks != null) {
+				return new ArrayList<>(cachedLinks); // Return copy to prevent modification
+			}
+
+			List<DocumentLink> links = new ArrayList<>();
+			AsciidocDocumentModel model = docs.get(uri);
+
+			if (model == null) {
+				return links;
+			}
+
+			try {
+				// Get the document's parent directory
+				Path documentPath = Paths.get(new URI(uri));
+				Path parentDir = documentPath.getParent();
+
+				// Defensive check: parent can be null for root paths
+				if (parentDir == null) {
+					LOGGER.log(Level.WARNING, "Document has no parent directory: " + uri);
+					return links;
+				}
+
+				List<String> lines = model.getLines();
+
+				for (int lineNum = 0; lineNum < lines.size(); lineNum++) {
+					String line = lines.get(lineNum);
+
+					// Detect include links
+					Matcher includeMatcher = INCLUDE_PATTERN.matcher(line);
+					while (includeMatcher.find()) {
+						String targetPath = includeMatcher.group(1).trim();
+						DocumentLink link = createFileDocumentLink(parentDir, targetPath, lineNum,
+								includeMatcher.start(1), includeMatcher.end(1));
+						if (link != null) {
+							links.add(link);
+						}
+					}
+
+					// Detect image links
+					Matcher imageMatcher = IMAGE_PATTERN.matcher(line);
+					while (imageMatcher.find()) {
+						String targetPath = imageMatcher.group(1).trim();
+						// Images are typically in img/ subdirectory if it's a simple filename
+						String imagePath = targetPath;
+						try {
+							// Use getNameCount() to reliably detect simple filenames vs paths
+							if (Paths.get(targetPath).getNameCount() == 1) {
+								imagePath = DEFAULT_IMAGE_DIR + targetPath;
+							}
+						} catch (InvalidPathException e) {
+							// If path is invalid, use as-is and let createFileDocumentLink handle it
+						}
+						DocumentLink link = createFileDocumentLink(parentDir, imagePath, lineNum,
+								imageMatcher.start(1), imageMatcher.end(1));
+						if (link != null) {
+							links.add(link);
+						}
+					}
+
+					// Detect link: references
+					Matcher linkMatcher = LINK_PATTERN.matcher(line);
+					while (linkMatcher.find()) {
+						String target = linkMatcher.group(1).trim();
+
+						// Check if it's an external URL
+						if (target.startsWith("http://") || target.startsWith("https://")) {
+							// Create link for external URL
+							DocumentLink link = createLinkWithRange(lineNum, linkMatcher.start(1),
+									linkMatcher.end(1), target);
+							links.add(link);
+						} else {
+							// Internal file link (supports all relative paths: ./, ../, or simple filenames)
+							DocumentLink link = createFileDocumentLink(parentDir, target, lineNum,
+									linkMatcher.start(1), linkMatcher.end(1));
+							if (link != null) {
+								links.add(link);
+							}
+						}
+					}
+				}
+			} catch (URISyntaxException e) {
+				LOGGER.log(Level.WARNING, "Invalid document URI: " + uri, e);
+			} catch (InvalidPathException e) {
+				LOGGER.log(Level.WARNING, "Invalid path in document: " + uri, e);
+			}
+
+			// Cache the computed links to improve performance on subsequent requests
+			linkCache.put(uri, new ArrayList<>(links));
+
+			return links;
+		});
+	}
+
+	/**
+	 * Helper method to create a DocumentLink with a specific range and target URI.
+	 * This unifies link creation logic for both external URLs and file paths.
+	 */
+	private DocumentLink createLinkWithRange(int lineNum, int startChar, int endChar, String targetUri) {
+		DocumentLink link = new DocumentLink();
+		Range range = new Range(
+				new Position(lineNum, startChar),
+				new Position(lineNum, endChar)
+		);
+		link.setRange(range);
+		link.setTarget(targetUri);
+		return link;
+	}
+
+	/**
+	 * Helper method to create a DocumentLink for a file path.
+	 * Resolves the path relative to the parent directory and validates file existence.
+	 */
+	private DocumentLink createFileDocumentLink(Path parentDir, String targetPath, int lineNum,
+			int startChar, int endChar) {
+		try {
+			// Normalize path separators and resolve relative path
+			String normalizedPath = targetPath.replace("\\", "/");
+			Path resolvedPath = parentDir.resolve(normalizedPath).normalize();
+
+			// Check if the file exists
+			if (Files.exists(resolvedPath)) {
+				return createLinkWithRange(lineNum, startChar, endChar, resolvedPath.toUri().toString());
+			}
+		} catch (InvalidPathException e) {
+			LOGGER.log(Level.FINE, "Invalid path: " + targetPath, e);
+		} catch (IOException e) {
+			LOGGER.log(Level.FINE, "Error checking file existence: " + targetPath, e);
+		}
+		return null;
+	}
+
+	@Override
 	public void didOpen(DidOpenTextDocumentParams params) {
 		AsciidocDocumentModel model = new AsciidocDocumentModel(params.getTextDocument().getText());
 		this.docs.put(params.getTextDocument().getUri(), model);
@@ -320,16 +485,22 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 
 	@Override
 	public void didChange(DidChangeTextDocumentParams params) {
+		String uri = params.getTextDocument().getUri();
 		AsciidocDocumentModel model = new AsciidocDocumentModel(params.getContentChanges().get(0).getText());
-		this.docs.put(params.getTextDocument().getUri(), model);
+		this.docs.put(uri, model);
+		// Invalidate link cache since document content changed
+		linkCache.remove(uri);
 		CompletableFuture.runAsync(() -> languageServer.client
-				.publishDiagnostics(new PublishDiagnosticsParams(params.getTextDocument().getUri(), validate(model))));
+				.publishDiagnostics(new PublishDiagnosticsParams(uri, validate(model))));
 
 	}
 
 	@Override
 	public void didClose(DidCloseTextDocumentParams params) {
-		this.docs.remove(params.getTextDocument().getUri());
+		String uri = params.getTextDocument().getUri();
+		this.docs.remove(uri);
+		// Clean up link cache when document is closed
+		linkCache.remove(uri);
 	}
 	
 	@Override
