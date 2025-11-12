@@ -1,5 +1,6 @@
 package com.vogella.lsp.asciidoc.server;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -8,6 +9,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -25,6 +28,7 @@ import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DefinitionParams;
@@ -43,6 +47,7 @@ import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
+import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkupContent;
@@ -70,6 +75,15 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	// Default directory for images (can be configured if needed)
 	private static final String DEFAULT_IMAGE_DIR = "img/";
 
+	// AsciiDoc directive prefixes for completion
+	private static final String IMAGE_DIRECTIVE = "image::";
+	private static final String INCLUDE_DIRECTIVE = "include::";
+	private static final String IMG_DIRECTORY = "img";
+
+	// Supported image file extensions
+	private static final String[] IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".svg"};
+	private static final String ADOC_EXTENSION = ".adoc";
+
 	private final Map<String, AsciidocDocumentModel> docs = Collections.synchronizedMap(new HashMap<>());
 
 	// Cache for document links to avoid repeated file I/O operations
@@ -82,16 +96,41 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
-	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams position) {
+	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams params) {
 		return CompletableFuture.supplyAsync(() -> {
-			// Example: Provide completions for AsciiDoc elements
+			List<CompletionItem> completionItems = new ArrayList<>();
 
-			CompletionItem item1 = new CompletionItem();
-			item1.setLabel("image::");
+			// Get document model
+			String uri = params.getTextDocument().getUri();
+			AsciidocDocumentModel model = docs.get(uri);
 
-			CompletionItem item2 = new CompletionItem();
-			item2.setLabel("include::");
-			List<CompletionItem> completionItems = List.of(item1, item2);
+			if (model == null) {
+				return Either.forLeft(getStandardCompletions());
+			}
+
+			// Get the typed text at the current position
+			String typedText = getTypedTextAtPosition(model, params.getPosition());
+
+			// If IMAGE_DIRECTIVE is typed, suggest image files
+			if (typedText.startsWith(IMAGE_DIRECTIVE)) {
+				String pathAfterImage = typedText.substring(IMAGE_DIRECTIVE.length());
+				List<CompletionItem> imageCompletions = getImageFileCompletions(uri, pathAfterImage);
+				if (!imageCompletions.isEmpty()) {
+					return Either.forLeft(imageCompletions);
+				}
+			}
+
+			// If INCLUDE_DIRECTIVE is typed, suggest .adoc files
+			if (typedText.startsWith(INCLUDE_DIRECTIVE)) {
+				String pathAfterInclude = typedText.substring(INCLUDE_DIRECTIVE.length());
+				List<CompletionItem> includeCompletions = getIncludeFileCompletions(uri, pathAfterInclude);
+				if (!includeCompletions.isEmpty()) {
+					return Either.forLeft(includeCompletions);
+				}
+			}
+
+			// Otherwise, provide standard AsciiDoc completions with filtering
+			completionItems = getMatchingStandardCompletions(typedText);
 
 			return Either.forLeft(completionItems);
 		});
@@ -636,6 +675,257 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 		}
 
 		return diagnostics;
+	}
+
+	/**
+	 * Get the typed text from the start of the line to the current position
+	 */
+	private String getTypedTextAtPosition(AsciidocDocumentModel model, Position position) {
+		String lineContent = model.getLineContent(position.getLine());
+		if (lineContent == null) {
+			return "";
+		}
+
+		int offset = position.getCharacter();
+		if (offset > lineContent.length()) {
+			offset = lineContent.length();
+		}
+
+		// Return text from start of line to cursor position
+		return lineContent.substring(0, offset);
+	}
+
+	/**
+	 * Get completion items for image files in img/ directory
+	 */
+	private List<CompletionItem> getImageFileCompletions(String documentUri, String pathAfterImage) {
+		String directoryPath = getDirectoryPath(documentUri);
+		if (directoryPath == null) {
+			return Collections.emptyList();
+		}
+
+		// Images are expected in an IMG_DIRECTORY subdirectory
+		File imgFolder = new File(directoryPath, IMG_DIRECTORY);
+		if (!imgFolder.exists() || !imgFolder.isDirectory()) {
+			return Collections.emptyList();
+		}
+
+		String lowerPrefix = pathAfterImage.toLowerCase();
+		File[] files = imgFolder.listFiles((dir, name) -> {
+			String lowerName = name.toLowerCase();
+			return hasImageExtension(lowerName)
+				&& lowerName.startsWith(lowerPrefix);
+		});
+
+		if (files == null) {
+			return Collections.emptyList();
+		}
+
+		List<CompletionItem> items = new ArrayList<>();
+		for (File file : files) {
+			items.add(createFileCompletionItem(file.getName(), IMAGE_DIRECTIVE + file.getName() + "[]", "Image file"));
+		}
+
+		return items;
+	}
+
+	/**
+	 * Get completion items for include files (.adoc files)
+	 */
+	private List<CompletionItem> getIncludeFileCompletions(String documentUri, String pathAfterInclude) {
+		String directoryPath = getDirectoryPath(documentUri);
+		if (directoryPath == null) {
+			return Collections.emptyList();
+		}
+
+		// Parse the path to extract directory and filename prefix
+		String targetDirectory = directoryPath;
+		String filePrefix = pathAfterInclude;
+
+		// Handle paths with directory separators
+		if (pathAfterInclude.contains("/") || pathAfterInclude.contains("\\")) {
+			int lastSeparatorIndex = Math.max(
+				pathAfterInclude.lastIndexOf("/"),
+				pathAfterInclude.lastIndexOf("\\")
+			);
+
+			String relativePath = pathAfterInclude.substring(0, lastSeparatorIndex);
+			filePrefix = pathAfterInclude.substring(lastSeparatorIndex + 1);
+
+			// Build the target directory path
+			targetDirectory = new File(directoryPath, relativePath).getAbsolutePath();
+		}
+
+		File folder = new File(targetDirectory);
+		if (!folder.exists() || !folder.isDirectory()) {
+			return Collections.emptyList();
+		}
+
+		// Filter files by extension and prefix (case-insensitive)
+		final String lowerPrefix = filePrefix.toLowerCase();
+		File[] files = folder.listFiles((dir, name) -> {
+			String lowerName = name.toLowerCase();
+			return lowerName.endsWith(ADOC_EXTENSION) && lowerName.startsWith(lowerPrefix);
+		});
+
+		if (files == null) {
+			return Collections.emptyList();
+		}
+
+		// Build the full path for each file (including the directory part)
+		String pathPrefix = pathAfterInclude.substring(0, pathAfterInclude.length() - filePrefix.length());
+
+		List<CompletionItem> items = new ArrayList<>();
+		for (File file : files) {
+			String filePath = pathPrefix + file.getName();
+			items.add(createFileCompletionItem(file.getName(), INCLUDE_DIRECTIVE + filePath + "[]", "AsciiDoc include file"));
+		}
+
+		return items;
+	}
+
+	/**
+	 * Check if a filename has a supported image extension
+	 */
+	private static boolean hasImageExtension(String lowerCaseFileName) {
+		return Arrays.stream(IMAGE_EXTENSIONS)
+			.anyMatch(ext -> lowerCaseFileName.endsWith(ext));
+	}
+
+	/**
+	 * Extract directory path from document URI
+	 */
+	private String getDirectoryPath(String documentUri) {
+		if (documentUri == null || documentUri.isEmpty()) {
+			return null;
+		}
+
+		try {
+			URI uri = new URI(documentUri);
+			File file = new File(uri);
+			File parent = file.getParentFile();
+			if (parent != null && parent.exists() && parent.isDirectory()) {
+				return parent.getAbsolutePath();
+			}
+			return null;
+		} catch (URISyntaxException e) {
+			// Log error for invalid URI syntax
+			LOGGER.log(Level.WARNING, "Invalid document URI: " + documentUri, e);
+			return null;
+		} catch (IllegalArgumentException e) {
+			// Log error for malformed URI
+			LOGGER.log(Level.WARNING, "Malformed document URI: " + documentUri, e);
+			return null;
+		}
+	}
+
+	/**
+	 * Helper method to create a file completion item
+	 */
+	private CompletionItem createFileCompletionItem(String label, String insertText, String detail) {
+		CompletionItem item = new CompletionItem();
+		item.setLabel(label);
+		item.setKind(CompletionItemKind.File);
+		item.setInsertText(insertText);
+		item.setDetail(detail);
+		return item;
+	}
+
+	/**
+	 * Get standard AsciiDoc completion items with snippet support
+	 */
+	private List<CompletionItem> getStandardCompletions() {
+		List<CompletionItem> items = new ArrayList<>();
+
+		// Header level 1
+		CompletionItem header1 = new CompletionItem("= Title");
+		header1.setKind(CompletionItemKind.Snippet);
+		header1.setInsertText("= ${1:Title}");
+		header1.setInsertTextFormat(InsertTextFormat.Snippet);
+		header1.setDetail("Header level 1");
+		items.add(header1);
+
+		// Header level 2
+		CompletionItem header2 = new CompletionItem("== Subtitle");
+		header2.setKind(CompletionItemKind.Snippet);
+		header2.setInsertText("== ${1:Subtitle}");
+		header2.setInsertTextFormat(InsertTextFormat.Snippet);
+		header2.setDetail("Header level 2");
+		items.add(header2);
+
+		// Header level 3
+		CompletionItem header3 = new CompletionItem("=== Subsubtitle");
+		header3.setKind(CompletionItemKind.Snippet);
+		header3.setInsertText("=== ${1:Subsubtitle}");
+		header3.setInsertTextFormat(InsertTextFormat.Snippet);
+		header3.setDetail("Header level 3");
+		items.add(header3);
+
+		// Unordered list
+		CompletionItem list = new CompletionItem("* List item");
+		list.setKind(CompletionItemKind.Snippet);
+		list.setInsertText("* ${1:List item}");
+		list.setInsertTextFormat(InsertTextFormat.Snippet);
+		list.setDetail("Unordered list item");
+		items.add(list);
+
+		// Ordered list
+		CompletionItem orderedList = new CompletionItem("1. Ordered list item");
+		orderedList.setKind(CompletionItemKind.Snippet);
+		orderedList.setInsertText("1. ${1:Ordered list item}");
+		orderedList.setInsertTextFormat(InsertTextFormat.Snippet);
+		orderedList.setDetail("Ordered list item");
+		items.add(orderedList);
+
+		// Code block
+		CompletionItem codeBlock = new CompletionItem("[source]");
+		codeBlock.setKind(CompletionItemKind.Snippet);
+		codeBlock.setInsertText("[source, ${1:java}]\n----\n${2:code}\n----");
+		codeBlock.setInsertTextFormat(InsertTextFormat.Snippet);
+		codeBlock.setDetail("Source code block");
+		items.add(codeBlock);
+
+		// Attribute
+		CompletionItem attribute = new CompletionItem(":attribute:");
+		attribute.setKind(CompletionItemKind.Snippet);
+		attribute.setInsertText(":${1:attribute}:");
+		attribute.setInsertTextFormat(InsertTextFormat.Snippet);
+		attribute.setDetail("Document attribute");
+		items.add(attribute);
+
+		// Image
+		CompletionItem image = new CompletionItem(IMAGE_DIRECTIVE);
+		image.setKind(CompletionItemKind.Snippet);
+		image.setInsertText("image::${1:path}[]");
+		image.setInsertTextFormat(InsertTextFormat.Snippet);
+		image.setDetail("Image element");
+		items.add(image);
+
+		// Include
+		CompletionItem include = new CompletionItem(INCLUDE_DIRECTIVE);
+		include.setKind(CompletionItemKind.Snippet);
+		include.setInsertText("include::${1:file.adoc}[]");
+		include.setInsertTextFormat(InsertTextFormat.Snippet);
+		include.setDetail("Include file");
+		items.add(include);
+
+		return items;
+	}
+
+	/**
+	 * Get standard completions filtered by typed text
+	 */
+	private List<CompletionItem> getMatchingStandardCompletions(String typedText) {
+		List<CompletionItem> allItems = getStandardCompletions();
+
+		if (typedText == null || typedText.trim().isEmpty()) {
+			return allItems;
+		}
+
+		String lowerTyped = typedText.toLowerCase().trim();
+		return allItems.stream()
+			.filter(item -> item.getLabel().toLowerCase().startsWith(lowerTyped))
+			.collect(Collectors.toList());
 	}
 
 }
