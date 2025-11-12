@@ -37,6 +37,7 @@ public class AsciidocLanguageServer implements LanguageServer {
 		res.getCapabilities().setDefinitionProvider(Boolean.TRUE);
 		res.getCapabilities().setCodeActionProvider(Boolean.TRUE);
 		res.getCapabilities().setCodeLensProvider(new CodeLensOptions(false));
+		res.getCapabilities().setDocumentLinkProvider(Boolean.TRUE);
 //		res.getCapabilities().setReferencesProvider(Boolean.TRUE);
 		return CompletableFuture.supplyAsync(() -> res);
 	}
