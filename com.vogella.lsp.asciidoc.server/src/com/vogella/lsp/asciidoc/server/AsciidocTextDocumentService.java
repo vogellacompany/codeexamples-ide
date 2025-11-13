@@ -147,84 +147,76 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 				return Collections.emptyList();
 			}
 
-			List<String> lines = model.getLines();
 			List<Either<SymbolInformation, DocumentSymbol>> symbols = new ArrayList<>();
+			List<String> lines = model.getLines();
+
+			// Track header hierarchy for proper nesting
 			List<DocumentSymbol> headerStack = new ArrayList<>();
 
 			for (int i = 0; i < lines.size(); i++) {
-				String line = lines.get(i);
-				String trimmedLine = line.trim();
-				DocumentSymbol symbol = null;
+				String line = lines.get(i).trim();
+				int lineNumber = i;
 
-				// Parse headers (= Title, == Section, === Subsection, etc.)
-				// Note: In AsciiDoc, ==== is a delimiter (not a header), so we exclude it
-				if (line.startsWith("=") && !line.trim().equals("====")) {
-					int level = 0;
-					while (level < line.length() && line.charAt(level) == '=') {
-						level++;
-					}
-
-					if (level < line.length() && line.charAt(level) == ' ') {
-						String title = line.substring(level).trim();
-						symbol = createSymbol(title, SymbolKind.String, i, line, level);
-
-						// Build hierarchy based on header level
-						while (!headerStack.isEmpty() && getHeaderLevel(headerStack.get(headerStack.size() - 1)) >= level) {
-							headerStack.remove(headerStack.size() - 1);
-						}
-
-						if (headerStack.isEmpty()) {
-							symbols.add(Either.forRight(symbol));
+				// Parse headers (= through =====)
+				if (line.startsWith("=")) {
+					int level = getHeaderLevel(line);
+					DocumentSymbol headerSymbol = parseHeader(line, lineNumber, level);
+					if (headerSymbol != null) {
+						// Add to appropriate parent based on hierarchy
+						if (level == 1 || headerStack.isEmpty()) {
+							symbols.add(Either.forRight(headerSymbol));
+							headerStack.clear();
+							headerStack.add(headerSymbol);
 						} else {
-							DocumentSymbol parent = headerStack.get(headerStack.size() - 1);
-							if (parent.getChildren() == null) {
-								parent.setChildren(new ArrayList<>());
+							// Find the appropriate parent
+							while (headerStack.size() >= level) {
+								headerStack.remove(headerStack.size() - 1);
 							}
-							parent.getChildren().add(symbol);
-						}
 
-						headerStack.add(symbol);
+							if (!headerStack.isEmpty()) {
+								DocumentSymbol parent = headerStack.get(headerStack.size() - 1);
+								List<DocumentSymbol> children = parent.getChildren();
+								children.add(headerSymbol);
+							} else {
+								symbols.add(Either.forRight(headerSymbol));
+							}
+
+							headerStack.add(headerSymbol);
+						}
+						continue;
 					}
 				}
-				// Parse include statements (must be at start of line after trimming)
-				else if (trimmedLine.startsWith("include::")) {
-					int startIdx = trimmedLine.indexOf("include::");
-					int endIdx = trimmedLine.indexOf("[", startIdx);
-					if (endIdx != -1) {
-						String includePath = trimmedLine.substring(startIdx + 9, endIdx);
-						symbol = createSymbol("include: " + includePath, SymbolKind.File, i, line, 0);
-						addSymbolToHierarchy(symbol, headerStack, symbols);
-					}
+
+				// Parse includes
+				DocumentSymbol includeSymbol = parseInclude(line, lineNumber);
+				if (includeSymbol != null) {
+					addToCurrentSection(symbols, headerStack, includeSymbol);
+					continue;
 				}
-				// Parse image references (must be at start of line after trimming)
-				else if (trimmedLine.startsWith("image::")) {
-					int startIdx = trimmedLine.indexOf("image::");
-					int endIdx = trimmedLine.indexOf("[", startIdx);
-					if (endIdx != -1) {
-						String imagePath = trimmedLine.substring(startIdx + 7, endIdx);
-						symbol = createSymbol("image: " + imagePath, SymbolKind.File, i, line, 0);
-						addSymbolToHierarchy(symbol, headerStack, symbols);
-					}
+
+				// Parse images
+				DocumentSymbol imageSymbol = parseImage(line, lineNumber);
+				if (imageSymbol != null) {
+					addToCurrentSection(symbols, headerStack, imageSymbol);
+					continue;
 				}
-				// Parse source code blocks
-				else if (trimmedLine.startsWith("[source")) {
-					int commaIdx = trimmedLine.indexOf(",");
-					int bracketIdx = trimmedLine.indexOf("]");
-					String language = "";
-					if (commaIdx != -1 && bracketIdx != -1 && commaIdx < bracketIdx) {
-						// Extract only the first parameter (language), not additional attributes
-						String afterComma = trimmedLine.substring(commaIdx + 1, bracketIdx).trim();
-						int nextComma = afterComma.indexOf(",");
-						language = nextComma != -1 ? afterComma.substring(0, nextComma).trim() : afterComma;
+
+				// Parse source blocks
+				if (line.startsWith("[source")) {
+					DocumentSymbol sourceSymbol = parseSourceBlock(lines, i);
+					if (sourceSymbol != null) {
+						addToCurrentSection(symbols, headerStack, sourceSymbol);
 					}
-					String label = language.isEmpty() ? "source block" : "source: " + language;
-					symbol = createSymbol(label, SymbolKind.Module, i, line, 0);
-					addSymbolToHierarchy(symbol, headerStack, symbols);
+					continue;
 				}
+
 				// Parse tables
-				else if (trimmedLine.equals("|===")) {
-					symbol = createSymbol("table", SymbolKind.Array, i, line, 0);
-					addSymbolToHierarchy(symbol, headerStack, symbols);
+				if (line.equals("|===")) {
+					DocumentSymbol tableSymbol = parseTable(lines, i);
+					if (tableSymbol != null) {
+						addToCurrentSection(symbols, headerStack, tableSymbol);
+					}
+					continue;
 				}
 			}
 
@@ -232,49 +224,198 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 		});
 	}
 
-	private DocumentSymbol createSymbol(String name, SymbolKind kind, int lineNumber, String lineText, int level) {
-		DocumentSymbol symbol = new DocumentSymbol();
-		symbol.setName(name);
-		symbol.setKind(kind);
+	private DocumentSymbol parseHeader(String line, int lineNumber, int level) {
+		// Skip lines that are only delimiters (e.g., ==== for example blocks)
+		if (level >= 4 && line.trim().matches("=+")) {
+			return null;
+		}
 
-		// Store the header level in the detail field for hierarchy management
-		if (level > 0) {
-			symbol.setDetail("level:" + level);
+		String title = line.substring(level).trim();
+		if (title.isEmpty()) {
+			return null;
+		}
+
+		DocumentSymbol symbol = new DocumentSymbol();
+		symbol.setName(title);
+
+		// Map header levels to symbol kinds
+		switch (level) {
+			case 1:
+				symbol.setKind(SymbolKind.Module);
+				break;
+			case 2:
+				symbol.setKind(SymbolKind.Class);
+				break;
+			case 3:
+				symbol.setKind(SymbolKind.Method);
+				break;
+			case 4:
+				symbol.setKind(SymbolKind.Property);
+				break;
+			default:
+				symbol.setKind(SymbolKind.String);
 		}
 
 		Position start = new Position(lineNumber, 0);
-		Position end = new Position(lineNumber, lineText.length());
-		Range range = new Range(start, end);
-
-		symbol.setRange(range);
-		symbol.setSelectionRange(range);
+		Position end = new Position(lineNumber, line.length());
+		symbol.setRange(new Range(start, end));
+		symbol.setSelectionRange(new Range(start, end));
+		symbol.setChildren(new ArrayList<>());
 
 		return symbol;
 	}
 
-	private void addSymbolToHierarchy(DocumentSymbol symbol, List<DocumentSymbol> headerStack,
-			List<Either<SymbolInformation, DocumentSymbol>> symbols) {
-		if (headerStack.isEmpty()) {
-			symbols.add(Either.forRight(symbol));
-		} else {
-			DocumentSymbol parent = headerStack.get(headerStack.size() - 1);
-			if (parent.getChildren() == null) {
-				parent.setChildren(new ArrayList<>());
-			}
-			parent.getChildren().add(symbol);
+	private int getHeaderLevel(String line) {
+		int level = 0;
+		while (level < line.length() && line.charAt(level) == '=') {
+			level++;
 		}
+		return level;
 	}
 
-	private int getHeaderLevel(DocumentSymbol symbol) {
-		String detail = symbol.getDetail();
-		if (detail != null && detail.startsWith("level:")) {
-			try {
-				return Integer.parseInt(detail.substring(6));
-			} catch (NumberFormatException e) {
-				return 0;
+	private DocumentSymbol parseInclude(String line, int lineNumber) {
+		// Check for include macro at start of line (block-level macro)
+		if (!line.startsWith("include::")) {
+			return null;
+		}
+
+		int endIndex = line.indexOf("[", "include::".length());
+		if (endIndex == -1) {
+			endIndex = line.length();
+		}
+
+		String includePath = line.substring("include::".length(), endIndex);
+
+		DocumentSymbol symbol = new DocumentSymbol();
+		symbol.setName("📄 " + includePath);
+		symbol.setKind(SymbolKind.File);
+		symbol.setDetail("include");
+
+		Position start = new Position(lineNumber, 0);
+		Position end = new Position(lineNumber, line.length());
+		symbol.setRange(new Range(start, end));
+		symbol.setSelectionRange(new Range(start, end));
+
+		return symbol;
+	}
+
+	private DocumentSymbol parseImage(String line, int lineNumber) {
+		// Check for image macro at start of line (block-level macro)
+		// image:: is block image, image: is inline image
+		String imagePrefix = null;
+		if (line.startsWith("image::")) {
+			imagePrefix = "image::";
+		} else if (line.startsWith("image:")) {
+			imagePrefix = "image:";
+		} else {
+			return null;
+		}
+
+		int endIndex = line.indexOf("[", imagePrefix.length());
+		if (endIndex == -1) {
+			endIndex = line.length();
+		}
+
+		String imagePath = line.substring(imagePrefix.length(), endIndex);
+
+		DocumentSymbol symbol = new DocumentSymbol();
+		symbol.setName("🖼️ " + imagePath);
+		symbol.setKind(SymbolKind.File);
+		symbol.setDetail("image");
+
+		Position start = new Position(lineNumber, 0);
+		Position end = new Position(lineNumber, line.length());
+		symbol.setRange(new Range(start, end));
+		symbol.setSelectionRange(new Range(start, end));
+
+		return symbol;
+	}
+
+	private DocumentSymbol parseSourceBlock(List<String> lines, int startLine) {
+		String sourceLine = lines.get(startLine).trim();
+		String language = "code";
+
+		// Extract language from [source,language] or [source,language,attr1,attr2]
+		// Only take the first attribute after 'source'
+		if (sourceLine.contains(",")) {
+			int commaIndex = sourceLine.indexOf(",");
+			int endIndex = sourceLine.indexOf(",", commaIndex + 1); // Next comma
+			if (endIndex == -1) {
+				endIndex = sourceLine.indexOf("]", commaIndex); // Or closing bracket
+			}
+			if (endIndex != -1) {
+				language = sourceLine.substring(commaIndex + 1, endIndex).trim();
 			}
 		}
-		return 0;
+
+		// Check if opening delimiter is on the same line (e.g., [source,java]----)
+		boolean inBlock = sourceLine.endsWith("----") || sourceLine.contains("]----");
+
+		// Find the end of the source block (delimited by ----)
+		int endLine = inBlock ? startLine + 1 : startLine;
+
+		// Skip to next line if delimiter wasn't on source line
+		if (!inBlock) {
+			endLine++;
+		}
+
+		while (endLine < lines.size()) {
+			String line = lines.get(endLine).trim();
+			if (line.equals("----") || line.endsWith("----")) {
+				if (inBlock) {
+					break;
+				}
+				inBlock = true;
+			}
+			endLine++;
+		}
+
+		DocumentSymbol symbol = new DocumentSymbol();
+		symbol.setName("💻 " + language + " code block");
+		symbol.setKind(SymbolKind.Function);
+		symbol.setDetail("source");
+
+		Position start = new Position(startLine, 0);
+		Position end = new Position(Math.min(endLine, lines.size() - 1), 0);
+		symbol.setRange(new Range(start, end));
+		symbol.setSelectionRange(new Range(start, start));
+
+		return symbol;
+	}
+
+	private DocumentSymbol parseTable(List<String> lines, int startLine) {
+		// Find the end of the table
+		int endLine = startLine + 1;
+		while (endLine < lines.size()) {
+			if (lines.get(endLine).trim().equals("|===")) {
+				break;
+			}
+			endLine++;
+		}
+
+		DocumentSymbol symbol = new DocumentSymbol();
+		symbol.setName("📊 Table");
+		symbol.setKind(SymbolKind.Array);
+		symbol.setDetail("table");
+
+		Position start = new Position(startLine, 0);
+		Position end = new Position(Math.min(endLine, lines.size() - 1), 0);
+		symbol.setRange(new Range(start, end));
+		symbol.setSelectionRange(new Range(start, start));
+
+		return symbol;
+	}
+
+	private void addToCurrentSection(List<Either<SymbolInformation, DocumentSymbol>> symbols,
+			List<DocumentSymbol> headerStack, DocumentSymbol symbolToAdd) {
+		if (headerStack.isEmpty()) {
+			symbols.add(Either.forRight(symbolToAdd));
+		} else {
+			DocumentSymbol parent = headerStack.get(headerStack.size() - 1);
+			List<DocumentSymbol> children = parent.getChildren();
+			// Children is always initialized in parseHeader, so no null check needed
+			children.add(symbolToAdd);
+		}
 	}
 
 	@Override
