@@ -1,5 +1,6 @@
 package com.vogella.lsp.asciidoc.server;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -52,6 +53,8 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.MarkupKind;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -71,6 +74,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	private static final Pattern INCLUDE_PATTERN = Pattern.compile("include::([^\\[\\s]+)(?:\\[.*?\\])?");
 	private static final Pattern IMAGE_PATTERN = Pattern.compile("image::([^\\[\\s]+)(?:\\[.*?\\])?");
 	private static final Pattern LINK_PATTERN = Pattern.compile("link:([^\\[\\s]+)(?:\\[.*?\\])?");
+	private static final Pattern EXTERNAL_LINK_PATTERN = Pattern.compile("(https?://[^\\s\\[]+)");
 
 	// Default directory for images (can be configured if needed)
 	private static final String DEFAULT_IMAGE_DIR = "img/";
@@ -83,6 +87,12 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	// Supported image file extensions
 	private static final String[] IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".svg"};
 	private static final String ADOC_EXTENSION = ".adoc";
+
+	// Constants for hover functionality
+	private static final int INCLUDE_PREVIEW_MAX_LINES = 10;
+	private static final int STRING_BUILDER_INITIAL_CAPACITY = 256;
+	private static final long BYTES_PER_KILOBYTE = 1024;
+	private static final long BYTES_PER_MEGABYTE = BYTES_PER_KILOBYTE * 1024;
 
 	private final Map<String, AsciidocDocumentModel> docs = Collections.synchronizedMap(new HashMap<>());
 
@@ -421,39 +431,345 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<Hover> hover(HoverParams params) {
 		return CompletableFuture.supplyAsync(() -> {
-			// Get the position where the hover request was made
+			// Get the position and document
 			Position position = params.getPosition();
-			// get file if necessary
-//			String uri = params.getTextDocument().getUri();
+			String uri = params.getTextDocument().getUri();
 
-			// We hover only after the first line
-			if (position.getLine() > 0) {
-
-				String content = """
-						![Info Icon]
-
-						**Important AsciiDoc Elements:**
-
-						* `image::` - Defines an image element in AsciiDoc files.
-						* `include::` - Includes other AsciiDoc files into the current one.
-
-						**Usage Example:**
-						```asciidoc
-						image::path/to/image.png[]
-						include::example.adoc[]
-						```
-						""";
-
-				// Create the Hover object with content in markdown format
-				Hover hover = new Hover();
-				hover.setContents(new MarkupContent(MarkupKind.MARKDOWN, content));
-				return hover;
+			// Get document model
+			AsciidocDocumentModel model = docs.get(uri);
+			if (model == null) {
+				return null;
 			}
 
-			// If no specific syntax is matched, return null or empty hover
-			return null;
+			// Get the line content at hover position
+			String lineContent = model.getLineContent(position.getLine());
+			if (lineContent == null || lineContent.trim().isEmpty()) {
+				return null;
+			}
+
+			// Get document directory for resolving relative paths
+			Path documentPath = getDocumentPath(uri);
+			if (documentPath == null) {
+				return null;
+			}
+			Path documentDir = documentPath.getParent();
+			if (documentDir == null) {
+				return null;
+			}
+
+			int cursorCharacter = position.getCharacter();
+
+			// Check for image references
+			Hover imageHover = handleImageHover(lineContent, documentDir, cursorCharacter);
+			if (imageHover != null) {
+				return imageHover;
+			}
+
+			// Check for include references
+			Hover includeHover = handleIncludeHover(lineContent, documentDir, cursorCharacter);
+			if (includeHover != null) {
+				return includeHover;
+			}
+
+			// Check for link references
+			Hover linkHover = handleLinkHover(lineContent, documentDir, cursorCharacter);
+			if (linkHover != null) {
+				return linkHover;
+			}
+
+			// Provide default syntax help
+			return getDefaultSyntaxHelp(lineContent);
 		});
 	}
+
+	/**
+	 * Handles hover for image references (image::filename[])
+	 */
+	private Hover handleImageHover(String lineContent, Path documentDir, int cursorPosition) {
+		Matcher matcher = IMAGE_PATTERN.matcher(lineContent);
+
+		while (matcher.find()) {
+			// Check if cursor is within the match range
+			if (cursorPosition >= matcher.start() && cursorPosition <= matcher.end()) {
+				String imageName = matcher.group(1).trim();
+
+				// Look for image in img subdirectory
+				Path imgDir = documentDir.resolve(DEFAULT_IMAGE_DIR.replace("/", ""));
+				Path imagePath = imgDir.resolve(imageName);
+
+				StringBuilder content = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+				content.append("### Image Reference\n\n");
+
+				if (Files.exists(imagePath)) {
+					try {
+						long fileSize = Files.size(imagePath);
+						String formattedSize = formatFileSize(fileSize);
+
+						content.append("**File:** `").append(imageName).append("`\n\n");
+						content.append("**Path:** `").append(imagePath.toString()).append("`\n\n");
+						content.append("**Size:** ").append(formattedSize).append("\n\n");
+						content.append("✓ Image file found and ready to display");
+					} catch (IOException e) {
+						content.append("⚠ Error reading image file: ").append(imageName);
+						logError("Error reading image file: " + imageName, e);
+					}
+				} else {
+					content.append("⚠ **Image not found:** `").append(imageName).append("`\n\n");
+					content.append("Expected location: `").append(imagePath.toString()).append("`\n\n");
+					content.append("Make sure the image exists in the `img/` subdirectory.");
+				}
+
+				Hover hover = new Hover();
+				hover.setContents(new MarkupContent(MarkupKind.MARKDOWN, content.toString()));
+				return hover;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Handles hover for include references (include::file[])
+	 */
+	private Hover handleIncludeHover(String lineContent, Path documentDir, int cursorPosition) {
+		Matcher matcher = INCLUDE_PATTERN.matcher(lineContent);
+
+		while (matcher.find()) {
+			// Check if cursor is within the match range
+			if (cursorPosition >= matcher.start() && cursorPosition <= matcher.end()) {
+				String includeFile = matcher.group(1).trim();
+				Path includePath = documentDir.resolve(includeFile);
+
+				StringBuilder content = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+				content.append("### Include Reference\n\n");
+
+				if (Files.exists(includePath)) {
+					try {
+						long fileSize = Files.size(includePath);
+						String formattedSize = formatFileSize(fileSize);
+
+						content.append("**File:** `").append(includeFile).append("`\n\n");
+						content.append("**Path:** `").append(includePath.toString()).append("`\n\n");
+						content.append("**Size:** ").append(formattedSize).append("\n\n");
+
+						// Read first N lines of the included file
+						List<String> preview = readFilePreview(includePath, INCLUDE_PREVIEW_MAX_LINES);
+						if (!preview.isEmpty()) {
+							content.append("**Preview (first 10 lines):**\n\n```asciidoc\n");
+							for (String line : preview) {
+								content.append(line).append("\n");
+							}
+							content.append("```");
+						}
+					} catch (IOException e) {
+						content.append("⚠ Error reading include file: ").append(includeFile);
+						logError("Error reading include file: " + includeFile, e);
+					}
+				} else {
+					content.append("⚠ **Include file not found:** `").append(includeFile).append("`\n\n");
+					content.append("Expected location: `").append(includePath.toString()).append("`");
+				}
+
+				Hover hover = new Hover();
+				hover.setContents(new MarkupContent(MarkupKind.MARKDOWN, content.toString()));
+				return hover;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Handles hover for link references (http://, https://, or internal files)
+	 */
+	private Hover handleLinkHover(String lineContent, Path documentDir, int cursorPosition) {
+		// Check for external links (bare URLs)
+		Matcher externalMatcher = EXTERNAL_LINK_PATTERN.matcher(lineContent);
+
+		while (externalMatcher.find()) {
+			// Check if cursor is within the match range
+			if (cursorPosition >= externalMatcher.start() && cursorPosition <= externalMatcher.end()) {
+				String url = externalMatcher.group(1);
+
+				StringBuilder content = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+				content.append("### External Link\n\n");
+				content.append("**URL:** ").append(url).append("\n\n");
+				content.append("🔗 This is an external web link");
+
+				Hover hover = new Hover();
+				hover.setContents(new MarkupContent(MarkupKind.MARKDOWN, content.toString()));
+				return hover;
+			}
+		}
+
+		// Check for link macro (link:target[text])
+		Matcher internalMatcher = LINK_PATTERN.matcher(lineContent);
+
+		while (internalMatcher.find()) {
+			// Check if cursor is within the match range
+			if (cursorPosition >= internalMatcher.start() && cursorPosition <= internalMatcher.end()) {
+				String linkTarget = internalMatcher.group(1).trim();
+
+				// Handle external URLs in link macro
+				if (linkTarget.startsWith("http://") || linkTarget.startsWith("https://")) {
+					StringBuilder content = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+					content.append("### External Link\n\n");
+					content.append("**URL:** ").append(linkTarget).append("\n\n");
+					content.append("🔗 This is an external web link");
+
+					Hover hover = new Hover();
+					hover.setContents(new MarkupContent(MarkupKind.MARKDOWN, content.toString()));
+					return hover;
+				}
+
+				// Handle internal file links
+				Path linkPath = documentDir.resolve(linkTarget);
+
+				StringBuilder content = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+				content.append("### Internal Link\n\n");
+
+				if (Files.exists(linkPath)) {
+					try {
+						long fileSize = Files.size(linkPath);
+						String formattedSize = formatFileSize(fileSize);
+
+						content.append("**File:** `").append(linkTarget).append("`\n\n");
+						content.append("**Path:** `").append(linkPath.toString()).append("`\n\n");
+						content.append("**Size:** ").append(formattedSize).append("\n\n");
+						content.append("✓ Link target found");
+					} catch (IOException e) {
+						content.append("⚠ Error accessing file: ").append(linkTarget);
+						logError("Error accessing link file: " + linkTarget, e);
+					}
+				} else {
+					content.append("⚠ **Link target not found:** `").append(linkTarget).append("`\n\n");
+					content.append("Expected location: `").append(linkPath.toString()).append("`");
+				}
+
+				Hover hover = new Hover();
+				hover.setContents(new MarkupContent(MarkupKind.MARKDOWN, content.toString()));
+				return hover;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Provides default syntax help based on line content
+	 */
+	private Hover getDefaultSyntaxHelp(String lineContent) {
+		String trimmed = lineContent.trim();
+		StringBuilder content = new StringBuilder(STRING_BUILDER_INITIAL_CAPACITY);
+		content.append("### AsciiDoc Syntax Help\n\n");
+
+		// Check for headers
+		if (trimmed.startsWith("=")) {
+			int level = 0;
+			while (level < trimmed.length() && trimmed.charAt(level) == '=') {
+				level++;
+			}
+			content.append("**Header Level ").append(level).append("**\n\n");
+			content.append("Syntax: `").append("=".repeat(level)).append(" Header Title`\n\n");
+			content.append("Creates a level ").append(level).append(" section header.");
+
+		// Check for code blocks
+		} else if (trimmed.startsWith("----") || trimmed.startsWith("```")) {
+			content.append("**Code Block Delimiter**\n\n");
+			content.append("Syntax:\n```asciidoc\n----\ncode here\n----\n```\n\n");
+			content.append("Use `----` or ` ``` ` to define code blocks.");
+
+		// Check for lists
+		} else if (trimmed.startsWith("*") || trimmed.startsWith("-")) {
+			content.append("**Unordered List Item**\n\n");
+			content.append("Syntax: `* Item` or `- Item`\n\n");
+			content.append("Use `*` or `-` at the start of a line for bullet points.");
+
+		} else if (trimmed.matches("^\\.\\s+.*")) {
+			content.append("**Ordered List Item**\n\n");
+			content.append("Syntax: `. Item`\n\n");
+			content.append("Use `.` at the start of a line for numbered lists.");
+
+		// Default help
+		} else {
+			content.append("**Common AsciiDoc Elements:**\n\n");
+			content.append("* `= Title` - Document title\n");
+			content.append("* `== Section` - Section header\n");
+			content.append("* `image::path/to/image.png[]` - Embed image\n");
+			content.append("* `include::file.adoc[]` - Include another file\n");
+			content.append("* `link:url[text]` - Create hyperlink\n");
+			content.append("* `*bold*` - Bold text\n");
+			content.append("* `_italic_` - Italic text\n");
+			content.append("* `` `code` `` - Inline code\n");
+		}
+
+		Hover hover = new Hover();
+		hover.setContents(new MarkupContent(MarkupKind.MARKDOWN, content.toString()));
+		return hover;
+	}
+
+	/**
+	 * Converts URI string to file system Path
+	 */
+	private Path getDocumentPath(String uriString) {
+		try {
+			URI uri = new URI(uriString);
+			return Paths.get(uri);
+		} catch (URISyntaxException | IllegalArgumentException | java.nio.file.FileSystemNotFoundException e) {
+			logError("Error converting URI to path: " + uriString, e);
+			return null;
+		}
+	}
+
+	/**
+	 * Formats file size in human-readable format
+	 */
+	private String formatFileSize(long bytes) {
+		if (bytes < BYTES_PER_KILOBYTE) {
+			return bytes + " B";
+		} else if (bytes < BYTES_PER_MEGABYTE) {
+			return String.format("%.2f KB", bytes / (double) BYTES_PER_KILOBYTE);
+		} else {
+			return String.format("%.2f MB", bytes / (double) BYTES_PER_MEGABYTE);
+		}
+	}
+
+	/**
+	 * Reads the first N lines from a file
+	 */
+	private List<String> readFilePreview(Path filePath, int maxLines) {
+		List<String> lines = new ArrayList<>();
+		try (BufferedReader reader = Files.newBufferedReader(filePath)) {
+			String line;
+			int count = 0;
+			while ((line = reader.readLine()) != null && count < maxLines) {
+				lines.add(line);
+				count++;
+			}
+		} catch (IOException e) {
+			logError("Error reading file preview: " + filePath, e);
+		}
+		return lines;
+	}
+
+	/**
+	 * Logs an error message with exception details using LSP logging
+	 */
+	private void logError(String message, Exception e) {
+		String fullMessage = "[AsciidocTextDocumentService] " + message;
+		if (e != null) {
+			fullMessage += ": " + e.getClass().getSimpleName() + " - " + e.getMessage();
+		}
+
+		// Use LSP client logging for better IDE integration
+		if (languageServer != null && languageServer.client != null) {
+			languageServer.client.logMessage(new MessageParams(MessageType.Error, fullMessage));
+		} else {
+			// Fallback to logger if client not available
+			LOGGER.log(Level.SEVERE, fullMessage, e);
+		}
+	}
+
 	@Override
 	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(
 			DefinitionParams params) {
