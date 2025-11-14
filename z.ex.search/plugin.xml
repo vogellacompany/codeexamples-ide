@@ -15,6 +15,11 @@
             id="z.ex.search.prevSearchEntry"
             name="Previous Search Entry">
       </command>
+      <command
+            defaultHandler="z.ex.search.BuildRCPScriptHandler"
+            id="z.ex.search.buildRCPScript"
+            name="Build RCP Script">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -30,6 +35,22 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="ALT+,">
       </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="z.ex.search.toolbar">
+            <command
+                  commandId="z.ex.search.buildRCPScript"
+                  icon="icons/pdf.svg"
+                  style="push"
+                  tooltip="Execute Build RCP Script">
+            </command>
+         </toolbar>
+      </menuContribution>
    </extension>
 
 </plugin>
