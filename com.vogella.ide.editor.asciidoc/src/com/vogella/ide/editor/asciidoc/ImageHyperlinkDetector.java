@@ -46,7 +46,14 @@ public class ImageHyperlinkDetector extends AbstractHyperlinkDetector {
 						lineInformationOfOffset.getLength() - IMAGE_PROPERTY.length());
 
 				IContainer parent = getParentFolder();
+				if (parent == null || !parent.isAccessible()) {
+					return null;
+				}
+
 				IContainer imgFolder = parent.getFolder(IPath.fromOSString("img"));
+				if (!imgFolder.isAccessible()) {
+					return null;
+				}
 
 				// Only take resources, which have the "png" file extension
 				IHyperlink[] result = Arrays.stream(imgFolder.members())

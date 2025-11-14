@@ -43,14 +43,21 @@ public class ImageHover implements ITextHover {
 
 
     				IContainer parent = getParentFolder();
-    				IContainer imgFolder = parent.getFolder(IPath.fromOSString("img"));
+    				if (parent == null || !parent.isAccessible()) {
+    					return "";
+    				}
 
-    				
+    				IContainer imgFolder = parent.getFolder(IPath.fromOSString("img"));
+    				if (!imgFolder.isAccessible()) {
+    					return "Image folder 'img' not found";
+    				}
+
+
     				IFile imageFile = imgFolder.getFile(IPath.fromOSString(imageName)); // Replace "filename.ext" with your actual file name
 
 
-                    // Check if image file exists
-                    if (imageFile.exists()) {
+                    // Check if image file exists - use isAccessible to avoid rule conflicts
+                    if (imageFile.isAccessible()) {
                         // Load and display the image in the hover (assuming HTML rendering is supported)
                         return "<img src=\"" + imageFile.getFullPath()+ "\" alt=\"" + imageName + "\">";
                     } else {

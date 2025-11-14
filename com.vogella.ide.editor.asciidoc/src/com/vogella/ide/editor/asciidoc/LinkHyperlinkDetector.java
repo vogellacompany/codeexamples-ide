@@ -74,9 +74,10 @@ public class LinkHyperlinkDetector extends AbstractHyperlinkDetector {
                     };
                 } else if (target.startsWith("./") || target.startsWith("../")) {
                     // Internal file link → open in Eclipse editor
-                    if (parent != null && parent.exists()) {
+                    // Use isAccessible to avoid rule conflicts during builds
+                    if (parent != null && parent.isAccessible()) {
                         IResource resource = parent.findMember(new Path(target));
-                        if (resource instanceof IFile file) {
+                        if (resource instanceof IFile file && file.isAccessible()) {
                             return new IHyperlink[] {
                                 new ResourceHyperlink(targetRegion, resource.getName(), file)
                             };
