@@ -4,21 +4,23 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Paths;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.handlers.HandlerUtil;
 
 public class BuildRCPScriptHandler extends AbstractHandler {
 
 	// Hard-coded path (intentional) - points to user's home directory script
-	private static final String SCRIPT_PATH = System.getProperty("user.home") +
-			"/git/content/_scripts/buildRCPScript.sh";
+	private static final String SCRIPT_PATH = Paths.get(System.getProperty("user.home"),
+			"git", "content", "_scripts", "buildRCPScript.sh").toString();
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -34,54 +36,72 @@ public class BuildRCPScriptHandler extends AbstractHandler {
 			return null;
 		}
 
-		// Execute the script in a separate thread to avoid blocking the UI
-		Thread scriptThread = new Thread(() -> {
-			try {
-				ProcessBuilder pb = new ProcessBuilder(SCRIPT_PATH);
-				pb.directory(scriptFile.getParentFile());
-				pb.redirectErrorStream(true);
+		// Execute the script using Eclipse Jobs API
+		Job job = new Job("Building RCP") {
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				monitor.beginTask("Executing RCP build script", IProgressMonitor.UNKNOWN);
 
-				Process process = pb.start();
+				try {
+					ProcessBuilder pb = new ProcessBuilder(SCRIPT_PATH);
+					pb.directory(scriptFile.getParentFile());
+					pb.redirectErrorStream(true);
 
-				// Read and display output
-				StringBuilder output = new StringBuilder();
-				try (BufferedReader reader = new BufferedReader(
-						new InputStreamReader(process.getInputStream()))) {
-					String line;
-					while ((line = reader.readLine()) != null) {
-						output.append(line).append("\n");
-						System.out.println(line);
+					Process process = pb.start();
+
+					// Read and collect output
+					StringBuilder output = new StringBuilder();
+					try (BufferedReader reader = new BufferedReader(
+							new InputStreamReader(process.getInputStream()))) {
+						String line;
+						while ((line = reader.readLine()) != null) {
+							output.append(line).append("\n");
+							if (monitor.isCanceled()) {
+								process.destroy();
+								return Status.CANCEL_STATUS;
+							}
+						}
 					}
+
+					int exitCode = process.waitFor();
+					final boolean success = exitCode == 0;
+
+					Display.getDefault().asyncExec(() -> {
+						if (success) {
+							MessageDialog.openInformation(
+								Display.getDefault().getActiveShell(),
+								"Build RCP Script",
+								"RCP build script executed successfully."
+							);
+						} else {
+							String message = "RCP build script failed with exit code: " + exitCode +
+									"\n\nOutput:\n" + output.toString();
+							MessageDialog.openError(
+								Display.getDefault().getActiveShell(),
+								"Build RCP Script Error",
+								message
+							);
+						}
+					});
+
+					return Status.OK_STATUS;
+
+				} catch (IOException e) {
+					showError("Error executing script: " + e.getMessage());
+					return new Status(IStatus.ERROR, "z.ex.search",
+							"Error executing script", e);
+				} catch (InterruptedException e) {
+					showError("Script execution interrupted: " + e.getMessage());
+					Thread.currentThread().interrupt();
+					return Status.CANCEL_STATUS;
+				} finally {
+					monitor.done();
 				}
-
-				int exitCode = process.waitFor();
-
-				final String message;
-				if (exitCode == 0) {
-					message = "RCP build script executed successfully.";
-				} else {
-					message = "RCP build script failed with exit code: " + exitCode +
-							"\n\nOutput:\n" + output.toString();
-				}
-
-				Display.getDefault().asyncExec(() -> {
-					MessageDialog.openInformation(
-						Display.getDefault().getActiveShell(),
-						"Build RCP Script",
-						message
-					);
-				});
-
-			} catch (IOException e) {
-				showError("Error executing script: " + e.getMessage());
-			} catch (InterruptedException e) {
-				showError("Script execution interrupted: " + e.getMessage());
-				Thread.currentThread().interrupt();
 			}
-		});
+		};
 
-		scriptThread.setDaemon(true);
-		scriptThread.start();
+		job.setUser(true); // Shows the job in the UI
+		job.schedule();
 
 		return null;
 	}
