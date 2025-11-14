@@ -14,13 +14,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Display;
 
 public class BuildRCPScriptHandler extends AbstractHandler {
 
-	// Hard-coded path (intentional) - points to user's home directory script
+	// Hard-coded paths (intentional) - point to user's home directory
 	private static final String SCRIPT_PATH = Paths.get(System.getProperty("user.home"),
 			"git", "content", "_scripts", "buildRCPScript.sh").toString();
+	private static final String PDF_OUTPUT_PATH = Paths.get(System.getProperty("user.home"),
+			"git", "content", "output.pdf").toString();
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -68,11 +71,15 @@ public class BuildRCPScriptHandler extends AbstractHandler {
 
 					Display.getDefault().asyncExec(() -> {
 						if (success) {
-							MessageDialog.openInformation(
+							boolean openPdf = MessageDialog.openQuestion(
 								Display.getDefault().getActiveShell(),
 								"Build RCP Script",
-								"RCP build script executed successfully."
+								"RCP build script executed successfully.\n\nDo you want to open the PDF file?"
 							);
+
+							if (openPdf) {
+								openPdfFile();
+							}
 						} else {
 							String message = "RCP build script failed with exit code: " + exitCode +
 									"\n\nOutput:\n" + output.toString();
@@ -114,5 +121,21 @@ public class BuildRCPScriptHandler extends AbstractHandler {
 				message
 			);
 		});
+	}
+
+	private void openPdfFile() {
+		File pdfFile = new File(PDF_OUTPUT_PATH);
+
+		if (!pdfFile.exists()) {
+			showError("PDF file not found at: " + PDF_OUTPUT_PATH);
+			return;
+		}
+
+		// Use SWT Program to launch the PDF with system default application
+		boolean launched = Program.launch(pdfFile.getAbsolutePath());
+
+		if (!launched) {
+			showError("Failed to open PDF file. No application is associated with PDF files.");
+		}
 	}
 }
