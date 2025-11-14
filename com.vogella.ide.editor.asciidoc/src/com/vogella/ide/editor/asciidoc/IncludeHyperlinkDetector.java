@@ -72,7 +72,8 @@ public class IncludeHyperlinkDetector extends AbstractHyperlinkDetector {
 					parent = subfolder;
 				}
 
-				if (!parent.exists()) {
+				// Check if parent is accessible - avoid potential rule conflicts during builds
+				if (parent == null || !parent.isAccessible()) {
 					return null;
 				}
 
