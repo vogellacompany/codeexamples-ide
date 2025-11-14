@@ -25,6 +25,7 @@ import org.eclipse.ui.PlatformUI;
 public class ImageHyperlinkDetector extends AbstractHyperlinkDetector {
 
 	private static final String IMAGE_PROPERTY = "image::";
+	private static final String IMAGE_DIRECTORY = "img";
 
 	@Override
 	public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks) {
@@ -50,7 +51,7 @@ public class ImageHyperlinkDetector extends AbstractHyperlinkDetector {
 					return null;
 				}
 
-				IContainer imgFolder = parent.getFolder(IPath.fromOSString("img"));
+				IContainer imgFolder = parent.getFolder(IPath.fromOSString(IMAGE_DIRECTORY));
 				if (!imgFolder.isAccessible()) {
 					return null;
 				}

@@ -47,9 +47,9 @@ public class ImageHover implements ITextHover {
     					return "";
     				}
 
-    				IContainer imgFolder = parent.getFolder(IPath.fromOSString("img"));
+    				IContainer imgFolder = parent.getFolder(IPath.fromOSString(IMAGE_DIRECTORY));
     				if (!imgFolder.isAccessible()) {
-    					return "Image folder 'img' not found";
+    					return "Image folder '" + IMAGE_DIRECTORY + "' not found";
     				}
 
 
