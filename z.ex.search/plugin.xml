@@ -52,5 +52,19 @@
          </toolbar>
       </menuContribution>
    </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="z.ex.search.BuildScriptPreferencePage"
+            id="z.ex.search.preferences"
+            name="Build Script">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="z.ex.search.PreferenceInitializer">
+      </initializer>
+   </extension>
 
 </plugin>

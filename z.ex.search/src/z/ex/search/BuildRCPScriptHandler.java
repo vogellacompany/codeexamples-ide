@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Paths;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -13,29 +12,31 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 public class BuildRCPScriptHandler extends AbstractHandler {
 
-	// Hard-coded paths (intentional) - point to user's home directory
-	private static final String SCRIPT_PATH = Paths.get(System.getProperty("user.home"),
-			"git", "content", "_scripts", "buildRCPScript.sh").toString();
-	private static final String PDF_OUTPUT_PATH = Paths.get(System.getProperty("user.home"),
-			"git", "content", "output.pdf").toString();
-
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		File scriptFile = new File(SCRIPT_PATH);
+		// Read paths from preferences
+		IPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "z.ex.search");
+		String scriptPath = store.getString(PreferenceConstants.SCRIPT_PATH);
+		String pdfOutputPath = store.getString(PreferenceConstants.PDF_OUTPUT_PATH);
+
+		File scriptFile = new File(scriptPath);
 
 		if (!scriptFile.exists()) {
-			showError("Script not found at: " + SCRIPT_PATH);
+			showError("Script not found at: " + scriptPath);
 			return null;
 		}
 
 		if (!scriptFile.canExecute()) {
-			showError("Script is not executable: " + SCRIPT_PATH);
+			showError("Script is not executable: " + scriptPath);
 			return null;
 		}
 
@@ -46,7 +47,7 @@ public class BuildRCPScriptHandler extends AbstractHandler {
 				monitor.beginTask("Executing RCP build script", IProgressMonitor.UNKNOWN);
 
 				try {
-					ProcessBuilder pb = new ProcessBuilder(SCRIPT_PATH);
+					ProcessBuilder pb = new ProcessBuilder(scriptPath);
 					pb.directory(scriptFile.getParentFile());
 					pb.redirectErrorStream(true);
 
@@ -60,7 +61,7 @@ public class BuildRCPScriptHandler extends AbstractHandler {
 						while ((line = reader.readLine()) != null) {
 							output.append(line).append("\n");
 							if (monitor.isCanceled()) {
-								process.destroy();
+								process.destroyForcibly();
 								return Status.CANCEL_STATUS;
 							}
 						}
@@ -94,11 +95,9 @@ public class BuildRCPScriptHandler extends AbstractHandler {
 					return Status.OK_STATUS;
 
 				} catch (IOException e) {
-					showError("Error executing script: " + e.getMessage());
 					return new Status(IStatus.ERROR, "z.ex.search",
-							"Error executing script", e);
+							"Error executing script: " + e.getMessage(), e);
 				} catch (InterruptedException e) {
-					showError("Script execution interrupted: " + e.getMessage());
 					Thread.currentThread().interrupt();
 					return Status.CANCEL_STATUS;
 				} finally {
@@ -124,10 +123,14 @@ public class BuildRCPScriptHandler extends AbstractHandler {
 	}
 
 	private void openPdfFile() {
-		File pdfFile = new File(PDF_OUTPUT_PATH);
+		// Read PDF path from preferences
+		IPreferenceStore store = new ScopedPreferenceStore(InstanceScope.INSTANCE, "z.ex.search");
+		String pdfOutputPath = store.getString(PreferenceConstants.PDF_OUTPUT_PATH);
+
+		File pdfFile = new File(pdfOutputPath);
 
 		if (!pdfFile.exists()) {
-			showError("PDF file not found at: " + PDF_OUTPUT_PATH);
+			showError("PDF file not found at: " + pdfOutputPath);
 			return;
 		}
 
