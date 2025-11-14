@@ -13,12 +13,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jface.notifications.NotificationPopup;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.widgets.WidgetFactory;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.program.Program;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
@@ -73,15 +70,13 @@ public class BuildRCPScriptHandler extends AbstractHandler {
 					int exitCode = process.waitFor();
 					final boolean success = exitCode == 0;
 
-					Display.getDefault().asyncExec(() -> {
-						if (success) {
-							showSuccessNotification();
-						} else {
-							String message = "Build failed with exit code: " + exitCode +
-									"\n\n" + output.toString();
-							showErrorNotification(message);
-						}
-					});
+					if (success) {
+						showSuccessDialog();
+					} else {
+						String message = "Build failed with exit code: " + exitCode +
+								"\n\n" + output.toString();
+						showErrorDialog(message);
+					}
 
 					return Status.OK_STATUS;
 
@@ -105,48 +100,36 @@ public class BuildRCPScriptHandler extends AbstractHandler {
 
 	private void showError(String message) {
 		Display.getDefault().asyncExec(() -> {
-			showErrorNotification(message);
+			MessageDialog.openError(
+				Display.getDefault().getActiveShell(),
+				"Build RCP Script Error",
+				message
+			);
 		});
 	}
 
-	private void showSuccessNotification() {
-		NotificationPopup.forDisplay(Display.getDefault())
-			.content(composite -> {
-				composite.setLayout(new org.eclipse.swt.layout.GridLayout(1, false));
+	private void showSuccessDialog() {
+		Display.getDefault().asyncExec(() -> {
+			boolean openPdf = MessageDialog.openQuestion(
+				Display.getDefault().getActiveShell(),
+				"Build RCP Script",
+				"RCP build script executed successfully.\n\nDo you want to open the PDF file?"
+			);
 
-				WidgetFactory.label(SWT.WRAP)
-					.text("RCP build script executed successfully.")
-					.create(composite);
-
-				WidgetFactory.button(SWT.PUSH)
-					.text("Open PDF")
-					.onSelect(e -> openPdfFile())
-					.layoutData(new org.eclipse.swt.layout.GridData(SWT.LEFT, SWT.CENTER, false, false))
-					.create(composite);
-
-				return composite;
-			})
-			.title(composite -> WidgetFactory.label(SWT.NONE)
-				.text("Build Successful")
-				.create(composite), true)
-			.open();
+			if (openPdf) {
+				openPdfFile();
+			}
+		});
 	}
 
-	private void showErrorNotification(String message) {
-		NotificationPopup.forDisplay(Display.getDefault())
-			.content(composite -> {
-				composite.setLayout(new org.eclipse.swt.layout.GridLayout(1, false));
-
-				WidgetFactory.label(SWT.WRAP)
-					.text(message.length() > 300 ? message.substring(0, 300) + "..." : message)
-					.create(composite);
-
-				return composite;
-			})
-			.title(composite -> WidgetFactory.label(SWT.NONE)
-				.text("Build Script Error")
-				.create(composite), true)
-			.open();
+	private void showErrorDialog(String message) {
+		Display.getDefault().asyncExec(() -> {
+			MessageDialog.openError(
+				Display.getDefault().getActiveShell(),
+				"Build RCP Script Error",
+				message
+			);
+		});
 	}
 
 	private void openPdfFile() {
@@ -157,7 +140,7 @@ public class BuildRCPScriptHandler extends AbstractHandler {
 		File pdfFile = new File(pdfOutputPath);
 
 		if (!pdfFile.exists()) {
-			showErrorNotification("PDF file not found at: " + pdfOutputPath);
+			showError("PDF file not found at: " + pdfOutputPath);
 			return;
 		}
 
@@ -165,7 +148,7 @@ public class BuildRCPScriptHandler extends AbstractHandler {
 		boolean launched = Program.launch(pdfFile.getAbsolutePath());
 
 		if (!launched) {
-			showErrorNotification("Failed to open PDF file. No application is associated with PDF files.");
+			showError("Failed to open PDF file. No application is associated with PDF files.");
 		}
 	}
 }

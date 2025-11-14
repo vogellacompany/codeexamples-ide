@@ -4,7 +4,6 @@ Bundle-Name: Next Search Helper
 Bundle-SymbolicName: z.ex.search;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.eclipse.jface
+ org.eclipse.core.runtime
 Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-ActivationPolicy: lazy
