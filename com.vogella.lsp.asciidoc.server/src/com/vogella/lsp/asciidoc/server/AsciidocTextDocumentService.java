@@ -1367,7 +1367,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 		items.add(include);
 
 		// WARNING admonition block
-		CompletionItem warning = new CompletionItem("[WARNING]");
+		CompletionItem warning = new CompletionItem("WARNING");
 		warning.setKind(CompletionItemKind.Snippet);
 		warning.setInsertText("[WARNING]\n====\n${1:}\n====");
 		warning.setInsertTextFormat(InsertTextFormat.Snippet);
