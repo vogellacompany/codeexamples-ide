@@ -22,10 +22,11 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
+import com.vogella.ide.editor.asciidoc.util.AsciiDocResourceUtil;
+
 public class ImageHyperlinkDetector extends AbstractHyperlinkDetector {
 
 	private static final String IMAGE_PROPERTY = "image::";
-	private static final String IMAGE_DIRECTORY = "img";
 
 	@Override
 	public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks) {
@@ -46,12 +47,12 @@ public class ImageHyperlinkDetector extends AbstractHyperlinkDetector {
 				Region targetRegion = new Region(lineInformationOfOffset.getOffset() + IMAGE_PROPERTY.length(),
 						lineInformationOfOffset.getLength() - IMAGE_PROPERTY.length());
 
-				IContainer parent = getParentFolder();
+				IContainer parent = AsciiDocResourceUtil.getParentFolder();
 				if (parent == null || !parent.isAccessible()) {
 					return null;
 				}
 
-				IContainer imgFolder = parent.getFolder(IPath.fromOSString(IMAGE_DIRECTORY));
+				IContainer imgFolder = parent.getFolder(IPath.fromOSString(AsciiDocConstants.IMG_DIRECTORY));
 				if (!imgFolder.isAccessible()) {
 					return null;
 				}
@@ -74,20 +75,6 @@ public class ImageHyperlinkDetector extends AbstractHyperlinkDetector {
 		// empty
 		return null;
 
-	}
-
-	private IContainer getParentFolder() {
-		IEclipseContext context = PlatformUI.getWorkbench().getService(IEclipseContext.class);
-		Object object = context.get("activeEditor");
-
-		if (object instanceof IEditorPart activeEditor) {
-
-			IEditorInput editorInput = activeEditor.getEditorInput();
-			IResource adapter = editorInput.getAdapter(IResource.class);
-			IContainer parent = adapter.getParent();
-			return parent;
-		}
-		return null;
 	}
 	
 	

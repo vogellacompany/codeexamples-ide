@@ -1,26 +1,22 @@
 package com.vogella.ide.editor.asciidoc;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.PlatformUI;
 
-import java.io.File;
+import com.vogella.ide.editor.asciidoc.util.AsciiDocResourceUtil;
 
 public class ImageHover implements ITextHover {
 
     private static final String IMAGE_PREFIX = "image::";
-    private static final String IMAGE_DIRECTORY = "img"; // Directory for images
 
     @Override
     public String getHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
@@ -42,18 +38,18 @@ public class ImageHover implements ITextHover {
                     String imageName = lineContent.substring(startIndex, endIndex).trim();
 
 
-    				IContainer parent = getParentFolder();
+    				IContainer parent = AsciiDocResourceUtil.getParentFolder();
     				if (parent == null || !parent.isAccessible()) {
     					return "";
     				}
 
-    				IContainer imgFolder = parent.getFolder(IPath.fromOSString(IMAGE_DIRECTORY));
+    				IContainer imgFolder = parent.getFolder(IPath.fromOSString(AsciiDocConstants.IMG_DIRECTORY));
     				if (!imgFolder.isAccessible()) {
-    					return "Image folder '" + IMAGE_DIRECTORY + "' not found";
+    					return "Image folder '" + AsciiDocConstants.IMG_DIRECTORY + "' not found";
     				}
 
 
-    				IFile imageFile = imgFolder.getFile(IPath.fromOSString(imageName)); // Replace "filename.ext" with your actual file name
+    				IFile imageFile = imgFolder.getFile(IPath.fromOSString(imageName));
 
 
                     // Check if image file exists - use isAccessible to avoid rule conflicts
@@ -80,19 +76,4 @@ public class ImageHover implements ITextHover {
     public IRegion getHoverRegion(ITextViewer textViewer, int offset) {
         return new Region(offset, 0);
     }
-    
-
-	private IContainer getParentFolder() {
-		IEclipseContext context = PlatformUI.getWorkbench().getService(IEclipseContext.class);
-		Object object = context.get("activeEditor");
-
-		if (object instanceof IEditorPart activeEditor) {
-
-			IEditorInput editorInput = activeEditor.getEditorInput();
-			IResource adapter = editorInput.getAdapter(IResource.class);
-			IContainer parent = adapter.getParent();
-			return parent;
-		}
-		return null;
-	}
 }
