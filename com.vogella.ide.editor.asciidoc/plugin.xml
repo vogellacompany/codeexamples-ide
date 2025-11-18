@@ -44,46 +44,5 @@
             icon="icons/asciidoc.png">
       </icon>
    </extension>
-   <!-- Disabled: Now provided by LSP server (see com.vogella.lsp.asciidoc.server)
-   <extension
-         point="org.eclipse.ui.genericeditor.contentAssistProcessors">
-      <contentAssistProcessor
-            class="com.vogella.ide.editor.asciidoc.AsciidocContentAssistProcessor"
-            contentType="com.vogella.editor.asciidoc.contenttype">
-      </contentAssistProcessor>
-   </extension>
-   -->
- <extension
-       point="org.eclipse.ui.ide.unassociatedEditorStrategy">
-    <strategy
-          class="com.vogella.ide.editor.asciidoc.UnassociatedEditorStrategy1"
-          id="com.vogella.ide.editor.asciidoc.strategy1"
-          interactive="true"
-          label="label">
-    </strategy>
- </extension>
- <extension
-       point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
-    <target
-          id="com.vogella.ide.editor.asciidoc.hyperlinkDetector"
-          name="name">
-       <context
-             type="com.vogella.ide.editor.asciidoc.Context1">
-       </context>
-    </target>
-  </extension>
-  <extension
-        point="org.eclipse.compare.contentMergeViewers">
-     <viewer
-           class="com.vogella.ide.editor.asciidoc.AsciidocMergeViewerCreator"
-           extensions="adoc"
-           id="com.vogella.ide.editor.asciidoc.mergeViewer"
-           label="Asciidoc Merge Viewer">
-     </viewer>
-     <contentTypeBinding
-           contentMergeViewerId="com.vogella.ide.editor.asciidoc.mergeViewer"
-           contentTypeId="com.vogella.editor.asciidoc.contenttype">
-     </contentTypeBinding>
-  </extension>
  
  </plugin>
