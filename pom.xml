@@ -139,7 +139,6 @@
 
     <!--Tests-->
     <module>com.vogella.tasks.services.tests</module>
-    <module>com.vogella.ide.editor.asciidoc.tests</module>
     <module>updatesite</module>
     <!--releng-->
     <!-- <module>com.vogella.ide.product</module> -->
