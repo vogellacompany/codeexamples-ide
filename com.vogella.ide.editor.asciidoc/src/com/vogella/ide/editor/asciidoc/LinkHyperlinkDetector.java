@@ -16,6 +16,7 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.swt.program.Program;
+import com.vogella.ide.editor.asciidoc.util.AsciiDocResourceUtil;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
@@ -28,7 +29,7 @@ public class LinkHyperlinkDetector extends AbstractHyperlinkDetector {
     public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks) {
 
         IDocument document = textViewer.getDocument();
-        IContainer parent = getParentFolder();
+        IContainer parent = AsciiDocResourceUtil.getParentFolder();
 
         try {
             int offset = region.getOffset();
@@ -89,20 +90,6 @@ public class LinkHyperlinkDetector extends AbstractHyperlinkDetector {
             e.printStackTrace();
         }
 
-        return null;
-    }
-
-    private IContainer getParentFolder() {
-        IEclipseContext context = PlatformUI.getWorkbench().getService(IEclipseContext.class);
-        Object object = context.get("activeEditor");
-
-        if (object instanceof IEditorPart activeEditor) {
-            IEditorInput editorInput = activeEditor.getEditorInput();
-            IResource adapter = editorInput.getAdapter(IResource.class);
-            if (adapter != null) {
-                return adapter.getParent();
-            }
-        }
         return null;
     }
 }

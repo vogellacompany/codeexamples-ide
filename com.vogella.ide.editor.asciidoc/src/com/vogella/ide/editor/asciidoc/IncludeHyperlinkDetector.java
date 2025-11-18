@@ -19,6 +19,8 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
 
+import com.vogella.ide.editor.asciidoc.util.AsciiDocResourceUtil;
+
 public class IncludeHyperlinkDetector extends AbstractHyperlinkDetector {
 
 	private static final String HYPERLINK_PROPERTY = "include::";
@@ -27,7 +29,7 @@ public class IncludeHyperlinkDetector extends AbstractHyperlinkDetector {
 	public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks) {
 
 		IDocument document = textViewer.getDocument();
-		IContainer parent = getParentFolder();
+		IContainer parent = AsciiDocResourceUtil.getParentFolder();
 
 		try {
 			int offset = region.getOffset();
@@ -101,20 +103,6 @@ public class IncludeHyperlinkDetector extends AbstractHyperlinkDetector {
 		String normalizedPath = relativePath.replace("\\", "/"); // Normalize for cross-platform
 		int lastIndexOfParent = normalizedPath.lastIndexOf("../");
 		return lastIndexOfParent != -1 && normalizedPath.indexOf("/", lastIndexOfParent + 3) != -1;
-	}
-
-	private IContainer getParentFolder() {
-		IEclipseContext context = PlatformUI.getWorkbench().getService(IEclipseContext.class);
-		Object object = context.get("activeEditor");
-
-		if (object instanceof IEditorPart activeEditor) {
-
-			IEditorInput editorInput = activeEditor.getEditorInput();
-			IResource adapter = editorInput.getAdapter(IResource.class);
-			IContainer parent = adapter.getParent();
-			return parent;
-		}
-		return null;
 	}
 
 }
