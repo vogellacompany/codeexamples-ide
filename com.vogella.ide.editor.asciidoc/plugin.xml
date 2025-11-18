@@ -53,39 +53,6 @@
       </contentAssistProcessor>
    </extension>
    -->
- <!-- Disabled: Now provided by LSP server (see com.vogella.lsp.asciidoc.server)
- <extension
-       point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
-    <hyperlinkDetector
-          activate="true"
-          class="com.vogella.ide.editor.asciidoc.IncludeHyperlinkDetector"
-          id="com.vogella.ide.editor.asciidoc.includeDetector"
-          name="Hyperlink for include statements in Asciidoc files"
-          targetId="org.eclipse.ui.genericeditor.GenericEditor">
-    </hyperlinkDetector>
-    <hyperlinkDetector
-          activate="true"
-          class="com.vogella.ide.editor.asciidoc.ImageHyperlinkDetector"
-          id="com.vogella.ide.editor.asciidoc.hyperlinkDetector1"
-          name="Hyperlink for images in Asciidoc"
-          targetId="org.eclipse.ui.genericeditor.GenericEditor">
-    </hyperlinkDetector>
-    <hyperlinkDetector
-          activate="true"
-          class="com.vogella.ide.editor.asciidoc.LinkHyperlinkDetector"
-          id="com.vogella.ide.editor.asciidoc.linkDetector"
-          name="Hyperlink for link statements in Asciidoc files"
-          targetId="org.eclipse.ui.genericeditor.GenericEditor">
-    </hyperlinkDetector>
- </extension>
- <extension
-       point="org.eclipse.ui.genericeditor.hoverProviders">
-    <hoverProvider
-          class="com.vogella.ide.editor.asciidoc.ImageHover"
-          contentType="com.vogella.editor.asciidoc.contenttype">
-    </hoverProvider>
- </extension>
- -->
  <extension
        point="org.eclipse.ui.ide.unassociatedEditorStrategy">
     <strategy
