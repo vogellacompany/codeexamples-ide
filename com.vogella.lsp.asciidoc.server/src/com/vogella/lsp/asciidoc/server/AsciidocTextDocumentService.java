@@ -945,6 +945,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	public CompletableFuture<List<DocumentLink>> documentLink(DocumentLinkParams params) {
 		return CompletableFuture.supplyAsync(() -> {
 			String uri = params.getTextDocument().getUri();
+			LOGGER.info("Resolving document links for: " + uri);
 
 			// Check cache first to avoid repeated file I/O
 			List<DocumentLink> cachedLinks = linkCache.get(uri);
@@ -1073,8 +1074,6 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 			}
 		} catch (InvalidPathException e) {
 			LOGGER.log(Level.FINE, "Invalid path: " + targetPath, e);
-		} catch (IOException e) {
-			LOGGER.log(Level.FINE, "Error checking file existence: " + targetPath, e);
 		}
 		return null;
 	}
