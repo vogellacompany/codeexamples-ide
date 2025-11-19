@@ -210,6 +210,9 @@
         },
         {
           "include": "#bibliography-anchor"
+        },
+        {
+          "include": "#index-term"
         }
       ]
     },
@@ -778,6 +781,39 @@
               "name": "support.constant.asciidoc"
             }
           }
+        }
+      ]
+    },
+    "index-term": {
+      "patterns": [
+        {
+          "begin": "(?<!\\\\)(\\({3})",
+          "end": "(\\){3})",
+          "name": "markup.other.index-term.asciidoc",
+          "beginCaptures": {
+            "1": {
+              "name": "support.constant.asciidoc"
+            }
+          },
+          "endCaptures": {
+            "1": {
+              "name": "support.constant.asciidoc"
+            }
+          },
+          "patterns": [
+            {
+              "match": ">>",
+              "name": "keyword.operator.asciidoc"
+            },
+            {
+              "match": ",",
+              "name": "punctuation.separator.asciidoc"
+            },
+            {
+              "match": "[^,>)]+",
+              "name": "variable.parameter.asciidoc"
+            }
+          ]
         }
       ]
     },
