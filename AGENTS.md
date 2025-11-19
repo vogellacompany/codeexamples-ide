@@ -52,7 +52,8 @@ mvn clean compile -pl com.vogella.tasks.model,com.vogella.ide.first,com.vogella.
 
 ### Running Tests
 
-Tests require headless display server:
+Tests require headless display server. Note that Tycho executes tests during the `compile` phase, not just `test` or `verify`.
+
 ```bash
 # Setup Xvfb for headless testing
 Xvfb :99 &

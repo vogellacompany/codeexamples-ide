@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.eclipse.lsp4j.CodeLensOptions;
 import org.eclipse.lsp4j.CompletionOptions;
+import org.eclipse.lsp4j.DocumentLinkOptions;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializeResult;
 import org.eclipse.lsp4j.ServerCapabilities;
@@ -37,7 +38,7 @@ public class AsciidocLanguageServer implements LanguageServer {
 		res.getCapabilities().setDefinitionProvider(Boolean.TRUE);
 		res.getCapabilities().setCodeActionProvider(Boolean.TRUE);
 		res.getCapabilities().setCodeLensProvider(new CodeLensOptions(false));
-		res.getCapabilities().setDocumentLinkProvider(Boolean.TRUE);
+		res.getCapabilities().setDocumentLinkProvider(new DocumentLinkOptions());
 //		res.getCapabilities().setReferencesProvider(Boolean.TRUE);
 		return CompletableFuture.supplyAsync(() -> res);
 	}

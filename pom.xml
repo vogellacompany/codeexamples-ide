@@ -135,7 +135,10 @@
     <module>com.vogella.ide.editor.asciidoc</module>
     <module>com.vogella.ide.editor.shell</module>
     <module>com.vogella.languageserver.dart</module>
-     <module>z.ex.search</module>
+     <module>com.vogella.languageserver.asciidoc</module>
+    <module>com.vogella.languageserver.asciidoc.client</module>
+    <module>com.vogella.lsp.asciidoc.server</module>
+    <module>z.ex.search</module>
 
     <!--Tests-->
     <module>com.vogella.tasks.services.tests</module>
