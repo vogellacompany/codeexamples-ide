@@ -12,6 +12,10 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.pde.core.plugin.*;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.osgi.service.resolver.*;
+import org.eclipse.ui.console.*; // Requires 'org.eclipse.ui.console' dependency
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
 
 /**
  * Eclipse e4 Handler to detect cyclic dependencies between plug-ins in the workspace.
@@ -19,33 +23,52 @@ import org.eclipse.osgi.service.resolver.*;
  */
 public class DetectCyclicDependenciesHandler {
 
+    private static final String CONSOLE_NAME = "Cyclic Dependency Analysis";
+
     @Execute
     public void execute(@Named(IServiceConstants.ACTIVE_SHELL) Shell shell) {
         try {
             CyclicDependencyDetector detector = new CyclicDependencyDetector();
             List<CycleInfo> cycles = detector.detectCycles();
             
+            // Clear and prepare the console
+            MessageConsole console = findConsole(CONSOLE_NAME);
+            console.clearConsole();
+            MessageConsoleStream out = console.newMessageStream();
+            
+            // Bring Console View to front
+            showConsoleView(console);
+
             if (cycles.isEmpty()) {
+                out.println("No cyclic dependencies found in workspace plug-ins.");
                 MessageDialog.openInformation(shell, "Cyclic Dependencies", 
                     "No cyclic dependencies found in workspace plug-ins.");
             } else {
-                StringBuilder message = new StringBuilder();
-                message.append("Found ").append(cycles.size()).append(" cycle(s):\n\n");
+                StringBuilder dialogMessage = new StringBuilder();
+                dialogMessage.append("Found ").append(cycles.size()).append(" cycle(s). See Console for details.\n\n");
                 
+                // Console Header
+                out.println("=================================================");
+                out.println("         CYCLIC DEPENDENCIES DETECTED            ");
+                out.println("=================================================");
+
                 for (int i = 0; i < cycles.size(); i++) {
                     CycleInfo cycleInfo = cycles.get(i);
-                    message.append("Cycle ").append(i + 1).append(":\n");
-                    List<String> cycle = cycleInfo.cycle;
-                    for (int j = 0; j < cycle.size() - 1; j++) {
-                        message.append("  ").append(cycle.get(j));
-                        String depType = cycleInfo.getEdgeType(cycle.get(j), cycle.get(j + 1));
-                        message.append(" -[").append(depType).append("]-> \n");
-                    }
-                    message.append("\n");
+                    
+                    // 1. Build string for Dialog (Simplified)
+                    dialogMessage.append("Cycle ").append(i + 1).append(": ");
+                    dialogMessage.append(cycleInfo.cycle.get(0)).append(" ...\n");
+
+                    // 2. Generate and Print ASCII Art to Eclipse Console
+                    out.println("\nCycle " + (i + 1) + ":");
+                    out.println(generateAsciiArt(cycleInfo));
                 }
                 
+                out.println("=================================================");
+                
+                // Show a dialog, but refer them to the console for the big ASCII art
                 MessageDialog.openWarning(shell, "Cyclic Dependencies Detected", 
-                    message.toString());
+                    dialogMessage.toString());
             }
         } catch (Exception e) {
             MessageDialog.openError(shell, "Error", 
@@ -54,13 +77,83 @@ public class DetectCyclicDependenciesHandler {
                 "com.vogella.ide.debugtools", "Error detecting cycles", e));
         }
     }
+
+    /**
+     * Generates a vertical ASCII art flow for the cycle.
+     */
+    private String generateAsciiArt(CycleInfo cycleInfo) {
+        StringBuilder sb = new StringBuilder();
+        List<String> cycle = cycleInfo.cycle;
+        
+        int maxLen = 0;
+        for (String node : cycle) maxLen = Math.max(maxLen, node.length());
+        int boxWidth = maxLen + 4; 
+
+        String horizontalBorder = "  +" + "-".repeat(boxWidth - 2) + "+";
+
+        for (int i = 0; i < cycle.size() - 1; i++) {
+            String current = cycle.get(i);
+            String next = cycle.get(i + 1);
+            String type = cycleInfo.getEdgeType(current, next);
+
+            sb.append(horizontalBorder).append("\n");
+            sb.append(String.format("  | %-" + (boxWidth - 4) + "s |\n", current));
+            sb.append(horizontalBorder).append("\n");
+
+            sb.append("      |\n");
+            sb.append("      |  [").append(type).append("]\n");
+            sb.append("      v\n");
+        }
+
+        String lastNode = cycle.get(cycle.size() - 1);
+        sb.append(horizontalBorder).append("\n");
+        sb.append(String.format("  | %-" + (boxWidth - 4) + "s |\n", lastNode));
+        sb.append(horizontalBorder).append("\n");
+        
+        sb.append("      ^ (Loops back to start)\n");
+        sb.append("      |______________________|\n");
+
+        return sb.toString();
+    }
     
     /**
-     * Holds information about a cycle including the edge types
+     * Finds or creates the console with the given name.
      */
+    private MessageConsole findConsole(String name) {
+        ConsolePlugin plugin = ConsolePlugin.getDefault();
+        IConsoleManager conMan = plugin.getConsoleManager();
+        IConsole[] existing = conMan.getConsoles();
+        for (int i = 0; i < existing.length; i++)
+            if (name.equals(existing[i].getName()))
+                return (MessageConsole) existing[i];
+        
+        // No console found, so create a new one
+        MessageConsole myConsole = new MessageConsole(name, null);
+        conMan.addConsoles(new IConsole[]{myConsole});
+        return myConsole;
+    }
+
+    /**
+     * Forces the Console view to open and display our specific console.
+     */
+    private void showConsoleView(IConsole myConsole) {
+        try {
+            IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+            String id = IConsoleConstants.ID_CONSOLE_VIEW;
+            IConsoleView view = (IConsoleView) page.showView(id);
+            view.display(myConsole);
+        } catch (PartInitException e) {
+            // Log error if view cannot be opened, but don't fail the whole operation
+            Platform.getLog(getClass()).log(new Status(Status.WARNING, 
+                "com.vogella.ide.debugtools", "Could not open console view", e));
+        }
+    }
+    
+    // --- Nested Helper Classes (CycleInfo, CyclicDependencyDetector) remain unchanged ---
+    
     private static class CycleInfo {
         List<String> cycle;
-        Map<String, String> edgeTypes; // Key: "from->to", Value: "Require-Bundle" or "Import-Package: pkg.name"
+        Map<String, String> edgeTypes; 
         
         CycleInfo(List<String> cycle) {
             this.cycle = cycle;
@@ -76,9 +169,6 @@ public class DetectCyclicDependenciesHandler {
         }
     }
     
-    /**
-     * Core logic for detecting cyclic dependencies
-     */
     private static class CyclicDependencyDetector {
         private Map<String, Set<DependencyEdge>> dependencyGraph;
         private Set<String> visited;
@@ -89,7 +179,7 @@ public class DetectCyclicDependenciesHandler {
         
         private static class DependencyEdge {
             String target;
-            String type; // "Require-Bundle" or "Import-Package: package.name"
+            String type;
             
             DependencyEdge(String target, String type) {
                 this.target = target;
@@ -113,18 +203,14 @@ public class DetectCyclicDependenciesHandler {
         public List<CycleInfo> detectCycles() throws CoreException {
             dependencyGraph = new HashMap<>();
             cycles = new ArrayList<>();
-            
             buildDependencyGraph();
             findAllCycles();
-            
             return cycles;
         }
         
         private void buildDependencyGraph() throws CoreException {
             IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
             IProject[] projects = root.getProjects();
-            
-            // First pass: collect all workspace bundles and their exported packages
             Map<String, String> packageToBundle = new HashMap<>();
             Map<String, IPluginModelBase> workspaceModels = new HashMap<>();
             
@@ -134,8 +220,6 @@ public class DetectCyclicDependenciesHandler {
                     if (model != null && model.getBundleDescription() != null) {
                         String pluginId = model.getPluginBase().getId();
                         workspaceModels.put(pluginId, model);
-                        
-                        // Collect exported packages
                         BundleDescription bundleDesc = model.getBundleDescription();
                         ExportPackageDescription[] exports = bundleDesc.getExportPackages();
                         if (exports != null) {
@@ -147,15 +231,12 @@ public class DetectCyclicDependenciesHandler {
                 }
             }
             
-            // Second pass: build dependency graph
             for (Map.Entry<String, IPluginModelBase> entry : workspaceModels.entrySet()) {
                 String pluginId = entry.getKey();
                 IPluginModelBase model = entry.getValue();
                 Set<DependencyEdge> dependencies = new HashSet<>();
-                
                 BundleDescription bundleDesc = model.getBundleDescription();
                 if (bundleDesc != null) {
-                    // Get Require-Bundle dependencies
                     BundleSpecification[] requiredBundles = bundleDesc.getRequiredBundles();
                     if (requiredBundles != null) {
                         for (BundleSpecification spec : requiredBundles) {
@@ -165,32 +246,23 @@ public class DetectCyclicDependenciesHandler {
                             }
                         }
                     }
-                    
-                    // Get Import-Package dependencies
                     ImportPackageSpecification[] importedPackages = bundleDesc.getImportPackages();
                     if (importedPackages != null) {
                         for (ImportPackageSpecification importSpec : importedPackages) {
                             String packageName = importSpec.getName();
                             String providingBundle = packageToBundle.get(packageName);
-                            
-                            // Only add if it's a workspace bundle and not self-import
                             if (providingBundle != null && !providingBundle.equals(pluginId)) {
-                                dependencies.add(new DependencyEdge(
-                                    providingBundle, 
-                                    "Import-Package: " + packageName
-                                ));
+                                dependencies.add(new DependencyEdge(providingBundle, "Import-Package: " + packageName));
                             }
                         }
                     }
                 }
-                
                 dependencyGraph.put(pluginId, dependencies);
             }
         }
         
         private void findAllCycles() {
             visited = new HashSet<>();
-            
             for (String plugin : dependencyGraph.keySet()) {
                 if (!visited.contains(plugin)) {
                     recursionStack = new HashSet<>();
@@ -204,7 +276,6 @@ public class DetectCyclicDependenciesHandler {
         private void detectCycleFromNode(String node) {
             visited.add(node);
             recursionStack.add(node);
-            
             Set<DependencyEdge> dependencies = dependencyGraph.get(node);
             if (dependencies != null) {
                 for (DependencyEdge edge : dependencies) {
@@ -214,7 +285,6 @@ public class DetectCyclicDependenciesHandler {
                         parentEdge.put(dep, edge);
                         detectCycleFromNode(dep);
                     } else if (recursionStack.contains(dep)) {
-                        // Cycle detected
                         CycleInfo cycle = extractCycle(node, dep, edge);
                         if (!isDuplicateCycle(cycle)) {
                             cycles.add(cycle);
@@ -222,77 +292,51 @@ public class DetectCyclicDependenciesHandler {
                     }
                 }
             }
-            
             recursionStack.remove(node);
         }
         
         private CycleInfo extractCycle(String current, String cycleStart, DependencyEdge finalEdge) {
             LinkedList<String> path = new LinkedList<>();
-            path.addFirst(current); // Start with the node where recursion found cycle
-
-            // Reconstruct path from 'current' back to 'cycleStart'
+            path.addFirst(current); 
             String node = current;
             while (!node.equals(cycleStart)) {
                 node = parent.get(node);
                 path.addFirst(node);
             }
-            // Now 'path' is [cycleStart, ..., current]
-
-            // Create cycle list for CycleInfo: [cycleStart, ..., current, cycleStart]
             List<String> cycleList = new ArrayList<>(path);
-            cycleList.add(cycleStart); // Close the cycle
-
+            cycleList.add(cycleStart); 
             CycleInfo cycleInfo = new CycleInfo(cycleList);
-
-            // Populate edge types for the cycle
-            // Edges from cycleStart to current
             for (int i = 0; i < path.size() - 1; i++) {
                 String from = path.get(i);
                 String to = path.get(i + 1);
-                // The edge that leads to 'to' from 'from'
                 DependencyEdge edge = parentEdge.get(to); 
                 cycleInfo.addEdge(from, to, edge.type);
             }
-
-            // The final edge from 'current' back to 'cycleStart'
             cycleInfo.addEdge(current, cycleStart, finalEdge.type);
-
             return cycleInfo;
         }
         
         private boolean isDuplicateCycle(CycleInfo newCycleInfo) {
             List<String> normalized = normalizeCycle(newCycleInfo.cycle);
-            
             for (CycleInfo existingCycleInfo : cycles) {
                 List<String> normalizedExisting = normalizeCycle(existingCycleInfo.cycle);
-                if (normalized.equals(normalizedExisting)) {
-                    return true;
-                }
+                if (normalized.equals(normalizedExisting)) return true;
             }
             return false;
         }
         
         private List<String> normalizeCycle(List<String> cycle) {
             if (cycle.size() <= 1) return new ArrayList<>(cycle);
-            
-            // Remove the duplicate last element for comparison
             List<String> temp = new ArrayList<>(cycle.subList(0, cycle.size() - 1));
-            
-            // Find the minimum element
             int minIndex = 0;
             for (int i = 1; i < temp.size(); i++) {
-                if (temp.get(i).compareTo(temp.get(minIndex)) < 0) {
-                    minIndex = i;
-                }
+                if (temp.get(i).compareTo(temp.get(minIndex)) < 0) minIndex = i;
             }
-            
-            // Rotate to start with minimum element
             List<String> normalized = new ArrayList<>();
             for (int i = 0; i < temp.size(); i++) {
                 normalized.add(temp.get((minIndex + i) % temp.size()));
             }
-            normalized.add(normalized.get(0)); // Add back the duplicate to complete the cycle
-            
+            normalized.add(normalized.get(0));
             return normalized;
         }
     }
