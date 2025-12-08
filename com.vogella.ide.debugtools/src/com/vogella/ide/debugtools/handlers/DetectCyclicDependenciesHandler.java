@@ -1,5 +1,7 @@
 package com.vogella.ide.debugtools.handlers;
 
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Status;
 import java.util.*;
 import jakarta.inject.Named;
 import org.eclipse.core.resources.*;
@@ -49,7 +51,8 @@ public class DetectCyclicDependenciesHandler {
         } catch (Exception e) {
             MessageDialog.openError(shell, "Error", 
                 "Error detecting cycles: " + e.getMessage());
-            e.printStackTrace();
+            Platform.getLog(getClass()).log(new Status(Status.ERROR, 
+                "com.vogella.ide.debugtools", "Error detecting cycles", e));
         }
     }
     
@@ -99,12 +102,12 @@ public class DetectCyclicDependenciesHandler {
                 if (this == o) return true;
                 if (o == null || getClass() != o.getClass()) return false;
                 DependencyEdge that = (DependencyEdge) o;
-                return Objects.equals(target, that.target);
+                return Objects.equals(target, that.target) && Objects.equals(type, that.type);
             }
             
             @Override
             public int hashCode() {
-                return Objects.hash(target);
+                return Objects.hash(target, type);
             }
         }
         
@@ -225,34 +228,36 @@ public class DetectCyclicDependenciesHandler {
         }
         
         private CycleInfo extractCycle(String current, String cycleStart, DependencyEdge finalEdge) {
-            List<String> cyclePath = new ArrayList<>();
-            cyclePath.add(cycleStart);
-            
+            LinkedList<String> path = new LinkedList<>();
+            path.addFirst(current); // Start with the node where recursion found cycle
+
+            // Reconstruct path from 'current' back to 'cycleStart'
             String node = current;
-            Stack<DependencyEdge> edges = new Stack<>();
-            edges.push(finalEdge);
-            
-            while (node != null && !node.equals(cycleStart)) {
-                cyclePath.add(0, node);
-                DependencyEdge edge = parentEdge.get(node);
-                if (edge != null) {
-                    edges.push(edge);
-                }
+            while (!node.equals(cycleStart)) {
                 node = parent.get(node);
+                path.addFirst(node);
             }
-            
-            cyclePath.add(cycleStart); // Add the cycle start at the end to show completion
-            
-            CycleInfo cycleInfo = new CycleInfo(cyclePath);
-            
-            // Add edge information
-            for (int i = 0; i < cyclePath.size() - 1; i++) {
-                if (!edges.isEmpty()) {
-                    DependencyEdge edge = edges.pop();
-                    cycleInfo.addEdge(cyclePath.get(i), cyclePath.get(i + 1), edge.type);
-                }
+            // Now 'path' is [cycleStart, ..., current]
+
+            // Create cycle list for CycleInfo: [cycleStart, ..., current, cycleStart]
+            List<String> cycleList = new ArrayList<>(path);
+            cycleList.add(cycleStart); // Close the cycle
+
+            CycleInfo cycleInfo = new CycleInfo(cycleList);
+
+            // Populate edge types for the cycle
+            // Edges from cycleStart to current
+            for (int i = 0; i < path.size() - 1; i++) {
+                String from = path.get(i);
+                String to = path.get(i + 1);
+                // The edge that leads to 'to' from 'from'
+                DependencyEdge edge = parentEdge.get(to); 
+                cycleInfo.addEdge(from, to, edge.type);
             }
-            
+
+            // The final edge from 'current' back to 'cycleStart'
+            cycleInfo.addEdge(current, cycleStart, finalEdge.type);
+
             return cycleInfo;
         }
         

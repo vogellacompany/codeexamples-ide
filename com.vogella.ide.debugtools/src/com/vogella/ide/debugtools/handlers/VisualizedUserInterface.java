@@ -32,6 +32,12 @@ public class VisualizedUserInterface {
 
     // Original colorization
     colorizeComposites(s);
+    
+    // Dispose of created colors to prevent resource leaks
+    for (Color color : createdColors) {
+        color.dispose();
+    }
+    createdColors.clear();
   }
 
   private void checkForLayoutPrintFlag(Control control) {
@@ -122,11 +128,7 @@ public class VisualizedUserInterface {
     if (count <= 0) {
       return "";
     }
-    StringBuilder sb = new StringBuilder(str.length() * count);
-    for (int i = 0; i < count; i++) {
-      sb.append(str);
-    }
-    return sb.toString();
+    return str.repeat(count);
   }
 
   private void colorizeComposites(final Composite composite) {
@@ -216,54 +218,6 @@ public class VisualizedUserInterface {
   }
 
   private RGB hsbToRgb(final int hue, final float saturation, final float brightness) {
-    float h = hue / 360f;
-    float s = saturation;
-    float b = brightness;
-
-    int r = 0, g = 0, bl = 0;
-    if (s == 0) {
-      r = g = bl = (int) (b * 255.0f + 0.5f);
-    } else {
-      float h6 = (h - (float) Math.floor(h)) * 6.0f;
-      float f = h6 - (float) Math.floor(h6);
-      float p = b * (1.0f - s);
-      float q = b * (1.0f - s * f);
-      float t = b * (1.0f - (s * (1.0f - f)));
-
-      switch ((int) h6) {
-      case 0:
-        r = (int) (b * 255.0f + 0.5f);
-        g = (int) (t * 255.0f + 0.5f);
-        bl = (int) (p * 255.0f + 0.5f);
-        break;
-      case 1:
-        r = (int) (q * 255.0f + 0.5f);
-        g = (int) (b * 255.0f + 0.5f);
-        bl = (int) (p * 255.0f + 0.5f);
-        break;
-      case 2:
-        r = (int) (p * 255.0f + 0.5f);
-        g = (int) (b * 255.0f + 0.5f);
-        bl = (int) (t * 255.0f + 0.5f);
-        break;
-      case 3:
-        r = (int) (p * 255.0f + 0.5f);
-        g = (int) (q * 255.0f + 0.5f);
-        bl = (int) (b * 255.0f + 0.5f);
-        break;
-      case 4:
-        r = (int) (t * 255.0f + 0.5f);
-        g = (int) (p * 255.0f + 0.5f);
-        bl = (int) (b * 255.0f + 0.5f);
-        break;
-      case 5:
-        r = (int) (b * 255.0f + 0.5f);
-        g = (int) (p * 255.0f + 0.5f);
-        bl = (int) (q * 255.0f + 0.5f);
-        break;
-      }
-    }
-
-    return new RGB(r, g, bl);
+    return new RGB(hue, saturation, brightness);
   }
 }
