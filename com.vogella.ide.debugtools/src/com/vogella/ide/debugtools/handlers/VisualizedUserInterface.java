@@ -32,12 +32,7 @@ public class VisualizedUserInterface {
 
     // Original colorization
     colorizeComposites(s);
-    
-    // Dispose of created colors to prevent resource leaks
-    for (Color color : createdColors) {
-        color.dispose();
-    }
-    createdColors.clear();
+
   }
 
   private void checkForLayoutPrintFlag(Control control) {
