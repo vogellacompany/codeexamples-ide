@@ -95,23 +95,20 @@ public class DetectCyclicDependenciesHandler {
             String current = cycle.get(i);
             String next = cycle.get(i + 1);
             String type = cycleInfo.getEdgeType(current, next);
-
             sb.append(horizontalBorder).append("\n");
             sb.append(String.format("  | %-" + (boxWidth - 4) + "s |\n", current));
             sb.append(horizontalBorder).append("\n");
-
-            sb.append("      |\n");
-            sb.append("      |  [").append(type).append("]\n");
-            sb.append("      v\n");
+            if (i < cycle.size() - 2) {
+                sb.append("      |\n");
+                sb.append("      |  [").append(type).append("]\n");
+                sb.append("      v\n");
+            } else {
+                sb.append("      |\n");
+                sb.append("      |  [").append(type).append("]\n");
+                sb.append("      ^ (Loops back to start)\n");
+                sb.append("      |______________________|\n");
+            }
         }
-
-        String lastNode = cycle.get(cycle.size() - 1);
-        sb.append(horizontalBorder).append("\n");
-        sb.append(String.format("  | %-" + (boxWidth - 4) + "s |\n", lastNode));
-        sb.append(horizontalBorder).append("\n");
-        
-        sb.append("      ^ (Loops back to start)\n");
-        sb.append("      |______________________|\n");
 
         return sb.toString();
     }
@@ -123,9 +120,11 @@ public class DetectCyclicDependenciesHandler {
         ConsolePlugin plugin = ConsolePlugin.getDefault();
         IConsoleManager conMan = plugin.getConsoleManager();
         IConsole[] existing = conMan.getConsoles();
-        for (int i = 0; i < existing.length; i++)
-            if (name.equals(existing[i].getName()))
-                return (MessageConsole) existing[i];
+        for (IConsole console : existing) {
+            if (name.equals(console.getName())) {
+                return (MessageConsole) console;
+            }
+        }
         
         // No console found, so create a new one
         MessageConsole myConsole = new MessageConsole(name, null);
@@ -138,7 +137,16 @@ public class DetectCyclicDependenciesHandler {
      */
     private void showConsoleView(IConsole myConsole) {
         try {
-            IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+            org.eclipse.ui.IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+            if (window == null) {
+                Platform.getLog(getClass()).log(new Status(Status.WARNING, "com.vogella.ide.debugtools", "Could not open console view: no active window."));
+                return;
+            }
+            IWorkbenchPage page = window.getActivePage();
+            if (page == null) {
+                Platform.getLog(getClass()).log(new Status(Status.WARNING, "com.vogella.ide.debugtools", "Could not open console view: no active page."));
+                return;
+            }
             String id = IConsoleConstants.ID_CONSOLE_VIEW;
             IConsoleView view = (IConsoleView) page.showView(id);
             view.display(myConsole);
