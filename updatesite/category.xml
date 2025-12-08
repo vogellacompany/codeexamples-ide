@@ -16,4 +16,5 @@
          Adds &quot;Alt+&quot; and &quot;Alt-&quot; shortcut to perform a next search.
       </description>
    </category-def>
+   <category-def name="debug_tools_vogella" label="Debug Tools  from vogella"/>
 </site>

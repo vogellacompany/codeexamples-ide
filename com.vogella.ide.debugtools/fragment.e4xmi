@@ -17,10 +17,10 @@
       <persistedState key="persistState" value="false"/>
       <children xsi:type="menu:Menu" xmi:id="_wg9ZMIrOEeW7h_qdP9N9fw" elementId="org.eclipse.pde.ui.templates.menu.e4handlers" label="vogella Debug tools">
         <persistedState key="persistState" value="false"/>
-        <children xsi:type="menu:HandledMenuItem" xmi:id="_2LM_MIrOEeW7h_qdP9N9fw" elementId="org.eclipse.pde.ui.templates.handledmenuitem." label="" iconURI="platform:/plugin/com.vogella.ide.debugtools/icons/Sample.png" command="_UCYfwIrOEeW7h_qdP9N9fw"/>
-      </children>
-      <children xsi:type="menu:HandledMenuItem" xmi:id="_qemQ0NQ_EfCr8tLX0UY1Tg" elementId="com.vogella.ide.debugtools.handledmenuitem.detectplug-incycles" label="Detect plug-in cycles" command="_fmIScNQ_EfCr8tLX0UY1Tg">
-        <persistedState key="persistState" value="false"/>
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_2LM_MIrOEeW7h_qdP9N9fw" elementId="org.eclipse.pde.ui.templates.handledmenuitem." label="Visualize User Interface" iconURI="platform:/plugin/com.vogella.ide.debugtools/icons/Sample.png" type="Check" command="_UCYfwIrOEeW7h_qdP9N9fw"/>
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_qemQ0NQ_EfCr8tLX0UY1Tg" elementId="com.vogella.ide.debugtools.handledmenuitem.detectplug-incycles" label="Detect plug-in cycles" command="_fmIScNQ_EfCr8tLX0UY1Tg">
+          <persistedState key="persistState" value="false"/>
+        </children>
       </children>
     </elements>
   </fragments>
