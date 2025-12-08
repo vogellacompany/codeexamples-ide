@@ -3,16 +3,13 @@
 <target name="target-platform">
 	<locations>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="http://download.eclipse.org/releases/2025-09"/>
+			<repository location="http://download.eclipse.org/releases/2025-12"/>
 			<unit id="org.eclipse.equinox.sdk.feature.group"/>
 			<unit id="org.eclipse.platform.feature.group"/>
 			<unit id="org.eclipse.pde.spies.feature.group"/>
-		</location>
-
-		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<repository location="https://download.eclipse.org/releases//2024-12"/>
 			<unit id="org.eclipse.jdt.feature.group"/>
 		</location>
+
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/tm4e/releases/latest/"/>
 			<unit id="org.eclipse.tm4e.feature.feature.group"/>

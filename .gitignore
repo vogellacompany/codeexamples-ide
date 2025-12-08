@@ -16,3 +16,5 @@ Snap.*
 .tycho-consumer-pom.xml
 .polyglot.category.xml
 .polyglot.target-platform.target
+org.eclipse.core.resources.prefs
+org.eclipse.m2e.core.prefs

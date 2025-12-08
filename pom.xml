@@ -135,7 +135,8 @@
     <module>com.vogella.ide.editor.asciidoc</module>
     <module>com.vogella.ide.editor.shell</module>
     <module>com.vogella.languageserver.dart</module>
-     <module>z.ex.search</module>
+    <module>com.vogella.ide.debugtools</module>
+    <module>z.ex.search</module>
 
     <!--Tests-->
     <!--
