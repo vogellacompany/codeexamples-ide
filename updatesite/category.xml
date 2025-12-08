@@ -9,6 +9,9 @@
    <bundle id="z.ex.search">
       <category name="search_extension"/>
    </bundle>
+   <bundle id="com.vogella.ide.debugtools">
+      <category name="debug_tools_vogella"/>
+   </bundle>
    <category-def name="vogella_ide_extensions" label="IDE extensions from vogella"/>
    <category-def name="vogella_minimal_asciidoc_editor" label="Minimal Asciidoc Editor"/>
    <category-def name="search_extension" label="Search Extension">
