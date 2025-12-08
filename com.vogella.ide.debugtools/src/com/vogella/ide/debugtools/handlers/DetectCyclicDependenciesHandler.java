@@ -12,7 +12,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.pde.core.plugin.*;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.osgi.service.resolver.*;
-import org.osgi.framework.Constants;
 
 /**
  * Eclipse e4 Handler to detect cyclic dependencies between plug-ins in the workspace.

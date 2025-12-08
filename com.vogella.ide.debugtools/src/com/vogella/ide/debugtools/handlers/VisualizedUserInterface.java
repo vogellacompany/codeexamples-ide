@@ -6,6 +6,7 @@ import java.util.Random;
 
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.ui.services.IServiceConstants;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
@@ -166,12 +167,12 @@ public class VisualizedUserInterface {
         sb.append("  Spacing: H=").append(gl.horizontalSpacing).append(" V=").append(gl.verticalSpacing).append("\n");
       } else if (layout instanceof FillLayout) {
         FillLayout fl = (FillLayout) layout;
-        sb.append("  Type: ").append(fl.type == 256 ? "HORIZONTAL" : "VERTICAL").append("\n");
+        sb.append("  Type: ").append(fl.type == SWT.HORIZONTAL ? "HORIZONTAL" : "VERTICAL").append("\n");
         sb.append("  Margin: W=").append(fl.marginWidth).append(" H=").append(fl.marginHeight).append("\n");
         sb.append("  Spacing: ").append(fl.spacing).append("\n");
       } else if (layout instanceof RowLayout) {
         RowLayout rl = (RowLayout) layout;
-        sb.append("  Type: ").append(rl.type == 256 ? "HORIZONTAL" : "VERTICAL").append("\n");
+        sb.append("  Type: ").append(rl.type == SWT.HORIZONTAL ? "HORIZONTAL" : "VERTICAL").append("\n");
         sb.append("  Wrap: ").append(rl.wrap).append("\n");
         sb.append("  Pack: ").append(rl.pack).append("\n");
         sb.append("  Justify: ").append(rl.justify).append("\n");
