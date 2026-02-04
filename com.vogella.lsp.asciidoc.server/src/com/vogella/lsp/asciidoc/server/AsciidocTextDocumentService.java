@@ -122,7 +122,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 				return Either.forLeft(completionItems);
 			}
 
-			// 2. Include completion
+			// 2. Include completion with smart path support
 			Pattern includePattern = Pattern.compile("include::([^\\[\\]\\s]*)(\\[)?$");
 			Matcher includeMatcher = includePattern.matcher(prefixLine);
 			if (includeMatcher.find()) {
@@ -137,28 +137,30 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 					endChar += 1;
 				}
 
-				List<String> files = scanForFiles(uri, ".", new String[] { ".adoc" });
-				for (String file : files) {
-					if (file.toLowerCase().startsWith(pathPrefix.toLowerCase())) {
-						CompletionItem item = new CompletionItem();
-						item.setLabel(file);
-						item.setKind(CompletionItemKind.File);
-						item.setDetail("Asciidoc file");
-
-						TextEdit edit = new TextEdit();
-						edit.setRange(new Range(new Position(lineNum, startChar), new Position(lineNum, endChar)));
-						edit.setNewText(file + "[]");
-						item.setTextEdit(Either.forLeft(edit));
-
-						completionItems.add(item);
-					}
+				// Parse path into directory and filename parts
+				String dirPart = "";
+				String filePrefix = pathPrefix;
+				int lastSlash = pathPrefix.lastIndexOf('/');
+				if (lastSlash >= 0) {
+					dirPart = pathPrefix.substring(0, lastSlash + 1);
+					filePrefix = pathPrefix.substring(lastSlash + 1);
 				}
+
+				// Get completions for the current path segment
+				List<CompletionItem> pathCompletions = getPathCompletions(uri, dirPart, filePrefix, lineNum, startChar, endChar);
+				completionItems.addAll(pathCompletions);
+
 				return Either.forLeft(completionItems);
 			}
 
 			// 3. Default proposals
-			completionItems.add(createCompletionItem("= Title", CompletionItemKind.Snippet, "= Title"));
-			completionItems.add(createCompletionItem("== Subtitle", CompletionItemKind.Snippet, "== Subtitle"));
+			// Header completions only at the beginning of the line
+			if (prefixLine.trim().isEmpty()) {
+				completionItems.add(createCompletionItem("= Title", CompletionItemKind.Snippet, "= Title"));
+				completionItems.add(createCompletionItem("== Subtitle", CompletionItemKind.Snippet, "== Subtitle"));
+			}
+
+			// Other completions available everywhere
 			completionItems.add(createCompletionItem("image::", CompletionItemKind.Snippet, "image::"));
 			completionItems.add(createCompletionItem("include::", CompletionItemKind.Snippet, "include::"));
 			
@@ -208,6 +210,79 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 		return fileNames;
 	}
 
+	/**
+	 * Get path-aware completions for include directives.
+	 * Supports directory traversal and completes the current path segment.
+	 * Results are sorted: directories first, then files, both alphabetically.
+	 */
+	private List<CompletionItem> getPathCompletions(String documentUri, String dirPart, String filePrefix,
+			int lineNum, int startChar, int endChar) {
+		List<CompletionItem> completions = new ArrayList<>();
+		try {
+			URI uri = new URI(documentUri);
+			File docFile = new File(uri);
+			File parentDir = docFile.getParentFile();
+
+			// Resolve the target directory relative to the current document
+			File targetDir = new File(parentDir, dirPart);
+			if (!targetDir.exists() || !targetDir.isDirectory()) {
+				return completions;
+			}
+
+			File[] entries = targetDir.listFiles();
+			if (entries == null) {
+				return completions;
+			}
+
+			for (File entry : entries) {
+				String name = entry.getName();
+
+				// Skip hidden files and the current document
+				if (name.startsWith(".")) {
+					continue;
+				}
+
+				// Check if name matches the prefix (case-insensitive)
+				if (!name.toLowerCase().startsWith(filePrefix.toLowerCase())) {
+					continue;
+				}
+
+				if (entry.isDirectory()) {
+					// Add directory completion
+					CompletionItem item = new CompletionItem();
+					item.setLabel(name + "/");
+					item.setKind(CompletionItemKind.Folder);
+					item.setDetail("Directory");
+					item.setSortText("0_" + name.toLowerCase()); // Directories first
+
+					TextEdit edit = new TextEdit();
+					edit.setRange(new Range(new Position(lineNum, startChar), new Position(lineNum, endChar)));
+					edit.setNewText(dirPart + name + "/");
+					item.setTextEdit(Either.forLeft(edit));
+
+					completions.add(item);
+				} else if (name.endsWith(".adoc")) {
+					// Add file completion
+					CompletionItem item = new CompletionItem();
+					item.setLabel(name);
+					item.setKind(CompletionItemKind.File);
+					item.setDetail("Asciidoc file");
+					item.setSortText("1_" + name.toLowerCase()); // Files after directories
+
+					TextEdit edit = new TextEdit();
+					edit.setRange(new Range(new Position(lineNum, startChar), new Position(lineNum, endChar)));
+					edit.setNewText(dirPart + name + "[]");
+					item.setTextEdit(Either.forLeft(edit));
+
+					completions.add(item);
+				}
+			}
+		} catch (Exception e) {
+			// Ignore errors
+		}
+		return completions;
+	}
+
 	@Override
 	public CompletableFuture<List<DocumentLink>> documentLink(DocumentLinkParams params) {
 		return CompletableFuture.supplyAsync(() -> {
@@ -250,6 +325,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 			}
 		}
 	}
+
 
 	@Override
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
