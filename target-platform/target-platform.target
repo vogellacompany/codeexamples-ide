@@ -8,6 +8,8 @@
 			<unit id="org.eclipse.platform.feature.group"/>
 			<unit id="org.eclipse.pde.spies.feature.group"/>
 			<unit id="org.eclipse.jdt.feature.group"/>
+			<unit id="junit-jupiter-api" version="5.14.1"/>
+			<unit id="junit-jupiter-engine" version="5.14.1"/>
 		</location>
 
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
