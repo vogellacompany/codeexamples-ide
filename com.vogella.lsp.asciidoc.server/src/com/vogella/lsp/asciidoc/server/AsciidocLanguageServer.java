@@ -35,6 +35,7 @@ public class AsciidocLanguageServer implements LanguageServer {
 		res.getCapabilities().setDocumentSymbolProvider(Boolean.TRUE);
 		res.getCapabilities().setHoverProvider(Boolean.TRUE);
 		res.getCapabilities().setDefinitionProvider(Boolean.TRUE);
+		res.getCapabilities().setDocumentLinkProvider(new org.eclipse.lsp4j.DocumentLinkOptions());
 		res.getCapabilities().setCodeActionProvider(Boolean.TRUE);
 		res.getCapabilities().setCodeLensProvider(new CodeLensOptions(false));
 //		res.getCapabilities().setReferencesProvider(Boolean.TRUE);
