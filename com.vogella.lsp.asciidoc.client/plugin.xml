@@ -1,23 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
- <extension
-         point="org.eclipse.core.contenttype.contentTypes">
-      <content-type
-            base-type="org.eclipse.core.runtime.text"
-            file-names="languageserver_example.txt"
-            id="com.vogella.lsp.asciidoc"
-            name="Example Content Type (languageserver_example.txt)"
-            priority="normal">
-      </content-type>
-   </extension>
-   <extension
-         point="org.eclipse.ui.editors">
-      <editorContentTypeBinding
-            contentTypeId="com.vogella.lsp.asciidoc"
-            editorId="org.eclipse.ui.genericeditor.GenericEditor">
-      </editorContentTypeBinding>
-   </extension>
    <extension
          point="org.eclipse.lsp4e.languageServer">
       <server
@@ -26,7 +9,7 @@
             label="Solution Server">
       </server>
       <contentTypeMapping
-            contentType="com.vogella.lsp.asciidoc"
+            contentType="com.vogella.editor.asciidoc.contenttype"
             id="org.vogella.lsp.asciidoc.server">
       </contentTypeMapping>
    </extension>

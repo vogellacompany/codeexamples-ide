@@ -1,11 +1,15 @@
 package com.vogella.lsp.asciidoc.server;
 
+import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -14,6 +18,7 @@ import org.eclipse.lsp4j.CodeLens;
 import org.eclipse.lsp4j.CodeLensParams;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.CompletionList;
 import org.eclipse.lsp4j.CompletionParams;
 import org.eclipse.lsp4j.DefinitionParams;
@@ -57,17 +62,98 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<Either<List<CompletionItem>, CompletionList>> completion(CompletionParams position) {
 		return CompletableFuture.supplyAsync(() -> {
-			// Example: Provide completions for AsciiDoc elements
+			List<CompletionItem> completionItems = new ArrayList<>();
+			String uri = position.getTextDocument().getUri();
+			AsciidocDocumentModel model = docs.get(uri);
 
-			CompletionItem item1 = new CompletionItem();
-			item1.setLabel("image::");
+			if (model == null) {
+				return Either.forLeft(Collections.emptyList());
+			}
 
-			CompletionItem item2 = new CompletionItem();
-			item2.setLabel("include::");
-			List<CompletionItem> completionItems = List.of(item1, item2);
+			int lineNum = position.getPosition().getLine();
+			String lineContent = model.getLineContent(lineNum);
+			if (lineContent == null) lineContent = "";
+			
+			String trimmedLine = lineContent.trim();
+			
+			// 1. Image completion
+			if (trimmedLine.startsWith("image::")) {
+				List<String> images = scanForFiles(uri, "img", new String[] {".png", ".jpg", ".jpeg", ".gif"});
+				for (String img : images) {
+					CompletionItem item = new CompletionItem();
+					item.setLabel(img);
+					item.setKind(CompletionItemKind.File);
+					item.setDetail("Image file");
+					item.setInsertText(img + "[]");
+					completionItems.add(item);
+				}
+				return Either.forLeft(completionItems);
+			}
+
+			// 2. Include completion
+			if (trimmedLine.startsWith("include::")) {
+				List<String> files = scanForFiles(uri, ".", new String[] {".adoc"});
+				for (String file : files) {
+					CompletionItem item = new CompletionItem();
+					item.setLabel(file);
+					item.setKind(CompletionItemKind.File);
+					item.setDetail("Asciidoc file");
+					item.setInsertText(file + "[]");
+					completionItems.add(item);
+				}
+				return Either.forLeft(completionItems);
+			}
+
+			// 3. Default proposals
+			completionItems.add(createCompletionItem("= Title", CompletionItemKind.Snippet, "= Title"));
+			completionItems.add(createCompletionItem("== Subtitle", CompletionItemKind.Snippet, "== Subtitle"));
+			completionItems.add(createCompletionItem("image::[]", CompletionItemKind.Snippet, "image::[]"));
+			completionItems.add(createCompletionItem("include::[]", CompletionItemKind.Snippet, "include::[]"));
+			
+			CompletionItem sourceBlock = new CompletionItem();
+			sourceBlock.setLabel("Source Code Block");
+			sourceBlock.setKind(CompletionItemKind.Snippet);
+			sourceBlock.setInsertText("[source, java]\n----\n\n----");
+			completionItems.add(sourceBlock);
 
 			return Either.forLeft(completionItems);
 		});
+	}
+
+	private CompletionItem createCompletionItem(String label, CompletionItemKind kind, String insertText) {
+		CompletionItem item = new CompletionItem();
+		item.setLabel(label);
+		item.setKind(kind);
+		item.setInsertText(insertText);
+		return item;
+	}
+
+	private List<String> scanForFiles(String documentUri, String subDir, String[] extensions) {
+		List<String> fileNames = new ArrayList<>();
+		try {
+			URI uri = new URI(documentUri);
+			File docFile = new File(uri);
+			File parentDir = docFile.getParentFile();
+			
+			File targetDir = new File(parentDir, subDir);
+			if (targetDir.exists() && targetDir.isDirectory()) {
+				File[] files = targetDir.listFiles((dir, name) -> {
+					for (String ext : extensions) {
+						if (name.toLowerCase().endsWith(ext)) return true;
+					}
+					return false;
+				});
+				
+				if (files != null) {
+					for (File f : files) {
+						fileNames.add(f.getName());
+					}
+				}
+			}
+		} catch (Exception e) {
+			// Ignore errors
+		}
+		return fileNames;
 	}
 
 	@Override
