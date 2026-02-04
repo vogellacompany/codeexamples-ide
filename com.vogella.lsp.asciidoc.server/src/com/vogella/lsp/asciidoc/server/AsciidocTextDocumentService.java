@@ -326,6 +326,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 		}
 	}
 
+
 	@Override
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
 			DocumentSymbolParams params) {
