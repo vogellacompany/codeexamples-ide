@@ -1,0 +1,51 @@
+= Asciidoc Language Server Support
+Vogella GmbH
+:toc:
+
+This document describes the features supported by the Asciidoc Language Server implementation in the `com.vogella.lsp.asciidoc.*` plugins.
+
+== Content Type Mapping
+The language server is registered for the `com.vogella.editor.asciidoc.contenttype` content type, which typically handles files with the `.adoc` extension.
+
+== Supported Features
+
+=== 1. Content Assist (Completions)
+The server provides context-aware completions with prefix filtering:
+
+* **Dynamic File Completions**:
+** `image::` and `image:`: Scans the `img/` subdirectory relative to the current file for image files (`.png`, `.jpg`, `.jpeg`, `.gif`). It supports filtering by prefix (e.g., typing `image::S` will list images starting with `S`).
+** `include::`: Scans the current directory for other `.adoc` files. Also supports prefix filtering.
+* **Snippets**:
+** `= Title`: Quickly insert a document title.
+** `== Subtitle`: Insert a level 1 section header.
+** `image::[]`: Insert a standard image macro.
+** `include::[]`: Insert a standard include macro.
+** `Source Code Block`: Inserts a Java source code block template:
+[source, java]
+----
+[source, java]
+----
+
+----
+
+=== 2. Hover Support
+Hovering over text (below the first line) displays documentation about key AsciiDoc elements like `image::` and `include::` using Markdown formatting.
+
+=== 3. Code Lenses
+The server scans the document for `TODO` markers and displays a **"Resolve TODO"** code lens above them.
+
+=== 4. Diagnostics & Quick Fixes
+* **Validation**: The server automatically flags the string `PLACEHOLDER_TEXT` as a warning.
+* **Quick Fix**: Provides a Code Action to replace `PLACEHOLDER_TEXT` with `replacement_text`.
+
+=== 5. Navigation & Symbols
+* **Document Symbols**: Provides an outline view (currently returns a sample hierarchy: `MyClass` -> `myMethod`).
+* **Go to Definition**: Supports basic "Go to Definition" logic for words under the cursor (currently uses a stub implementation).
+
+=== 6. Document Synchronization
+* Supports **Full** text document synchronization (`didOpen`, `didChange`, `didClose`), ensuring the server always has the latest state of the editor.
+
+== Implementation Details
+* **Client**: `com.vogella.lsp.asciidoc.client`
+* **Server**: `com.vogella.lsp.asciidoc.server`
+* **Technology**: Built using **Eclipse LSP4J** and integrated into Eclipse via **LSP4E**.

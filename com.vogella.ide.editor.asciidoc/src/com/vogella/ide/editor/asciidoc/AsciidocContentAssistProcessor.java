@@ -33,9 +33,7 @@ public class AsciidocContentAssistProcessor implements IContentAssistProcessor {
 				----
 				
 				----
-					""", ":attribute:", // Attribute
-			"image::[]", // Image
-			"include::[]" // Included Files
+					""", ":attribute:" // Attribute
 	);
 
 	public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {

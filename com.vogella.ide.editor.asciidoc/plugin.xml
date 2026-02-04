@@ -76,13 +76,6 @@
     </hyperlinkDetector>
  </extension>
  <extension
-       point="org.eclipse.ui.genericeditor.hoverProviders">
-    <hoverProvider
-          class="com.vogella.ide.editor.asciidoc.ImageHover"
-          contentType="com.vogella.editor.asciidoc.contenttype">
-    </hoverProvider>
- </extension>
- <extension
        point="org.eclipse.ui.ide.unassociatedEditorStrategy">
     <strategy
           class="com.vogella.ide.editor.asciidoc.UnassociatedEditorStrategy1"

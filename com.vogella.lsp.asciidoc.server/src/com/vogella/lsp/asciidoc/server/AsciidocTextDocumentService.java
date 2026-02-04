@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.eclipse.lsp4j.CodeAction;
@@ -71,35 +73,83 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 			}
 
 			int lineNum = position.getPosition().getLine();
+			int charPos = position.getPosition().getCharacter();
 			String lineContent = model.getLineContent(lineNum);
-			if (lineContent == null) lineContent = "";
-			
-			String trimmedLine = lineContent.trim();
-			
+			if (lineContent == null)
+				lineContent = "";
+
+			String prefixLine = charPos <= lineContent.length() ? lineContent.substring(0, charPos) : lineContent;
+			String suffixLine = charPos < lineContent.length() ? lineContent.substring(charPos) : "";
+
 			// 1. Image completion
-			if (trimmedLine.startsWith("image::")) {
-				List<String> images = scanForFiles(uri, "img", new String[] {".png", ".jpg", ".jpeg", ".gif"});
+			// Matches 'image::' or 'image:' followed by an optional path and an optional opening bracket at the end
+			Pattern imagePattern = Pattern.compile("image:[:]?([^\\[\\]\\s]*)(\\[)?$");
+			Matcher imageMatcher = imagePattern.matcher(prefixLine);
+			if (imageMatcher.find()) {
+				String pathPrefix = imageMatcher.group(1);
+				boolean hasOpeningInPrefix = imageMatcher.group(2) != null;
+				int startChar = charPos - pathPrefix.length() - (hasOpeningInPrefix ? 1 : 0);
+
+				// Determine how much of the suffix to replace
+				int endChar = charPos;
+				if (suffixLine.startsWith("[]")) {
+					endChar += 2;
+				} else if (suffixLine.startsWith("]")) {
+					endChar += 1;
+				} else if (hasOpeningInPrefix && suffixLine.startsWith("[")) {
+					// This case is unlikely given the regex, but good for completeness
+					endChar += 1;
+				}
+
+				List<String> images = scanForFiles(uri, "img", new String[] { ".png", ".jpg", ".jpeg", ".gif" });
 				for (String img : images) {
-					CompletionItem item = new CompletionItem();
-					item.setLabel(img);
-					item.setKind(CompletionItemKind.File);
-					item.setDetail("Image file");
-					item.setInsertText(img + "[]");
-					completionItems.add(item);
+					if (img.toLowerCase().startsWith(pathPrefix.toLowerCase())) {
+						CompletionItem item = new CompletionItem();
+						item.setLabel(img);
+						item.setKind(CompletionItemKind.File);
+						item.setDetail("Image file");
+
+						TextEdit edit = new TextEdit();
+						edit.setRange(new Range(new Position(lineNum, startChar), new Position(lineNum, endChar)));
+						edit.setNewText(img + "[]");
+						item.setTextEdit(Either.forLeft(edit));
+
+						completionItems.add(item);
+					}
 				}
 				return Either.forLeft(completionItems);
 			}
 
 			// 2. Include completion
-			if (trimmedLine.startsWith("include::")) {
-				List<String> files = scanForFiles(uri, ".", new String[] {".adoc"});
+			Pattern includePattern = Pattern.compile("include::([^\\[\\]\\s]*)(\\[)?$");
+			Matcher includeMatcher = includePattern.matcher(prefixLine);
+			if (includeMatcher.find()) {
+				String pathPrefix = includeMatcher.group(1);
+				boolean hasOpeningInPrefix = includeMatcher.group(2) != null;
+				int startChar = charPos - pathPrefix.length() - (hasOpeningInPrefix ? 1 : 0);
+
+				int endChar = charPos;
+				if (suffixLine.startsWith("[]")) {
+					endChar += 2;
+				} else if (suffixLine.startsWith("]")) {
+					endChar += 1;
+				}
+
+				List<String> files = scanForFiles(uri, ".", new String[] { ".adoc" });
 				for (String file : files) {
-					CompletionItem item = new CompletionItem();
-					item.setLabel(file);
-					item.setKind(CompletionItemKind.File);
-					item.setDetail("Asciidoc file");
-					item.setInsertText(file + "[]");
-					completionItems.add(item);
+					if (file.toLowerCase().startsWith(pathPrefix.toLowerCase())) {
+						CompletionItem item = new CompletionItem();
+						item.setLabel(file);
+						item.setKind(CompletionItemKind.File);
+						item.setDetail("Asciidoc file");
+
+						TextEdit edit = new TextEdit();
+						edit.setRange(new Range(new Position(lineNum, startChar), new Position(lineNum, endChar)));
+						edit.setNewText(file + "[]");
+						item.setTextEdit(Either.forLeft(edit));
+
+						completionItems.add(item);
+					}
 				}
 				return Either.forLeft(completionItems);
 			}
@@ -107,8 +157,8 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 			// 3. Default proposals
 			completionItems.add(createCompletionItem("= Title", CompletionItemKind.Snippet, "= Title"));
 			completionItems.add(createCompletionItem("== Subtitle", CompletionItemKind.Snippet, "== Subtitle"));
-			completionItems.add(createCompletionItem("image::[]", CompletionItemKind.Snippet, "image::[]"));
-			completionItems.add(createCompletionItem("include::[]", CompletionItemKind.Snippet, "include::[]"));
+			completionItems.add(createCompletionItem("image::", CompletionItemKind.Snippet, "image::"));
+			completionItems.add(createCompletionItem("include::", CompletionItemKind.Snippet, "include::"));
 			
 			CompletionItem sourceBlock = new CompletionItem();
 			sourceBlock.setLabel("Source Code Block");
@@ -191,13 +241,55 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	@Override
 	public CompletableFuture<Hover> hover(HoverParams params) {
 		return CompletableFuture.supplyAsync(() -> {
-			// Get the position where the hover request was made
-			Position position = params.getPosition();
-			// get file if necessary
-//			String uri = params.getTextDocument().getUri();
+			String uri = params.getTextDocument().getUri();
+			AsciidocDocumentModel model = docs.get(uri);
+			if (model == null)
+				return null;
+
+			int lineNum = params.getPosition().getLine();
+			int charPos = params.getPosition().getCharacter();
+			String lineContent = model.getLineContent(lineNum);
+			if (lineContent == null)
+				return null;
+
+			// Check for image macro
+			Pattern imagePattern = Pattern.compile("image:[:]?([^\\[\\]\\s]*)(\\[)?");
+			Matcher matcher = imagePattern.matcher(lineContent);
+
+			while (matcher.find()) {
+				// Check if the cursor is within the match range
+				if (charPos >= matcher.start() && charPos <= matcher.end()) {
+					String imageName = matcher.group(1);
+					if (!imageName.isEmpty()) {
+						try {
+							URI docUri = new URI(uri);
+							File docFile = new File(docUri);
+							File parentDir = docFile.getParentFile();
+
+							// Try both 'img/' subdirectory and current directory
+							File imgFile = new File(parentDir, "img/" + imageName);
+							if (!imgFile.exists()) {
+								imgFile = new File(parentDir, imageName);
+							}
+
+							if (imgFile.exists()) {
+								String imgUri = imgFile.toURI().toString();
+								// Render the actual image in Markdown
+								// Some clients prefer a clean Markdown image syntax
+								String content = String.format("![%s](%s)", imageName, imgUri);
+								Hover hover = new Hover();
+								hover.setContents(new MarkupContent(MarkupKind.MARKDOWN, content));
+								return hover;
+							}
+						} catch (Exception e) {
+							// Fallback to default
+						}
+					}
+				}
+			}
 
 			// We hover only after the first line
-			if (position.getLine() > 0) {
+			if (lineNum > 0) {
 
 				String content = """
 						![Info Icon]

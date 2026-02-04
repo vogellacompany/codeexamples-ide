@@ -137,6 +137,7 @@
     <module>com.vogella.ide.debugtools</module>
     <module>com.vogella.lsp.asciidoc.client</module>
     <module>com.vogella.lsp.asciidoc.server</module>
+    <module>com.vogella.lsp.asciidoc.server.tests</module>
     <module>z.ex.search</module>
 
     <!--Tests-->
