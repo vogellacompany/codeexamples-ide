@@ -31,6 +31,8 @@ import org.eclipse.lsp4j.DidCloseTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.DidSaveTextDocumentParams;
 import org.eclipse.lsp4j.DocumentFormattingParams;
+import org.eclipse.lsp4j.DocumentLink;
+import org.eclipse.lsp4j.DocumentLinkParams;
 import org.eclipse.lsp4j.DocumentOnTypeFormattingParams;
 import org.eclipse.lsp4j.DocumentRangeFormattingParams;
 import org.eclipse.lsp4j.DocumentSymbol;
@@ -207,6 +209,49 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	}
 
 	@Override
+	public CompletableFuture<List<DocumentLink>> documentLink(DocumentLinkParams params) {
+		return CompletableFuture.supplyAsync(() -> {
+			String uri = params.getTextDocument().getUri();
+			AsciidocDocumentModel model = docs.get(uri);
+			if (model == null) {
+				return Collections.emptyList();
+			}
+
+			List<DocumentLink> links = new ArrayList<>();
+			List<String> lines = model.getLines();
+
+			for (int i = 0; i < lines.size(); i++) {
+				collectLinks(uri, lines.get(i), i, links);
+			}
+
+			return links;
+		});
+	}
+
+	private void collectLinks(String baseUri, String lineContent, int lineIndex, List<DocumentLink> links) {
+		// Pattern for include::path[...] and image::path[...]
+		Pattern pattern = Pattern.compile("(include|image):[:]?([^\\s\\[\\]]+)\\[[^\\]]*\\]");
+		Matcher matcher = pattern.matcher(lineContent);
+		while (matcher.find()) {
+			String type = matcher.group(1);
+			String path = matcher.group(2);
+			int startChar = matcher.start(2);
+			int endChar = matcher.end(2);
+
+			Location loc = resolveFileLocation(baseUri, path);
+			if (loc == null && "image".equals(type)) {
+				loc = resolveFileLocation(baseUri, "img/" + path);
+			}
+
+			if (loc != null) {
+				Range range = new Range(new Position(lineIndex, startChar), new Position(lineIndex, endChar));
+				DocumentLink link = new DocumentLink(range, loc.getUri(), "Open " + path);
+				links.add(link);
+			}
+		}
+	}
+
+	@Override
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
 			DocumentSymbolParams params) {
 		return CompletableFuture.supplyAsync(() -> {
@@ -320,32 +365,74 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	public CompletableFuture<Either<List<? extends Location>, List<? extends LocationLink>>> definition(
 			DefinitionParams params) {
 
-		// Get the document URI and retrieve the model
-		AsciidocDocumentModel model = this.docs.get(params.getTextDocument().getUri());
+		String uri = params.getTextDocument().getUri();
+		AsciidocDocumentModel model = this.docs.get(uri);
 		if (model == null) {
 			return CompletableFuture.completedFuture(Either.forLeft(Collections.emptyList()));
 		}
 
-		// Get the line where the cursor is located
 		int line = params.getPosition().getLine();
 		int character = params.getPosition().getCharacter();
 
-		// Retrieve the content of the line
 		String lineContent = model.getLineContent(line);
 		if (lineContent == null) {
 			return CompletableFuture.completedFuture(Either.forLeft(Collections.emptyList()));
 		}
 
-		// Find the word under the cursor. You can extract a word by splitting the line
-		// based on spaces or punctuation.
-		String wordUnderCursor = getWordAtPosition(lineContent, character);
+		// Detect include::path[...]
+		Pattern includePattern = Pattern.compile("include::([^\\s\\[\\]]+)\\[[^\\]]*\\]");
+		Matcher matcher = includePattern.matcher(lineContent);
+		while (matcher.find()) {
+			int start = matcher.start(1);
+			int end = matcher.end(1);
+			if (character >= start && character <= end) {
+				String path = matcher.group(1);
+				Location loc = resolveFileLocation(uri, path);
+				if (loc != null) {
+					return CompletableFuture.completedFuture(Either.forLeft(Collections.singletonList(loc)));
+				}
+			}
+		}
 
-		// Now you can resolve this word and create locations for the definition.
-		// This logic depends on your specific requirements (e.g., file-based links,
-		// symbol resolution).
-		List<Location> locations = findDefinitionLocations(wordUnderCursor);
+		// Detect image::path[...]
+		Pattern imagePattern = Pattern.compile("image:[:]?([^\\s\\[\\]]+)\\[[^\\]]*\\]");
+		matcher = imagePattern.matcher(lineContent);
+		while (matcher.find()) {
+			int start = matcher.start(1);
+			int end = matcher.end(1);
+			if (character >= start && character <= end) {
+				String path = matcher.group(1);
+				// Try direct path
+				Location loc = resolveFileLocation(uri, path);
+				if (loc == null) {
+					// Try in img/ subdirectory
+					loc = resolveFileLocation(uri, "img/" + path);
+				}
+				if (loc != null) {
+					return CompletableFuture.completedFuture(Either.forLeft(Collections.singletonList(loc)));
+				}
+			}
+		}
 
-		return CompletableFuture.completedFuture(Either.forLeft(locations));
+		return CompletableFuture.completedFuture(Either.forLeft(Collections.emptyList()));
+	}
+
+	private Location resolveFileLocation(String baseUri, String relativePath) {
+		try {
+			URI uri = new URI(baseUri);
+			File baseFile = new File(uri);
+			File parentDir = baseFile.getParentFile();
+			File targetFile = new File(parentDir, relativePath);
+			if (targetFile.exists()) {
+				Location location = new Location();
+				location.setUri(targetFile.toURI().toString());
+				location.setRange(new Range(new Position(0, 0), new Position(0, 0)));
+				return location;
+			}
+		} catch (Exception e) {
+			// ignore
+		}
+		return null;
 	}
 
 
@@ -370,26 +457,6 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 
 		// Extract the word
 		return lineContent.substring(start, end);
-	}
-
-	/**
-	 * Resolves the definition location(s) for a given word. This is a stub method,
-	 * and you need to implement your own resolution logic.
-	 */
-	private List<Location> findDefinitionLocations(String word) {
-		// This logic would vary based on how you resolve definitions.
-		// For example, if the word corresponds to a file or symbol in your system,
-		// you would look it up and return a list of Location objects.
-
-		List<Location> locations = new ArrayList<>();
-		// Example: You could create a location based on a predefined definition file or
-		// symbol.
-		Location location = new Location();
-		location.setUri("file:///path/to/definitionFile");
-		location.setRange(new Range(new Position(5, 0), new Position(5, 10))); // Example range for the definition
-		locations.add(location);
-
-		return locations;
 	}
 
 	@Override
