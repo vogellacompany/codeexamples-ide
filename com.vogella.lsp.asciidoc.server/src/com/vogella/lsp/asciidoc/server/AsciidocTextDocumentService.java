@@ -328,6 +328,49 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 
 
 	@Override
+	public CompletableFuture<List<DocumentLink>> documentLink(DocumentLinkParams params) {
+		return CompletableFuture.supplyAsync(() -> {
+			String uri = params.getTextDocument().getUri();
+			AsciidocDocumentModel model = docs.get(uri);
+			if (model == null) {
+				return Collections.emptyList();
+			}
+
+			List<DocumentLink> links = new ArrayList<>();
+			List<String> lines = model.getLines();
+
+			for (int i = 0; i < lines.size(); i++) {
+				collectLinks(uri, lines.get(i), i, links);
+			}
+
+			return links;
+		});
+	}
+
+	private void collectLinks(String baseUri, String lineContent, int lineIndex, List<DocumentLink> links) {
+		// Pattern for include::path[...] and image::path[...]
+		Pattern pattern = Pattern.compile("(include|image):[:]?([^\\s\\[\\]]+)\\[[^\\]]*\\]");
+		Matcher matcher = pattern.matcher(lineContent);
+		while (matcher.find()) {
+			String type = matcher.group(1);
+			String path = matcher.group(2);
+			int startChar = matcher.start(2);
+			int endChar = matcher.end(2);
+
+			Location loc = resolveFileLocation(baseUri, path);
+			if (loc == null && "image".equals(type)) {
+				loc = resolveFileLocation(baseUri, "img/" + path);
+			}
+
+			if (loc != null) {
+				Range range = new Range(new Position(lineIndex, startChar), new Position(lineIndex, endChar));
+				DocumentLink link = new DocumentLink(range, loc.getUri(), "Open " + path);
+				links.add(link);
+			}
+		}
+	}
+
+	@Override
 	public CompletableFuture<List<Either<SymbolInformation, DocumentSymbol>>> documentSymbol(
 			DocumentSymbolParams params) {
 		return CompletableFuture.supplyAsync(() -> {
