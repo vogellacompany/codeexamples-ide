@@ -55,13 +55,6 @@
        point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
     <hyperlinkDetector
           activate="true"
-          class="com.vogella.ide.editor.asciidoc.IncludeHyperlinkDetector"
-          id="com.vogella.ide.editor.asciidoc.includeDetector"
-          name="Hyperlink for include statements in Asciidoc files"
-          targetId="org.eclipse.ui.genericeditor.GenericEditor">
-    </hyperlinkDetector>
-    <hyperlinkDetector
-          activate="true"
           class="com.vogella.ide.editor.asciidoc.ImageHyperlinkDetector"
           id="com.vogella.ide.editor.asciidoc.hyperlinkDetector1"
           name="Hyperlink for images in Asciidoc"

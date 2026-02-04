@@ -12,6 +12,12 @@
    <bundle id="com.vogella.ide.debugtools">
       <category name="debug_tools_vogella"/>
    </bundle>
+   <bundle id="com.vogella.lsp.asciidoc.client">
+      <category name="vogella_minimal_asciidoc_editor"/>
+   </bundle>
+   <bundle id="com.vogella.lsp.asciidoc.server">
+      <category name="vogella_minimal_asciidoc_editor"/>
+   </bundle>
    <category-def name="vogella_ide_extensions" label="IDE extensions from vogella"/>
    <category-def name="vogella_minimal_asciidoc_editor" label="Minimal Asciidoc Editor"/>
    <category-def name="search_extension" label="Search Extension">
