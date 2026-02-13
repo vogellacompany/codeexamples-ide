@@ -59,6 +59,12 @@ class AsciidocCompletionTest {
 		Files.createDirectories(subDir);
 		Files.createFile(subDir.resolve("nested.adoc"));
 
+		// Create files with numeric prefixes for filtering test
+		Files.createFile(tempDir.resolve("100_approach.adoc"));
+		Files.createFile(tempDir.resolve("200_exercise.adoc"));
+		Files.createFile(tempDir.resolve("210_exercise.adoc"));
+		Files.createFile(tempDir.resolve("300_platformproject.adoc"));
+
 		docUri = tempDir.resolve("test.adoc").toUri().toString();
 	}
 
@@ -226,6 +232,30 @@ class AsciidocCompletionTest {
 		// Verify directory comes before files when sorted
 		assertTrue(subDir.getSortText().compareTo(chapter1.getSortText()) < 0,
 				"Directory should sort before files");
+	}
+
+	@Test
+	void testIncludeCompletionWithNumericPrefix() throws Exception {
+		// content: include::1
+		// cursor at index 10: include::1|
+		String content = "include::1";
+		List<CompletionItem> completions = getCompletions(content, 0, 10);
+
+		// Should only find files starting with "1"
+		CompletionItem item100 = findItem(completions, "100_approach.adoc");
+		assertNotNull(item100, "100_approach.adoc should be in completions");
+
+		// Should NOT find files starting with "2" or "3"
+		CompletionItem item200 = findItem(completions, "200_exercise.adoc");
+		CompletionItem item210 = findItem(completions, "210_exercise.adoc");
+		CompletionItem item300 = findItem(completions, "300_platformproject.adoc");
+
+		assertEquals(null, item200, "200_exercise.adoc should NOT be in completions");
+		assertEquals(null, item210, "210_exercise.adoc should NOT be in completions");
+		assertEquals(null, item300, "300_platformproject.adoc should NOT be in completions");
+
+		// Verify sorting: should be sorted alphabetically
+		assertTrue(item100.getSortText().startsWith("1_"), "Should have correct sortText prefix");
 	}
 
 	private CompletionItem findItem(List<CompletionItem> items, String label) {
