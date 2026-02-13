@@ -19,6 +19,7 @@ The repository is organized into many OSGi bundles (plugins):
 - `com.vogella.ide.first`: Core UI components and product definition.
 - `com.vogella.ide.editor.*`: Custom editors and extensions for the Generic Editor (Asciidoc, Gradle, Shell, Tasks).
 - `com.vogella.tasks.*`: A sample task management application split into model, services, and UI.
+<<<<<<< Upstream, based on origin/main
 - `com.vogella.lsp.asciidoc.client` and `com.vogella.lsp.asciidoc.server` LSP client and server implementations.
 - `target-platform`: Contains the target definition file (`target-platform.target`) which specifies the Eclipse release and dependencies used for the build.
 - `updatesite`: The Tycho-generated p2 repository for distributing the plugins.
