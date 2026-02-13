@@ -21,11 +21,14 @@ The server provides context-aware completions with prefix filtering:
 ** `image::[]`: Insert a standard image macro.
 ** `include::[]`: Insert a standard include macro.
 ** `Source Code Block`: Inserts a Java source code block template:
++
 [source, java]
 ----
-[source, java]
-----
-
+public class Example {
+    public static void main(String[] args) {
+        System.out.println("Hello World");
+    }
+}
 ----
 
 === 2. Hover Support
