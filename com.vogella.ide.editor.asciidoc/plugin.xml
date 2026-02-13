@@ -44,13 +44,6 @@
             icon="icons/asciidoc.png">
       </icon>
    </extension>
-   <extension
-         point="org.eclipse.ui.genericeditor.contentAssistProcessors">
-      <contentAssistProcessor
-            class="com.vogella.ide.editor.asciidoc.AsciidocContentAssistProcessor"
-            contentType="com.vogella.editor.asciidoc.contenttype">
-      </contentAssistProcessor>
-   </extension>
  <extension
        point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
     <hyperlinkDetector
