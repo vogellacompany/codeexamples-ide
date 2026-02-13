@@ -92,7 +92,7 @@
             <file>../target-platform/target-platform.target</file>
           </target>
           <!-- Optional set the Java version your are using-->
-          <executionEnvironment>JavaSE-21</executionEnvironment>
+          <executionEnvironment>JavaSE-25</executionEnvironment>
           <environments>
             <environment>
               <os>linux</os>
