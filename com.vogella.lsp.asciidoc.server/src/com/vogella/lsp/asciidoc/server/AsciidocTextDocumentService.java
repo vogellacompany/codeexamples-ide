@@ -110,6 +110,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 						item.setLabel(img);
 						item.setKind(CompletionItemKind.File);
 						item.setDetail("Image file");
+						item.setSortText("0_" + img.toLowerCase()); // Sort alphabetically
 
 						TextEdit edit = new TextEdit();
 						edit.setRange(new Range(new Position(lineNum, startChar), new Position(lineNum, endChar)));
