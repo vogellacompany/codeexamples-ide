@@ -456,8 +456,6 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 					}
 				}
 			}
-
-			// If no specific syntax is matched, return null
 			return null;
 		});
 	}
