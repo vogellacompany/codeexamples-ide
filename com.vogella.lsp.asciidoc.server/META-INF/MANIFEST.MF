@@ -8,4 +8,4 @@ Require-Bundle: org.eclipse.lsp4j;bundle-version="0.24.0",
  org.eclipse.lsp4j.jsonrpc;bundle-version="0.23.1"
 Bundle-Vendor: VOGELLA
 Automatic-Module-Name: com.vogella.lsp.asciidoc.server
-Bundle-RequiredExecutionEnvironment: JavaSE-21
+Bundle-RequiredExecutionEnvironment: JavaSE-25
