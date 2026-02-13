@@ -417,13 +417,14 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 				return null;
 
 			// Check for image macro
-			Pattern imagePattern = Pattern.compile("image:[:]?([^\\[\\]\\s]*)(\\[)?");
+			// Matches image::path[...] or image:path[...]
+			Pattern imagePattern = Pattern.compile("(image:[:]?([^\\s\\[\\]]+)\\[[^\\]]*\\])");
 			Matcher matcher = imagePattern.matcher(lineContent);
 
 			while (matcher.find()) {
 				// Check if the cursor is within the match range
 				if (charPos >= matcher.start() && charPos <= matcher.end()) {
-					String imageName = matcher.group(1);
+					String imageName = matcher.group(2);
 					if (!imageName.isEmpty()) {
 						try {
 							URI docUri = new URI(uri);
@@ -436,15 +437,19 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 								imgFile = new File(parentDir, imageName);
 							}
 
+							Hover hover = new Hover();
 							if (imgFile.exists()) {
 								String imgUri = imgFile.toURI().toString();
 								// Render the actual image in Markdown
-								// Some clients prefer a clean Markdown image syntax
 								String content = String.format("![%s](%s)", imageName, imgUri);
-								Hover hover = new Hover();
 								hover.setContents(new MarkupContent(MarkupKind.MARKDOWN, content));
-								return hover;
+							} else {
+								// Explicitly inform that the image was not found
+								String content = String.format("**Image not found:** `%s`\n\nChecked in:\n* `%s`\n* `%s`", 
+										imageName, new File(parentDir, "img/").getPath(), parentDir.getPath());
+								hover.setContents(new MarkupContent(MarkupKind.MARKDOWN, content));
 							}
+							return hover;
 						} catch (Exception e) {
 							// Fallback to default
 						}
@@ -454,9 +459,11 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 
 			// We hover only after the first line
 			if (lineNum > 0) {
+				// Use a Base64 encoded SVG for the info icon to ensure it's always displayed correctly
+				String infoIconDataUri = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTEgMTVoLTJ2LTZoMnY2em0wLThoLTJWN2gydjJ6Ii8+PC9zdmc+";
 
-				String content = """
-						![Info Icon]
+				String content = String.format("""
+						![Info Icon](%s)
 
 						**Important AsciiDoc Elements:**
 
@@ -468,7 +475,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 						image::path/to/image.png[]
 						include::example.adoc[]
 						```
-						""";
+						""", infoIconDataUri);
 
 				// Create the Hover object with content in markdown format
 				Hover hover = new Hover();
