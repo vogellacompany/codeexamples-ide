@@ -19,6 +19,7 @@ The repository is organized into many OSGi bundles (plugins):
 - `com.vogella.ide.first`: Core UI components and product definition.
 - `com.vogella.ide.editor.*`: Custom editors and extensions for the Generic Editor (Asciidoc, Gradle, Shell, Tasks).
 - `com.vogella.tasks.*`: A sample task management application split into model, services, and UI.
+<<<<<<< Upstream, based on origin/main
 - `com.vogella.lsp.asciidoc.client` and `com.vogella.lsp.asciidoc.server` LSP client and server implementations.
 - `target-platform`: Contains the target definition file (`target-platform.target`) which specifies the Eclipse release and dependencies used for the build.
 - `updatesite`: The Tycho-generated p2 repository for distributing the plugins.
@@ -36,6 +37,25 @@ To build all bundles and the update site, run the following command from the roo
 
 ```bash
 ./mvnw clean verify
+=======
+- `com.vogella.languageserver.*` & `com.vogella.lsp.*`: LSP client and server implementations.
+- `target-platform`: Contains the target definition file (`target-platform.target`) which specifies the Eclipse release and dependencies used for the build.
+- `updatesite`: The Tycho-generated p2 repository for distributing the plugins.
+
+## Building and Running
+
+### Prerequisites
+
+- **Java 21**: Ensure you have a JDK 21 installed and your `JAVA_HOME` is set.
+- **Maven**: The project includes a Maven wrapper (`mvnw`).
+
+### Building the Project
+
+To build all bundles and the update site, run the following command from the root directory:
+
+```bash
+./mvnw clean install
+>>>>>>> 7b2984b Adding support for different AI engines
 ```
 
 ### Running the Application
