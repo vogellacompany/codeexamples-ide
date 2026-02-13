@@ -73,13 +73,8 @@ class AsciidocHoverTest {
 		// Hover on line 1 where no image is present
 		Hover hover = getHover(content, 1, 5);
 
-		assertNotNull(hover);
-		MarkupContent markup = hover.getContents().getRight();
-		String markdown = markup.getValue();
-		
-		// Should contain the generic documentation
-		assertTrue(markdown.contains("Important AsciiDoc Elements"), "Should show fallback documentation");
-		assertTrue(markdown.contains("image::"), "Should mention image macro");
+		// Should return null for generic text (no more generic fallback)
+		assertNull(hover, "Hover should be null for non-specific text");
 	}
 
 	@Test

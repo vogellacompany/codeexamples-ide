@@ -188,7 +188,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 			URI uri = new URI(documentUri);
 			File docFile = new File(uri);
 			File parentDir = docFile.getParentFile();
-			
+
 			File targetDir = new File(parentDir, subDir);
 			if (targetDir.exists() && targetDir.isDirectory()) {
 				File[] files = targetDir.listFiles((dir, name) -> {
@@ -197,7 +197,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 					}
 					return false;
 				});
-				
+
 				if (files != null) {
 					for (File f : files) {
 						fileNames.add(f.getName());
@@ -282,50 +282,6 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 		}
 		return completions;
 	}
-
-	@Override
-	public CompletableFuture<List<DocumentLink>> documentLink(DocumentLinkParams params) {
-		return CompletableFuture.supplyAsync(() -> {
-			String uri = params.getTextDocument().getUri();
-			AsciidocDocumentModel model = docs.get(uri);
-			if (model == null) {
-				return Collections.emptyList();
-			}
-
-			List<DocumentLink> links = new ArrayList<>();
-			List<String> lines = model.getLines();
-
-			for (int i = 0; i < lines.size(); i++) {
-				collectLinks(uri, lines.get(i), i, links);
-			}
-
-			return links;
-		});
-	}
-
-	private void collectLinks(String baseUri, String lineContent, int lineIndex, List<DocumentLink> links) {
-		// Pattern for include::path[...] and image::path[...]
-		Pattern pattern = Pattern.compile("(include|image):[:]?([^\\s\\[\\]]+)\\[[^\\]]*\\]");
-		Matcher matcher = pattern.matcher(lineContent);
-		while (matcher.find()) {
-			String type = matcher.group(1);
-			String path = matcher.group(2);
-			int startChar = matcher.start(2);
-			int endChar = matcher.end(2);
-
-			Location loc = resolveFileLocation(baseUri, path);
-			if (loc == null && "image".equals(type)) {
-				loc = resolveFileLocation(baseUri, "img/" + path);
-			}
-
-			if (loc != null) {
-				Range range = new Range(new Position(lineIndex, startChar), new Position(lineIndex, endChar));
-				DocumentLink link = new DocumentLink(range, loc.getUri(), "Open " + path);
-				links.add(link);
-			}
-		}
-	}
-
 
 	@Override
 	public CompletableFuture<List<DocumentLink>> documentLink(DocumentLinkParams params) {
@@ -457,33 +413,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 				}
 			}
 
-			// We hover only after the first line
-			if (lineNum > 0) {
-				// Use a Base64 encoded SVG for the info icon to ensure it's always displayed correctly
-				String infoIconDataUri = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0Ij48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTEgMTVoLTJ2LTZoMnY2em0wLThoLTJWN2gydjJ6Ii8+PC9zdmc+";
-
-				String content = String.format("""
-						![Info Icon](%s)
-
-						**Important AsciiDoc Elements:**
-
-						* `image::` - Defines an image element in AsciiDoc files.
-						* `include::` - Includes other AsciiDoc files into the current one.
-
-						**Usage Example:**
-						```asciidoc
-						image::path/to/image.png[]
-						include::example.adoc[]
-						```
-						""", infoIconDataUri);
-
-				// Create the Hover object with content in markdown format
-				Hover hover = new Hover();
-				hover.setContents(new MarkupContent(MarkupKind.MARKDOWN, content));
-				return hover;
-			}
-
-			// If no specific syntax is matched, return null or empty hover
+			// If no specific syntax is matched, return null
 			return null;
 		});
 	}
