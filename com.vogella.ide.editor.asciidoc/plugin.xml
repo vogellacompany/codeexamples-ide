@@ -45,23 +45,6 @@
       </icon>
    </extension>
  <extension
-       point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
-    <hyperlinkDetector
-          activate="true"
-          class="com.vogella.ide.editor.asciidoc.ImageHyperlinkDetector"
-          id="com.vogella.ide.editor.asciidoc.hyperlinkDetector1"
-          name="Hyperlink for images in Asciidoc"
-          targetId="org.eclipse.ui.genericeditor.GenericEditor">
-    </hyperlinkDetector>
-    <hyperlinkDetector
-          activate="true"
-          class="com.vogella.ide.editor.asciidoc.LinkHyperlinkDetector"
-          id="com.vogella.ide.editor.asciidoc.linkDetector"
-          name="Hyperlink for link statements in Asciidoc files"
-          targetId="org.eclipse.ui.genericeditor.GenericEditor">
-    </hyperlinkDetector>
- </extension>
- <extension
        point="org.eclipse.ui.ide.unassociatedEditorStrategy">
     <strategy
           class="com.vogella.ide.editor.asciidoc.UnassociatedEditorStrategy1"
@@ -69,16 +52,6 @@
           interactive="true"
           label="label">
     </strategy>
- </extension>
- <extension
-       point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
-    <target
-          id="com.vogella.ide.editor.asciidoc.hyperlinkDetector"
-          name="name">
-       <context
-             type="com.vogella.ide.editor.asciidoc.Context1">
-       </context>
-    </target>
  </extension>
 
 </plugin>

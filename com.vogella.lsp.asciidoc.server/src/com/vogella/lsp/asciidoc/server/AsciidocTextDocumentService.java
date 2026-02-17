@@ -214,7 +214,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	/**
 	 * Get path-aware completions for include directives.
 	 * Supports directory traversal and completes the current path segment.
-	 * Results are sorted: directories first, then files, both alphabetically.
+	 * Results are sorted: files first, then directories, both alphabetically.
 	 */
 	private List<CompletionItem> getPathCompletions(String documentUri, String dirPart, String filePrefix,
 			int lineNum, int startChar, int endChar) {
@@ -254,7 +254,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 					item.setLabel(name + "/");
 					item.setKind(CompletionItemKind.Folder);
 					item.setDetail("Directory");
-					item.setSortText("0_" + name.toLowerCase()); // Directories first
+					item.setSortText("1_" + name.toLowerCase()); // Directories after files
 
 					TextEdit edit = new TextEdit();
 					edit.setRange(new Range(new Position(lineNum, startChar), new Position(lineNum, endChar)));
@@ -268,7 +268,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 					item.setLabel(name);
 					item.setKind(CompletionItemKind.File);
 					item.setDetail("Asciidoc file");
-					item.setSortText("1_" + name.toLowerCase()); // Files after directories
+					item.setSortText("0_" + name.toLowerCase()); // Files before directories
 
 					TextEdit edit = new TextEdit();
 					edit.setRange(new Range(new Position(lineNum, startChar), new Position(lineNum, endChar)));
@@ -305,8 +305,8 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 	}
 
 	private void collectLinks(String baseUri, String lineContent, int lineIndex, List<DocumentLink> links) {
-		// Pattern for include::path[...] and image::path[...]
-		Pattern pattern = Pattern.compile("(include|image):[:]?([^\\s\\[\\]]+)\\[[^\\]]*\\]");
+		// Pattern for include::path[...], image::path[...], and link:path[...]
+		Pattern pattern = Pattern.compile("(include|image|link):[:]?([^\\s\\[\\]]+)\\[[^\\]]*\\]");
 		Matcher matcher = pattern.matcher(lineContent);
 		while (matcher.find()) {
 			String type = matcher.group(1);
@@ -314,14 +314,34 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 			int startChar = matcher.start(2);
 			int endChar = matcher.end(2);
 
-			Location loc = resolveFileLocation(baseUri, path);
-			if (loc == null && "image".equals(type)) {
-				loc = resolveFileLocation(baseUri, "img/" + path);
+			String targetUri = null;
+
+			if ("link".equals(type)) {
+				// Handle link: syntax
+				if (path.startsWith("http://") || path.startsWith("https://")) {
+					// External link - use URL directly
+					targetUri = path;
+				} else if (path.startsWith("./") || path.startsWith("../")) {
+					// Internal file link - resolve relative path
+					Location loc = resolveFileLocation(baseUri, path);
+					if (loc != null) {
+						targetUri = loc.getUri();
+					}
+				}
+			} else {
+				// Handle include:: and image:: syntax
+				Location loc = resolveFileLocation(baseUri, path);
+				if (loc == null && "image".equals(type)) {
+					loc = resolveFileLocation(baseUri, "img/" + path);
+				}
+				if (loc != null) {
+					targetUri = loc.getUri();
+				}
 			}
 
-			if (loc != null) {
+			if (targetUri != null) {
 				Range range = new Range(new Position(lineIndex, startChar), new Position(lineIndex, endChar));
-				DocumentLink link = new DocumentLink(range, loc.getUri(), "Open " + path);
+				DocumentLink link = new DocumentLink(range, targetUri, "Open " + path);
 				links.add(link);
 			}
 		}
@@ -480,7 +500,8 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 			File targetFile = new File(parentDir, relativePath);
 			if (targetFile.exists()) {
 				Location location = new Location();
-				location.setUri(targetFile.toURI().toString());
+				// Normalize the path to remove ./ and ../ components
+				location.setUri(targetFile.toPath().normalize().toUri().toString());
 				location.setRange(new Range(new Position(0, 0), new Position(0, 0)));
 				return location;
 			}
