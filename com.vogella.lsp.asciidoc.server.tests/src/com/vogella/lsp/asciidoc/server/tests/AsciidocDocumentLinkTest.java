@@ -85,4 +85,39 @@ class AsciidocDocumentLinkTest {
 		assertEquals(7 + filename.length(), link.getRange().getEnd().getCharacter());
 		assertEquals(imgFile.toUri(), new java.net.URI(link.getTarget()));
 	}
+
+	@Test
+	void testExternalLink() throws Exception {
+		String url = "https://example.com";
+		String content = "link:" + url + "[Example]";
+		List<DocumentLink> links = getLinks(content);
+
+		assertNotNull(links);
+		assertEquals(1, links.size());
+		DocumentLink link = links.get(0);
+
+		assertEquals(0, link.getRange().getStart().getLine());
+		assertEquals(5, link.getRange().getStart().getCharacter()); // "link:".length() = 5
+		assertEquals(5 + url.length(), link.getRange().getEnd().getCharacter());
+		assertEquals(url, link.getTarget());
+	}
+
+	@Test
+	void testInternalFileLink() throws Exception {
+		Path linkedFile = tempDir.resolve("linked.adoc");
+		Files.createFile(linkedFile);
+
+		String relativePath = "./linked.adoc";
+		String content = "link:" + relativePath + "[Linked File]";
+		List<DocumentLink> links = getLinks(content);
+
+		assertNotNull(links);
+		assertEquals(1, links.size());
+		DocumentLink link = links.get(0);
+
+		assertEquals(0, link.getRange().getStart().getLine());
+		assertEquals(5, link.getRange().getStart().getCharacter()); // "link:".length() = 5
+		assertEquals(5 + relativePath.length(), link.getRange().getEnd().getCharacter());
+		assertEquals(linkedFile.toUri(), new java.net.URI(link.getTarget()));
+	}
 }

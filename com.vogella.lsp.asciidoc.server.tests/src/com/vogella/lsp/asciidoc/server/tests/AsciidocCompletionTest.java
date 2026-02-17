@@ -219,19 +219,19 @@ class AsciidocCompletionTest {
 		assertNotNull(findItem(completions, "chapter2.adoc"), "chapter2.adoc not found");
 		assertNotNull(findItem(completions, "sub/"), "sub/ not found");
 
-		// Verify sorting: directories first (with "0_" prefix), then files (with "1_" prefix)
+		// Verify sorting: files first (with "0_" prefix), then directories (with "1_" prefix)
 		CompletionItem subDir = findItem(completions, "sub/");
 		CompletionItem chapter1 = findItem(completions, "chapter1.adoc");
 		CompletionItem chapter2 = findItem(completions, "chapter2.adoc");
 
 		// Check sortText values
-		assertEquals("0_sub", subDir.getSortText(), "Directory should have 0_ prefix");
-		assertEquals("1_chapter1.adoc", chapter1.getSortText(), "File should have 1_ prefix");
-		assertEquals("1_chapter2.adoc", chapter2.getSortText(), "File should have 1_ prefix");
+		assertEquals("1_sub", subDir.getSortText(), "Directory should have 1_ prefix");
+		assertEquals("0_chapter1.adoc", chapter1.getSortText(), "File should have 0_ prefix");
+		assertEquals("0_chapter2.adoc", chapter2.getSortText(), "File should have 0_ prefix");
 
-		// Verify directory comes before files when sorted
-		assertTrue(subDir.getSortText().compareTo(chapter1.getSortText()) < 0,
-				"Directory should sort before files");
+		// Verify files come before directories when sorted
+		assertTrue(chapter1.getSortText().compareTo(subDir.getSortText()) < 0,
+				"Files should sort before directories");
 	}
 
 	@Test
@@ -255,7 +255,7 @@ class AsciidocCompletionTest {
 		assertEquals(null, item300, "300_platformproject.adoc should NOT be in completions");
 
 		// Verify sorting: should be sorted alphabetically
-		assertTrue(item100.getSortText().startsWith("1_"), "Should have correct sortText prefix");
+		assertTrue(item100.getSortText().startsWith("0_"), "Should have correct sortText prefix");
 	}
 
 	private CompletionItem findItem(List<CompletionItem> items, String label) {
