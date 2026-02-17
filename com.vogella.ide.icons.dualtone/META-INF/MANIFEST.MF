@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Dualtone
+Bundle-SymbolicName: com.vogella.ide.icons.dualtone;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: VOGELLA
+Require-Bundle: org.eclipse.jface,
+ org.eclipse.e4.ui.services,
+ org.eclipse.e4.core.di.annotations
+Bundle-RequiredExecutionEnvironment: JavaSE-25
+Import-Package: jakarta.annotation;version="[2.1.0,3.0.0)",
+ jakarta.inject;version="[2.0.0,3.0.0)",
+ org.osgi.framework;version="[1.10.0,2.0.0)"
+Automatic-Module-Name: com.vogella.ide.icons.dualtone

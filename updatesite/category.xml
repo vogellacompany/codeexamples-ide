@@ -18,6 +18,9 @@
    <bundle id="com.vogella.lsp.asciidoc.server">
       <category name="vogella_minimal_asciidoc_editor"/>
    </bundle>
+   <bundle id="com.vogella.ide.icons.dualtone">
+      <category name="dual-tone-icon-replacement"/>
+   </bundle>
    <category-def name="vogella_ide_extensions" label="IDE extensions from vogella"/>
    <category-def name="vogella_minimal_asciidoc_editor" label="Minimal Asciidoc Editor"/>
    <category-def name="search_extension" label="Search Extension">
@@ -26,4 +29,5 @@
       </description>
    </category-def>
    <category-def name="debug_tools_vogella" label="Debug Tools  from vogella"/>
+   <category-def name="dual-tone-icon-replacement" label="Dual Tone Icons Replacement"/>
 </site>
