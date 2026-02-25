@@ -3,6 +3,7 @@ package com.vogella.lsp.asciidoc.server.tests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -171,7 +172,7 @@ class AsciidocCompletionTest {
 
 		// Should NOT find sub/ since it doesn't start with 'ch'
 		CompletionItem subDir = findItem(completions, "sub/");
-		assertEquals(null, subDir, "sub/ should not be in completions");
+		assertNull(subDir, "sub/ should not be in completions");
 	}
 
 	@Test
@@ -250,9 +251,9 @@ class AsciidocCompletionTest {
 		CompletionItem item210 = findItem(completions, "210_exercise.adoc");
 		CompletionItem item300 = findItem(completions, "300_platformproject.adoc");
 
-		assertEquals(null, item200, "200_exercise.adoc should NOT be in completions");
-		assertEquals(null, item210, "210_exercise.adoc should NOT be in completions");
-		assertEquals(null, item300, "300_platformproject.adoc should NOT be in completions");
+		assertNull(item200, "200_exercise.adoc should NOT be in completions");
+		assertNull(item210, "210_exercise.adoc should NOT be in completions");
+		assertNull(item300, "300_platformproject.adoc should NOT be in completions");
 
 		// Verify sorting: should be sorted alphabetically
 		assertTrue(item100.getSortText().startsWith("0_"), "Should have correct sortText prefix");
