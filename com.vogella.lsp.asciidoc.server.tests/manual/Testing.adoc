@@ -1,5 +1,5 @@
 = Title
 
-image::[]
+image::Sample.png[]
 
-linclude::[]
+include::Help.adoc[]

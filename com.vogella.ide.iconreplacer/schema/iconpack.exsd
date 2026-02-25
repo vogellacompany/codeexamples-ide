@@ -1,0 +1,103 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Schema file written by PDE -->
+<schema targetNamespace="com.vogella.ide.iconreplacer" xmlns="http://www.w3.org/2001/XMLSchema">
+<annotation>
+      <appinfo>
+         <meta.schema plugin="com.vogella.ide.iconreplacer" id="iconpack" name="Icon Pack"/>
+      </appinfo>
+      <documentation>
+         Allows plug-ins to contribute an icon pack: a mapping file and a folder of
+         replacement SVG files. The mapping file uses the format:
+
+         &lt;pre&gt;
+         {
+           "terminal.svg": [
+             "org.eclipse.ui.console/icons/full/eview/console_view.svg"
+           ]
+         }
+         &lt;/pre&gt;
+
+         Each key is a filename in the icon pack folder; each value is an array of
+         &lt;code&gt;bundleSymbolicName/path&lt;/code&gt; pairs to replace inside that bundle&apos;s JAR.
+      </documentation>
+   </annotation>
+
+   <element name="extension">
+      <annotation>
+         <appinfo>
+            <meta.element />
+         </appinfo>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="iconpack" minOccurs="1" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="point" type="string" use="required">
+            <annotation>
+               <documentation>
+                  a fully qualified identifier of the target extension point
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="id" type="string">
+            <annotation>
+               <documentation>
+                  an optional identifier of the extension instance
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="name" type="string">
+            <annotation>
+               <documentation>
+                  an optional name of the extension instance
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <element name="iconpack">
+      <complexType>
+         <attribute name="mappingFile" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Bundle-relative path (or absolute URL) to the icon-mapping.json file.
+               </documentation>
+            </annotation>
+         </attribute>
+         <attribute name="iconFolder" type="string" use="required">
+            <annotation>
+               <documentation>
+                  Bundle-relative path to the folder containing the replacement SVG files.
+                  Must end with a &apos;/&apos;.
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="since"/>
+      </appinfo>
+      <documentation>
+         1.0.0
+      </documentation>
+   </annotation>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="examples"/>
+      </appinfo>
+      <documentation>
+         &lt;pre&gt;
+&lt;extension point=&quot;com.vogella.ide.iconreplacer.iconpack&quot;&gt;
+  &lt;iconpack
+      mappingFile=&quot;iconpacks/eclipse-dual-tone/icon-mapping.json&quot;
+      iconFolder=&quot;iconpacks/eclipse-dual-tone/icons/&quot;/&gt;
+&lt;/extension&gt;
+         &lt;/pre&gt;
+      </documentation>
+   </annotation>
+
+</schema>
