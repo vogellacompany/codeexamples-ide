@@ -139,6 +139,7 @@
     <module>com.vogella.lsp.asciidoc.server.tests</module>
     <module>z.ex.search</module>
     <module>com.vogella.ide.iconreplacer</module>
+    <module>com.vogella.ide.parallelstart</module>
 
     <!--Tests-->
     <!--

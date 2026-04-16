@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Parallel Startup Configurator
+Bundle-SymbolicName: com.vogella.ide.parallelstart
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: VOGELLA
+Bundle-RequiredExecutionEnvironment: JavaSE-25
+Automatic-Module-Name: com.vogella.ide.parallelstart
+Import-Package: org.eclipse.osgi.container;version="1.0.0",
+ org.osgi.framework;version="1.10.0"
+Service-Component: OSGI-INF/com.vogella.ide.parallelstart.ParallelStartConfigurator.xml
+Bundle-ActivationPolicy: lazy
