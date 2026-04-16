@@ -321,7 +321,7 @@ public class AsciidocTextDocumentService implements TextDocumentService {
 				if (path.startsWith("http://") || path.startsWith("https://")) {
 					// External link - use URL directly
 					targetUri = path;
-				} else if (path.startsWith("./") || path.startsWith("../")) {
+				} else {
 					// Internal file link - resolve relative path
 					Location loc = resolveFileLocation(baseUri, path);
 					if (loc != null) {
