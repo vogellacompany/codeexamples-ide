@@ -2,18 +2,23 @@ package com.vogella.ide.iconreplacer;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -33,9 +38,12 @@ public class BundlePatcher {
 
 		BundleContext ctx = FrameworkUtil.getBundle(BundlePatcher.class).getBundleContext();
 
+		// Group all replacements by bundle symbolic name so we rebuild each JAR once
+		Map<String, Map<String, URL>> replacementsByBundle = new HashMap<>();
+
 		for (Map.Entry<String, List<String>> entry : mapping.entrySet()) {
 			String iconFileName = entry.getKey();
-			URL replacement = iconFolderUrl.toURI().resolve(iconFileName).toURL();
+			URL replacement = new URL(iconFolderUrl, iconFileName);
 
 			for (String targetPath : entry.getValue()) {
 				int slash = targetPath.indexOf('/');
@@ -45,14 +53,23 @@ public class BundlePatcher {
 				String bsn = targetPath.substring(0, slash);
 				String iconPath = targetPath.substring(slash + 1);
 
-				Bundle bundle = findBundle(ctx, bsn);
-				if (bundle == null) {
-					continue;
-				}
+				replacementsByBundle
+						.computeIfAbsent(bsn, k -> new HashMap<>())
+						.put(iconPath, replacement);
+			}
+		}
 
-				try (InputStream patched = rebuildJar(bundle, iconPath, replacement)) {
-					bundle.update(patched);
-				}
+		for (Map.Entry<String, Map<String, URL>> bundleEntry : replacementsByBundle.entrySet()) {
+			String bsn = bundleEntry.getKey();
+			Map<String, URL> replacements = bundleEntry.getValue();
+
+			Bundle bundle = findBundle(ctx, bsn);
+			if (bundle == null) {
+				continue;
+			}
+
+			try (InputStream patched = rebuildJar(bundle, replacements)) {
+				bundle.update(patched);
 			}
 		}
 
@@ -69,23 +86,26 @@ public class BundlePatcher {
 		return null;
 	}
 
-	private static InputStream rebuildJar(Bundle bundle, String replacedPath, URL replacement)
+	private static InputStream rebuildJar(Bundle bundle, Map<String, URL> replacements)
 			throws Exception {
+		File bundleFile = FileLocator.getBundleFileLocation(bundle)
+				.orElseThrow(() -> new IOException("Cannot locate bundle file for " + bundle.getSymbolicName()));
+
 		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		try (ZipOutputStream zout = new ZipOutputStream(buffer)) {
-			try (ZipInputStream zin = new ZipInputStream(new URL(bundle.getLocation()).openStream())) {
-				ZipEntry entry;
-				while ((entry = zin.getNextEntry()) != null) {
-					zout.putNextEntry(new ZipEntry(entry.getName()));
-					if (entry.getName().equals(replacedPath)) {
-						try (InputStream in = replacement.openStream()) {
-							in.transferTo(zout);
-						}
-					} else {
-						zin.transferTo(zout);
+		try (ZipOutputStream zout = new ZipOutputStream(buffer);
+				ZipInputStream zin = new ZipInputStream(new FileInputStream(bundleFile))) {
+			ZipEntry entry;
+			while ((entry = zin.getNextEntry()) != null) {
+				zout.putNextEntry(new ZipEntry(entry.getName()));
+				URL replacement = replacements.get(entry.getName());
+				if (replacement != null) {
+					try (InputStream in = replacement.openStream()) {
+						in.transferTo(zout);
 					}
-					zout.closeEntry();
+				} else {
+					zin.transferTo(zout);
 				}
+				zout.closeEntry();
 			}
 		}
 		return new ByteArrayInputStream(buffer.toByteArray());

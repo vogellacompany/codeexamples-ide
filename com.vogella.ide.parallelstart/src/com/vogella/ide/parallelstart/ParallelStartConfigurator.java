@@ -1,6 +1,7 @@
 package com.vogella.ide.parallelstart;
 
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.eclipse.osgi.container.Module;
 import org.osgi.framework.Bundle;
@@ -37,6 +38,8 @@ import org.osgi.service.component.annotations.Component;
  */
 @Component(immediate = true)
 public class ParallelStartConfigurator {
+
+	private static final Logger LOG = Logger.getLogger(ParallelStartConfigurator.class.getName());
 
 	/**
 	 * Eclipse platform bundles considered safe for parallel activation. These
@@ -132,7 +135,6 @@ public class ParallelStartConfigurator {
 				}
 			}
 		}
-		System.out.println("ParallelStartConfigurator: marked " + count
-				+ " bundles for parallel activation");
+		LOG.info("Marked " + count + " bundles for parallel activation");
 	}
 }
