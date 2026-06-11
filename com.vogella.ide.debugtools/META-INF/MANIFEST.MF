@@ -13,7 +13,6 @@ Require-Bundle: org.eclipse.jface,
  org.eclipse.ui.console;bundle-version="3.15.0",
  org.eclipse.ui;bundle-version="3.207.400"
 Bundle-RequiredExecutionEnvironment: JavaSE-25
-Import-Package: jakarta.annotation;version="[2.1.0,3.0.0)",
- jakarta.inject;version="[2.0.0,3.0.0)",
+Import-Package: jakarta.inject;version="[2.0.0,3.0.0)",
  org.osgi.framework;version="[1.10.0,2.0.0)"
 Automatic-Module-Name: com.vogella.ide.debugtools
