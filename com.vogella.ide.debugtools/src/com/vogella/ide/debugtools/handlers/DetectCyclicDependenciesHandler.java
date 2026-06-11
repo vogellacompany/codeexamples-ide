@@ -20,6 +20,7 @@ import org.eclipse.ui.PartInitException;
 /**
  * Eclipse e4 Handler to detect cyclic dependencies between plug-ins in the workspace.
  * Detects cycles from both Require-Bundle and Import-Package dependencies.
+ * Uses Johnson's algorithm to enumerate all elementary cycles, each reported exactly once.
  */
 public class DetectCyclicDependenciesHandler {
 
@@ -63,9 +64,13 @@ public class DetectCyclicDependenciesHandler {
                     out.println("\nCycle " + (i + 1) + ":");
                     out.println(generateAsciiArt(cycleInfo));
                 }
-                
+
+                if (detector.isLimitReached()) {
+                    out.println("\nNote: more cycles exist; output was truncated at " + cycles.size() + " cycles.");
+                }
+
                 out.println("=================================================");
-                
+
                 // Show a dialog, but refer them to the console for the big ASCII art
                 MessageDialog.openWarning(shell, "Cyclic Dependencies Detected", 
                     dialogMessage.toString());
@@ -157,8 +162,8 @@ public class DetectCyclicDependenciesHandler {
         }
     }
     
-    // --- Nested Helper Classes (CycleInfo, CyclicDependencyDetector) remain unchanged ---
-    
+    // --- Nested Helper Classes ---
+
     private static class CycleInfo {
         List<String> cycle;
         Map<String, String> edgeTypes; 
@@ -178,42 +183,31 @@ public class DetectCyclicDependenciesHandler {
     }
     
     private static class CyclicDependencyDetector {
-        private Map<String, Set<DependencyEdge>> dependencyGraph;
-        private Set<String> visited;
-        private Set<String> recursionStack;
+
+        private static final int MAX_CYCLES = 1000;
+
+        // from -> (to -> dependency type of that edge)
+        private Map<String, Map<String, String>> dependencyGraph;
+        private Map<String, Set<String>> reverseGraph;
         private List<CycleInfo> cycles;
-        private Map<String, String> parent;
-        private Map<String, DependencyEdge> parentEdge;
-        
-        private static class DependencyEdge {
-            String target;
-            String type;
-            
-            DependencyEdge(String target, String type) {
-                this.target = target;
-                this.type = type;
-            }
-            
-            @Override
-            public boolean equals(Object o) {
-                if (this == o) return true;
-                if (o == null || getClass() != o.getClass()) return false;
-                DependencyEdge that = (DependencyEdge) o;
-                return Objects.equals(target, that.target) && Objects.equals(type, that.type);
-            }
-            
-            @Override
-            public int hashCode() {
-                return Objects.hash(target, type);
-            }
-        }
-        
+        private boolean limitReached;
+
+        // state of Johnson's circuit search
+        private Deque<String> path;
+        private Set<String> blocked;
+        private Map<String, Set<String>> blockedBy;
+
         public List<CycleInfo> detectCycles() throws CoreException {
             dependencyGraph = new HashMap<>();
             cycles = new ArrayList<>();
             buildDependencyGraph();
+            buildReverseGraph();
             findAllCycles();
             return cycles;
+        }
+
+        public boolean isLimitReached() {
+            return limitReached;
         }
         
         private void buildDependencyGraph() throws CoreException {
@@ -242,7 +236,7 @@ public class DetectCyclicDependenciesHandler {
             for (Map.Entry<String, IPluginModelBase> entry : workspaceModels.entrySet()) {
                 String pluginId = entry.getKey();
                 IPluginModelBase model = entry.getValue();
-                Set<DependencyEdge> dependencies = new HashSet<>();
+                Map<String, String> dependencies = new HashMap<>();
                 BundleDescription bundleDesc = model.getBundleDescription();
                 if (bundleDesc != null) {
                     BundleSpecification[] requiredBundles = bundleDesc.getRequiredBundles();
@@ -250,7 +244,7 @@ public class DetectCyclicDependenciesHandler {
                         for (BundleSpecification spec : requiredBundles) {
                             String depId = spec.getName();
                             if (workspaceModels.containsKey(depId)) {
-                                dependencies.add(new DependencyEdge(depId, "Require-Bundle"));
+                                dependencies.putIfAbsent(depId, "Require-Bundle");
                             }
                         }
                     }
@@ -260,7 +254,7 @@ public class DetectCyclicDependenciesHandler {
                             String packageName = importSpec.getName();
                             String providingBundle = packageToBundle.get(packageName);
                             if (providingBundle != null && !providingBundle.equals(pluginId)) {
-                                dependencies.add(new DependencyEdge(providingBundle, "Import-Package: " + packageName));
+                                dependencies.putIfAbsent(providingBundle, "Import-Package: " + packageName);
                             }
                         }
                     }
@@ -268,84 +262,136 @@ public class DetectCyclicDependenciesHandler {
                 dependencyGraph.put(pluginId, dependencies);
             }
         }
-        
-        private void findAllCycles() {
-            visited = new HashSet<>();
-            for (String plugin : dependencyGraph.keySet()) {
-                if (!visited.contains(plugin)) {
-                    recursionStack = new HashSet<>();
-                    parent = new HashMap<>();
-                    parentEdge = new HashMap<>();
-                    detectCycleFromNode(plugin);
+
+        private void buildReverseGraph() {
+            reverseGraph = new HashMap<>();
+            for (Map.Entry<String, Map<String, String>> entry : dependencyGraph.entrySet()) {
+                for (String target : entry.getValue().keySet()) {
+                    reverseGraph.computeIfAbsent(target, k -> new HashSet<>()).add(entry.getKey());
                 }
             }
         }
         
-        private void detectCycleFromNode(String node) {
-            visited.add(node);
-            recursionStack.add(node);
-            Set<DependencyEdge> dependencies = dependencyGraph.get(node);
-            if (dependencies != null) {
-                for (DependencyEdge edge : dependencies) {
-                    String dep = edge.target;
-                    if (!visited.contains(dep)) {
-                        parent.put(dep, node);
-                        parentEdge.put(dep, edge);
-                        detectCycleFromNode(dep);
-                    } else if (recursionStack.contains(dep)) {
-                        CycleInfo cycle = extractCycle(node, dep, edge);
-                        if (!isDuplicateCycle(cycle)) {
-                            cycles.add(cycle);
-                        }
+        /**
+         * Johnson's algorithm: for each vertex (in sorted order) enumerate all
+         * cycles through it within its strongly connected component, then
+         * remove it from the graph. Every elementary cycle is found exactly
+         * once, rooted at its lexicographically smallest plug-in.
+         */
+        private void findAllCycles() {
+            List<String> vertices = new ArrayList<>(dependencyGraph.keySet());
+            Collections.sort(vertices);
+            Set<String> removed = new HashSet<>();
+            for (String start : vertices) {
+                if (limitReached) {
+                    return;
+                }
+                Map<String, String> edges = dependencyGraph.get(start);
+                if (edges.containsKey(start)) {
+                    CycleInfo selfCycle = new CycleInfo(List.of(start, start));
+                    selfCycle.addEdge(start, start, edges.get(start));
+                    addCycle(selfCycle);
+                }
+                Set<String> component = strongComponentOf(start, removed);
+                if (component.size() > 1) {
+                    path = new ArrayDeque<>();
+                    blocked = new HashSet<>();
+                    blockedBy = new HashMap<>();
+                    circuit(start, start, component);
+                }
+                removed.add(start);
+            }
+        }
+
+        /**
+         * Strongly connected component containing start, ignoring removed
+         * vertices: the intersection of the vertices reachable from start and
+         * the vertices from which start is reachable.
+         */
+        private Set<String> strongComponentOf(String start, Set<String> removed) {
+            Set<String> forward = new HashSet<>();
+            collectReachable(start, removed, forward, false);
+            Set<String> backward = new HashSet<>();
+            collectReachable(start, removed, backward, true);
+            forward.retainAll(backward);
+            return forward;
+        }
+
+        private void collectReachable(String start, Set<String> removed, Set<String> seen, boolean reverse) {
+            Deque<String> work = new ArrayDeque<>();
+            seen.add(start);
+            work.push(start);
+            while (!work.isEmpty()) {
+                String node = work.pop();
+                Collection<String> targets = reverse
+                        ? reverseGraph.getOrDefault(node, Collections.emptySet())
+                        : dependencyGraph.getOrDefault(node, Collections.emptyMap()).keySet();
+                for (String next : targets) {
+                    if (!removed.contains(next) && seen.add(next)) {
+                        work.push(next);
                     }
                 }
             }
-            recursionStack.remove(node);
         }
-        
-        private CycleInfo extractCycle(String current, String cycleStart, DependencyEdge finalEdge) {
-            LinkedList<String> path = new LinkedList<>();
-            path.addFirst(current); 
-            String node = current;
-            while (!node.equals(cycleStart)) {
-                node = parent.get(node);
-                path.addFirst(node);
+
+        private boolean circuit(String node, String start, Set<String> component) {
+            boolean foundCycle = false;
+            path.addLast(node);
+            blocked.add(node);
+            for (String next : dependencyGraph.get(node).keySet()) {
+                if (!component.contains(next) || limitReached) {
+                    continue;
+                }
+                if (next.equals(start)) {
+                    recordCycle();
+                    foundCycle = true;
+                } else if (!blocked.contains(next) && circuit(next, start, component)) {
+                    foundCycle = true;
+                }
             }
+            if (foundCycle) {
+                unblock(node);
+            } else {
+                for (String next : dependencyGraph.get(node).keySet()) {
+                    if (component.contains(next)) {
+                        blockedBy.computeIfAbsent(next, k -> new HashSet<>()).add(node);
+                    }
+                }
+            }
+            path.removeLast();
+            return foundCycle;
+        }
+
+        private void unblock(String node) {
+            blocked.remove(node);
+            Set<String> dependents = blockedBy.remove(node);
+            if (dependents != null) {
+                for (String dependent : dependents) {
+                    if (blocked.contains(dependent)) {
+                        unblock(dependent);
+                    }
+                }
+            }
+        }
+
+        private void recordCycle() {
             List<String> cycleList = new ArrayList<>(path);
-            cycleList.add(cycleStart); 
+            cycleList.add(cycleList.get(0));
             CycleInfo cycleInfo = new CycleInfo(cycleList);
-            for (int i = 0; i < path.size() - 1; i++) {
-                String from = path.get(i);
-                String to = path.get(i + 1);
-                DependencyEdge edge = parentEdge.get(to); 
-                cycleInfo.addEdge(from, to, edge.type);
+            for (int i = 0; i < cycleList.size() - 1; i++) {
+                String from = cycleList.get(i);
+                String to = cycleList.get(i + 1);
+                cycleInfo.addEdge(from, to, dependencyGraph.get(from).get(to));
             }
-            cycleInfo.addEdge(current, cycleStart, finalEdge.type);
-            return cycleInfo;
+            addCycle(cycleInfo);
         }
-        
-        private boolean isDuplicateCycle(CycleInfo newCycleInfo) {
-            List<String> normalized = normalizeCycle(newCycleInfo.cycle);
-            for (CycleInfo existingCycleInfo : cycles) {
-                List<String> normalizedExisting = normalizeCycle(existingCycleInfo.cycle);
-                if (normalized.equals(normalizedExisting)) return true;
+
+        private void addCycle(CycleInfo cycleInfo) {
+            if (cycles.size() >= MAX_CYCLES) {
+                limitReached = true;
+                return;
             }
-            return false;
-        }
-        
-        private List<String> normalizeCycle(List<String> cycle) {
-            if (cycle.size() <= 1) return new ArrayList<>(cycle);
-            List<String> temp = new ArrayList<>(cycle.subList(0, cycle.size() - 1));
-            int minIndex = 0;
-            for (int i = 1; i < temp.size(); i++) {
-                if (temp.get(i).compareTo(temp.get(minIndex)) < 0) minIndex = i;
-            }
-            List<String> normalized = new ArrayList<>();
-            for (int i = 0; i < temp.size(); i++) {
-                normalized.add(temp.get((minIndex + i) % temp.size()));
-            }
-            normalized.add(normalized.get(0));
-            return normalized;
+            cycles.add(cycleInfo);
         }
     }
 }
