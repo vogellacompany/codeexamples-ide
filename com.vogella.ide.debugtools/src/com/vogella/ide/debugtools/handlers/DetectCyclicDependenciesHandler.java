@@ -343,8 +343,11 @@ public class DetectCyclicDependenciesHandler {
                     continue;
                 }
                 if (next.equals(start)) {
-                    recordCycle();
-                    foundCycle = true;
+                    // path.size() == 1 is the self-loop, already recorded in findAllCycles()
+                    if (path.size() > 1) {
+                        recordCycle();
+                        foundCycle = true;
+                    }
                 } else if (!blocked.contains(next) && circuit(next, start, component)) {
                     foundCycle = true;
                 }
