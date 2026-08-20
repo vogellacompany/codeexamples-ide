@@ -1,0 +1,46 @@
+# The reactor module list.
+#
+# Tycho's pomless build turns this file into an aggregator (packaging=pom,
+# artifactId "build"), so the root pom.xml only needs a single <module>build</module>
+# entry instead of one line per bundle. Paths are relative to this folder,
+# hence the "../" prefix for everything that lives at the repository root.
+#
+# "#" comments and blank lines are ignored, which makes temporarily disabling
+# a module a one-character edit.
+
+../com.vogella.ide.first
+../com.vogella.ide.feature
+../com.vogella.tasks.model
+../com.vogella.tasks.services
+../com.vogella.tasks.ui
+../com.vogella.ide.editor.tasks
+../com.vogella.contribute.parts
+../com.vogella.swt.widgets
+../com.vogella.tasks.events
+../com.vogella.eclipse.css
+
+../com.vogella.resources
+../com.vogella.adapters
+../com.vogella.tasks.extendedsupplier
+../com.vogella.preferences.page
+../com.vogella.ide.editor.gradle
+../com.vogella.ide.editor.asciidoc
+../com.vogella.ide.editor.shell
+../com.vogella.ide.debugtools
+
+# Language server example, grouped in its own folder with its own pom.tycho
+../lsp
+
+../z.ex.search
+../com.vogella.ide.iconreplacer
+../com.vogella.ide.parallelstart
+../com.vogella.json.validation
+
+# Tests
+../com.vogella.json.validation.tests
+# ../com.vogella.tasks.services.tests
+
+../updatesite
+
+# releng
+# ../com.vogella.ide.product

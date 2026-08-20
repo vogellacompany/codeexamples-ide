@@ -89,7 +89,7 @@
         <version>${tycho.version}</version>
         <configuration>
           <target>
-            <file>../target-platform/target-platform.target</file>
+            <file>${maven.multiModuleProjectDirectory}/target-platform/target-platform.target</file>
           </target>
           <!-- Optional set the Java version your are using-->
           <executionEnvironment>JavaSE-25</executionEnvironment>
@@ -115,43 +115,7 @@
     </plugins>
   </build>
   <modules>
-    <module>com.vogella.ide.first</module>
-    <module>com.vogella.ide.feature</module>
-    <module>com.vogella.tasks.model</module>
-    <module>com.vogella.tasks.services</module>
-    <module>com.vogella.tasks.ui</module>
-    <module>com.vogella.ide.editor.tasks</module>
-    <module>com.vogella.contribute.parts</module>
-    <module>com.vogella.swt.widgets</module>
-    <module>com.vogella.tasks.events</module>
-    <module>com.vogella.eclipse.css</module>
-    <!---->
-    <module>com.vogella.resources</module>
-    <module>com.vogella.adapters</module>
-    <module>com.vogella.tasks.extendedsupplier</module>
-    <module>com.vogella.preferences.page</module>
-    <module>com.vogella.ide.editor.gradle</module>
-    <module>com.vogella.ide.editor.asciidoc</module>
-    <module>com.vogella.ide.editor.shell</module>
-    <module>com.vogella.ide.debugtools</module>
-    <module>com.vogella.lsp.asciidoc.client</module>
-    <module>com.vogella.lsp.asciidoc.server</module>
-    <module>com.vogella.lsp.asciidoc.server.tests</module>
-    <module>z.ex.search</module>
-    <module>com.vogella.ide.iconreplacer</module>
-    <module>com.vogella.ide.parallelstart</module>
-    <module>com.vogella.json.validation</module>
-
-    <!--Tests-->
-    <module>com.vogella.json.validation.tests</module>
-    <!--
-
-    <module>com.vogella.tasks.services.tests</module>
--->
-    <module>updatesite</module>
-    <!--releng-->
-    <!-- <module>com.vogella.ide.product</module> -->
-
-
+    <!-- The real module list lives in build/pom.tycho -->
+    <module>build</module>
   </modules>
 </project>

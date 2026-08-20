@@ -1,0 +1,99 @@
+= Pomless aggregators with Tycho
+:toc: left
+:toclevels: 2
+:icons: font
+:source-highlighter: rouge
+
+== What this repository demonstrates
+
+Tycho's `tycho-build` extension can derive a Maven model for a bundle, feature, product or update site from the files that already describe it, so most modules here have no `pom.xml`.
+The same mechanism can also derive an *aggregator*, which is what this repository uses to keep the module list out of the root `pom.xml`.
+
+Two variants are shown:
+
+`build/pom.tycho`:: The reactor module list. The root `pom.xml` declares a single module, and the real list lives in a plain text file.
+`lsp/pom.tycho`:: A group of related bundles collected in their own folder, listed by an aggregator of their own.
+
+== How it works
+
+A folder containing a file named `pom.tycho` is turned into an aggregator with packaging `pom`.
+The artifactId is the folder name, and every non-comment line becomes a `<module>` entry.
+
+.build/pom.tycho
+[source]
+----
+# "#" comments and blank lines are ignored
+../com.vogella.ide.first
+../lsp
+----
+
+Because the lines are used verbatim, they may point outside the aggregator's own folder.
+That is what allows `build/` to reference bundles that sit at the repository root.
+
+The root `pom.xml` keeps everything else it needs to keep, and shrinks to:
+
+[source,xml]
+----
+<modules>
+  <module>build</module>
+</modules>
+----
+
+NOTE: A `pom.tycho` is only read in a folder that has no `pom.xml`.
+Where both exist the `pom.xml` always wins, so the root pom cannot source its own module list this way.
+That is why the indirection through `build/` is needed.
+
+=== Automatic detection
+
+If a folder is named `bundles`, `plugins`, `tests`, `features`, `sites`, `products` or `releng`, Tycho scans its subfolders and generates the module list without any file at all.
+The list of names is configurable with `-Dtycho.pomless.aggregator.names`.
+
+This repository deliberately uses an explicit `lsp/pom.tycho` instead, for two reasons.
+The folder name `lsp` says what the group is, and an explicit list keeps the ability to disable a single module by commenting out one line.
+Automatic detection always takes every subfolder it finds.
+
+TIP: Tycho writes its generated `pom.tycho` files with a `## tycho automatic module detection <uuid>` first line and deletes them when the JVM exits.
+A hand-written file simply must not start with that marker.
+
+== Required configuration
+
+Two settings make the nested layout work.
+
+..mvn/maven.config
+[source]
+----
+-Dtycho.pomless.parent=${maven.multiModuleProjectDirectory}
+----
+
+By default a pomless module looks for its parent in `..`.
+That holds for a bundle at the repository root, but not for one nested inside `lsp/`, which would look in `lsp/` and find nothing.
+Pointing the property at the directory that contains `.mvn` makes every pomless module resolve the root pom as its parent, whatever its depth.
+`maven.multiModuleProjectDirectory` is resolved by Maven itself, so the setting keeps working when the build is started from a subdirectory.
+
+The same property can be set per module, as `tycho.pomless.parent` in a bundle's `build.properties`, which takes precedence over the global default.
+
+.pom.xml
+[source,xml]
+----
+<file>${maven.multiModuleProjectDirectory}/target-platform/target-platform.target</file>
+----
+
+The target definition was previously referenced as `../target-platform/target-platform.target`.
+That path is resolved against each module's own directory, so it breaks for a module one level deeper.
+An absolute path avoids the problem for good.
+
+== Trade-offs
+
+The module list is no longer XML, comments are cheaper, and related bundles can be grouped without the root pom growing.
+Set against that, the list is no longer where a reader expects it, and `build/` exists only as an indirection.
+For a repository with a handful of modules that is a poor trade.
+It starts paying off at the scale of this one, where nearly every module is pomless already.
+
+== Building
+
+Nothing changes for the caller:
+
+[source,bash]
+----
+./mvnw clean verify
+----
