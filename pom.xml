@@ -140,8 +140,10 @@
     <module>z.ex.search</module>
     <module>com.vogella.ide.iconreplacer</module>
     <module>com.vogella.ide.parallelstart</module>
+    <module>com.vogella.json.validation</module>
 
     <!--Tests-->
+    <module>com.vogella.json.validation.tests</module>
     <!--
 
     <module>com.vogella.tasks.services.tests</module>

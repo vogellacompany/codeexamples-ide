@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JSON Schema Validation Example
+Bundle-SymbolicName: com.vogella.json.validation
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: VOGELLA
+Automatic-Module-Name: com.vogella.json.validation
+Bundle-RequiredExecutionEnvironment: JavaSE-25
+Export-Package: com.vogella.json.validation
+Require-Bundle: com.networknt.json-schema-validator;bundle-version="1.5.6",
+ com.fasterxml.jackson.core.jackson-databind;bundle-version="[2.18.0,3.0.0)"
