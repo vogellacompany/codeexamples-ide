@@ -24,7 +24,7 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-RequiredExecutionEnvironment: JavaSE-25
 Import-Package: com.vogella.tasks.events,
  com.vogella.tasks.model,
- jakarta.annotation;version="[2.1.0,3.0.0)",
+ jakarta.annotation;version="[2.1.0,4.0.0)",
  jakarta.inject;version="[2.0.0,3.0.0)"
 Automatic-Module-Name: com.vogella.tasks.ui
 Bundle-ActivationPolicy: lazy
