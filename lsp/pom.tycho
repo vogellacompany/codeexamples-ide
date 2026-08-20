@@ -1,0 +1,12 @@
+# Modules of the "lsp" aggregator.
+#
+# This file replaces an lsp/pom.xml. Tycho's pomless build reads it and
+# generates an aggregator with packaging=pom and artifactId "lsp" (the folder
+# name). One module per line, "#" comments and blank lines are ignored.
+#
+# An explicit list is required here because "lsp" is not one of the folder
+# names Tycho scans automatically (bundles, plugins, tests, features, sites,
+# products, releng).
+com.vogella.lsp.asciidoc.client
+com.vogella.lsp.asciidoc.server
+com.vogella.lsp.asciidoc.server.tests
