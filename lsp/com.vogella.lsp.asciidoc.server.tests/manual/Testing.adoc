@@ -1,5 +1,0 @@
-= Title
-
-image::Sample.png[]
-
-include::Help.adoc[]

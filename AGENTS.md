@@ -7,8 +7,7 @@ It serves as a reference for modern Eclipse development practices, covering both
 
 - **Eclipse Tycho**: Used for building Eclipse plugins, features, and products with Maven.
 - **Eclipse 4 (e4)**: Demonstrates dependency injection (Jakarta Inject), the application model (`.e4xmi`), and CSS styling.
-- **Generic Editor & TM4E**: Examples of extending the Eclipse Generic Editor with TextMate grammars (TM4E) for languages like Asciidoc.
-- **Language Server Protocol (LSP)**: Integrations for Asciidoc via Language Servers.
+- **Generic Editor & TM4E**: Examples of extending the Eclipse Generic Editor with TextMate grammars (TM4E), for example for shell scripts.
 - **OSGi**: The underlying modular system for all Eclipse plugins.
 - **Java 25**: The project is configured to use JavaSE-25.
 
@@ -17,9 +16,8 @@ It serves as a reference for modern Eclipse development practices, covering both
 The repository is organized into many OSGi bundles (plugins):
 
 - `com.vogella.ide.first`: Core UI components and product definition.
-- `com.vogella.ide.editor.*`: Custom editors and extensions for the Generic Editor (Asciidoc, Gradle, Shell, Tasks).
+- `com.vogella.ide.editor.*`: Custom editors and extensions for the Generic Editor (Gradle, Shell, Tasks).
 - `com.vogella.tasks.*`: A sample task management application split into model, services, and UI.
-- `com.vogella.lsp.asciidoc.client` and `com.vogella.lsp.asciidoc.server` LSP client and server implementations.
 - `target-platform`: Contains the target definition file (`target-platform.target`) which specifies the Eclipse release and dependencies used for the build.
 - `updatesite`: The Tycho-generated p2 repository for distributing the plugins.
 
@@ -71,7 +69,6 @@ The `updatesite` module has its own `pom.xml` only for this plugin.
 
 - **OSGi Metadata**: Always manage dependencies in `META-INF/MANIFEST.MF`.
 - **Extensions**: UI contributions are defined in `plugin.xml`.
-- **Asciidoc Functionality**: As much as possible, Asciidoc functionality should be implemented via the LSP (Language Server Protocol) functionality in the `com.vogella.lsp.asciidoc.*` bundles.
 - **Dependency Injection**: Prefer `@Inject` (Jakarta) for accessing services and UI components in e4-based bundles.
 - **Coding Style**: Follow standard Eclipse/Java conventions. The project uses `UTF-8` encoding.
 - **Testing**: Test fragments (e.g., `com.vogella.tasks.services.tests`) use JUnit and are executed by `tycho-surefire-plugin` during the build.
