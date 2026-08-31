@@ -24,12 +24,8 @@
 ../com.vogella.tasks.extendedsupplier
 ../com.vogella.preferences.page
 ../com.vogella.ide.editor.gradle
-../com.vogella.ide.editor.asciidoc
 ../com.vogella.ide.editor.shell
 ../com.vogella.ide.debugtools
-
-# Language server example, grouped in its own folder with its own pom.tycho
-../lsp
 
 ../z.ex.search
 ../com.vogella.ide.iconreplacer

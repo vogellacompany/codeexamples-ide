@@ -3,26 +3,16 @@
    <feature id="com.vogella.ide.feature">
       <category name="vogella_ide_extensions"/>
    </feature>
-   <bundle id="com.vogella.ide.editor.asciidoc">
-      <category name="vogella_minimal_asciidoc_editor"/>
-   </bundle>
    <bundle id="z.ex.search">
       <category name="search_extension"/>
    </bundle>
    <bundle id="com.vogella.ide.debugtools">
       <category name="debug_tools_vogella"/>
    </bundle>
-   <bundle id="com.vogella.lsp.asciidoc.client">
-      <category name="vogella_minimal_asciidoc_editor"/>
-   </bundle>
-   <bundle id="com.vogella.lsp.asciidoc.server">
-      <category name="vogella_minimal_asciidoc_editor"/>
-   </bundle>
    <bundle id="com.vogella.ide.iconreplacer">
       <category name="vogella_ide_extensions"/>
    </bundle>
    <category-def name="vogella_ide_extensions" label="IDE extensions from vogella"/>
-   <category-def name="vogella_minimal_asciidoc_editor" label="Minimal Asciidoc Editor"/>
    <category-def name="search_extension" label="Search Extension">
       <description>
          Adds &quot;Alt+&quot; and &quot;Alt-&quot; shortcut to perform a next search.
