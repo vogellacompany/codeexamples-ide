@@ -29,9 +29,26 @@ jobs:
         maven-version: 3.9.9   
     - name: Install Xvfb
       run: sudo apt-get update && sudo apt-get install -y xvfb
-    - name: Start Xvfb
+    - name: Prepare the PGP signing key
+      # Uses the vogella release key from the repository secrets, or a throwaway key so that the signing step still runs
+      run: |
+        if [ -n "$MAVEN_GPG_KEY" ]; then
+          printf '%s\n' "$MAVEN_GPG_KEY" > "$RUNNER_TEMP/signing-key.asc"
+        else
+          export GNUPGHOME=$(mktemp -d)
+          gpg --batch --pinentry-mode loopback --passphrase "$MAVEN_GPG_PASSPHRASE" \
+            --quick-generate-key "codeexamples-ide CI <ci@vogella.com>" ed25519 sign 1d
+          gpg --batch --pinentry-mode loopback --passphrase "$MAVEN_GPG_PASSPHRASE" \
+            --armor --export-secret-keys > "$RUNNER_TEMP/signing-key.asc"
+        fi
+        echo "MAVEN_GPG_PASSPHRASE=$MAVEN_GPG_PASSPHRASE" >> "$GITHUB_ENV"
+      env:
+        MAVEN_GPG_KEY: ${{ secrets.MAVEN_GPG_KEY }}
+        MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE || 'ci-only' }}
+    - name: Build and sign
       run: |
         Xvfb :99 &
         export DISPLAY=:99
         sleep 3
-        mvn clean verify -ntp
+        mvn clean verify -ntp -Dgpg.skip=false \
+          -Dtycho.pgp.signer.bc.secretKeys=$RUNNER_TEMP/signing-key.asc

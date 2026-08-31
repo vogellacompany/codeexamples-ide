@@ -38,6 +38,23 @@ To build all bundles and the update site, run the following command from the roo
 ./mvnw clean verify
 ```
 
+### Signing the update site
+
+The `updatesite` module signs its artifacts with PGP via the `tycho-gpg-plugin` (Bouncy Castle signer), the signatures land in the p2 metadata and the jars stay unchanged.
+Signing is skipped by default.
+The CI enables it with `-Dgpg.skip=false`, writes the key from the `MAVEN_GPG_KEY` secret to a file and passes the `MAVEN_GPG_PASSPHRASE` secret, falling back to a throwaway key when the secrets are not set.
+A local signed build works the same way:
+
+```bash
+gpg --armor --export-secret-keys release@vogella.com > ~/signing-key.asc
+export MAVEN_GPG_PASSPHRASE=<passphrase>
+./mvnw clean verify -Dgpg.skip=false -Dtycho.pgp.signer.bc.secretKeys=$HOME/signing-key.asc
+```
+
+The `secretKeys` file is required, with `signer=bc` alone Tycho still reads the key through the `gpg` executable.
+Check the result with `unzip -p updatesite/target/repository/artifacts.jar artifacts.xml | grep -c pgp.signatures`.
+The `updatesite` module has its own `pom.xml` only for this plugin.
+
 ### Running the Application
 
 1.  **Import into Eclipse**:

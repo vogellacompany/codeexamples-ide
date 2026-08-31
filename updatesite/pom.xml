@@ -1,0 +1,33 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.vogella.tycho</groupId>
+    <artifactId>releng</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>updatesite</artifactId>
+  <packaging>eclipse-repository</packaging>
+
+  <build>
+    <plugins>
+      <!-- PGP signs the artifacts of the update site, the key file comes from -Dtycho.pgp.signer.bc.secretKeys, the passphrase from MAVEN_GPG_PASSPHRASE -->
+      <plugin>
+        <groupId>org.eclipse.tycho</groupId>
+        <artifactId>tycho-gpg-plugin</artifactId>
+        <version>${tycho.version}</version>
+        <executions>
+          <execution>
+            <id>pgp-sign</id>
+            <phase>package</phase>
+            <goals>
+              <goal>sign-p2-artifacts</goal>
+            </goals>
+            <configuration>
+              <signer>bc</signer>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
