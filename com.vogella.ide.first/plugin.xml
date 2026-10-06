@@ -3,14 +3,6 @@
 <plugin>
 
    <extension
-         id="com.vogella.ide.first.fragment"
-         point="org.eclipse.e4.workbench.model">
-      <fragment
-            apply="notexists"
-            uri="fragment.e4xmi">
-      </fragment>
-   </extension>
-   <extension
          id="customide"
          point="org.eclipse.core.runtime.products">
       <product
