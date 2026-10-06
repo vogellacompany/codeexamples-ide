@@ -10,7 +10,6 @@ import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
@@ -21,10 +20,8 @@ public class SampleView {
 
 	@PostConstruct
 	public void createPartControl(Composite parent, TaskService service) {
-		var label = new Label(parent, SWT.BORDER);
+		myLabelInView = new Label(parent, SWT.BORDER);
 		myLabelInView.setText("You have " + service.getAll().size() + " tasks");
-		var string = "Hallo";
-		Button b;
 	}
 
 	@Focus
