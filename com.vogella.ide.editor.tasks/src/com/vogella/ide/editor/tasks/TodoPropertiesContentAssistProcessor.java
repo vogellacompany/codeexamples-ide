@@ -53,8 +53,7 @@ public class TodoPropertiesContentAssistProcessor implements IContentAssistProce
 
 	@Override
 	public char[] getContextInformationAutoActivationCharacters() {
-		String keys = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		return keys.toCharArray();
+		return null;
 	}
 
     @Override

@@ -1,13 +1,16 @@
 package com.vogella.ide.editor.tasks;
-import static com.vogella.ide.editor.tasks.Util.getActiveEditor;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.core.filebuffers.IDocumentSetupParticipant;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
+import org.eclipse.core.filebuffers.ITextFileBufferManager;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.jobs.Job;
@@ -15,8 +18,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentListener;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
 
 public class TodoMarkerDocumentSetup implements IDocumentSetupParticipant {
 
@@ -30,15 +31,13 @@ public class TodoMarkerDocumentSetup implements IDocumentSetupParticipant {
 
 			@Override
 			public void documentChanged(DocumentEvent event) {
-				IEditorPart activeEditor = getActiveEditor();
+				IFile file = getFile(event.getDocument());
 
-				if (activeEditor != null) {
-					IEditorInput editorInput = activeEditor.getEditorInput();
-					IResource adapter = editorInput.getAdapter(IResource.class);
+				if (file != null) {
 					if (markerJob != null) {
 						markerJob.cancel();
 					}
-					markerJob = Job.create("Adding Marker", (ICoreRunnable) monitor -> createMarker(event, adapter));
+					markerJob = Job.create("Adding Marker", (ICoreRunnable) monitor -> createMarker(event, file));
 					markerJob.setUser(false);
 					markerJob.setPriority(Job.DECORATE);
 					// set a delay before reacting to user action to handle continuous typing
@@ -54,6 +53,16 @@ public class TodoMarkerDocumentSetup implements IDocumentSetupParticipant {
 		});
 	}
 	
+	// the document belongs to a file buffer, the active editor may show another file
+	private IFile getFile(IDocument document) {
+		ITextFileBuffer buffer = ITextFileBufferManager.DEFAULT.getTextFileBuffer(document);
+		if (buffer == null || buffer.getLocation() == null || buffer.getLocation().segmentCount() < 2) {
+			return null;
+		}
+		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(buffer.getLocation());
+		return file.exists() ? file : null;
+	}
+
 	private void createMarker(DocumentEvent event, IResource adapter) throws CoreException {
 		String docText = event.getDocument().get();
 		// Get the last line number

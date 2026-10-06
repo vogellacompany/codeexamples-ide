@@ -1,6 +1,7 @@
 package com.vogella.ide.editor.tasks;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.resource.ColorRegistry;
 import org.eclipse.jface.text.IDocument;
@@ -21,17 +22,30 @@ public class PropertiesReconciler extends PresentationReconciler {
 	private ColorRegistry colorRegistry;
 	private RuleBasedScanner scanner;
 	private IRule rule;
+	private IPreferenceChangeListener listener;
 
 	@Override
 	public void install(ITextViewer viewer) {
 		super.install(viewer);
 
-		IEclipsePreferences node = InstanceScope.INSTANCE.getNode("org.eclipse.ui.workbench");
-
-		node.addPreferenceChangeListener(event -> {
+		listener = event -> {
 			updateRule();
 			viewer.invalidateTextPresentation();
-		});
+		};
+		getWorkbenchPreferences().addPreferenceChangeListener(listener);
+	}
+
+	@Override
+	public void uninstall() {
+		if (listener != null) {
+			getWorkbenchPreferences().removePreferenceChangeListener(listener);
+			listener = null;
+		}
+		super.uninstall();
+	}
+
+	private IEclipsePreferences getWorkbenchPreferences() {
+		return InstanceScope.INSTANCE.getNode("org.eclipse.ui.workbench");
 	}
 
 	private void updateRule() {

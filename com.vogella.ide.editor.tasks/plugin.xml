@@ -101,22 +101,6 @@
     </codeMiningProvider>
  </extension>
  <extension
-       point="org.eclipse.core.contenttype.contentTypes">
-    <content-type
-          file-extensions="lars"
-          id="com.vogella.ide.editor.tasks.content-type1"
-          name="Lars"
-          priority="normal">
-    </content-type>
- </extension>
- <extension
-       point="org.eclipse.ui.editors">
-    <editorContentTypeBinding
-          contentTypeId="com.vogella.ide.editor.tasks.content-type1"
-          editorId="org.eclipse.ui.genericeditor.GenericEditor">
-    </editorContentTypeBinding>
- </extension>
- <extension
        point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
     <hyperlinkDetector
           activate="true"
