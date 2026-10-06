@@ -29,4 +29,40 @@
          id="com.vogella.preferences.page"
          version="0.0.0"/>
 
+   <plugin
+         id="com.vogella.ide.first"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.vogella.tasks.model"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.vogella.tasks.services"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.vogella.tasks.ui"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.vogella.tasks.events"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.vogella.swt.widgets"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.vogella.eclipse.css"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.vogella.adapters"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.vogella.resources"
+         version="0.0.0"/>
+
 </feature>

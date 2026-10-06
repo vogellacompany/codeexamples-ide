@@ -34,9 +34,9 @@
 
 # Tests
 ../com.vogella.json.validation.tests
-# ../com.vogella.tasks.services.tests
+../com.vogella.tasks.services.tests
 
 ../updatesite
 
 # releng
-# ../com.vogella.ide.product
+../com.vogella.ide.product
