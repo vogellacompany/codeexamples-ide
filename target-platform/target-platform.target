@@ -7,6 +7,7 @@
 			<unit id="org.eclipse.equinox.sdk.feature.group"/>
 			<unit id="org.eclipse.platform.feature.group"/>
 			<unit id="org.eclipse.pde.spies.feature.group"/>
+			<unit id="org.eclipse.tips.feature.feature.group"/>
 			<unit id="org.eclipse.jdt.feature.group"/>
 			<unit id="junit-jupiter-api" />
 			<unit id="junit-jupiter-engine"/>
