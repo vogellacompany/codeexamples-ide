@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bytecode Translator
+Bundle-SymbolicName: com.vogella.ide.editor.bytecode;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: VOGELLA
+Automatic-Module-Name: com.vogella.ide.editor.bytecode
+Bundle-RequiredExecutionEnvironment: JavaSE-25
+Require-Bundle: org.eclipse.text,
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.genericeditor,
+ org.eclipse.ui.workbench.texteditor,
+ org.eclipse.jface.text,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.core.expressions,
+ org.eclipse.jdt.core,
+ org.eclipse.e4.ui.model.workbench,
+ org.eclipse.e4.ui.workbench

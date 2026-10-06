@@ -15,6 +15,7 @@
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<repository location="https://download.eclipse.org/tm4e/releases/latest/"/>
 			<unit id="org.eclipse.tm4e.feature.feature.group"/>
+			<unit id="org.eclipse.tm4e.language_pack.feature.feature.group"/>
 		</location>
 		
 		<location includeDependencyDepth="infinite" includeDependencyScopes="compile" includeSource="true" missingManifest="generate" type="Maven">

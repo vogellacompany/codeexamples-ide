@@ -25,6 +25,7 @@
 ../com.vogella.preferences.page
 ../com.vogella.ide.editor.gradle
 ../com.vogella.ide.editor.shell
+../com.vogella.ide.editor.bytecode
 ../com.vogella.ide.debugtools
 
 ../z.ex.search

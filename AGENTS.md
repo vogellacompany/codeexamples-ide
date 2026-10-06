@@ -16,7 +16,7 @@ It serves as a reference for modern Eclipse development practices, covering both
 The repository is organized into many OSGi bundles (plugins):
 
 - `com.vogella.ide.first`: Core UI components and product definition.
-- `com.vogella.ide.editor.*`: Custom editors and extensions for the Generic Editor (Gradle, Shell, Tasks).
+- `com.vogella.ide.editor.*`: Custom editors and extensions for the Generic Editor (Gradle, Shell, Tasks, and a bytecode viewer that translates bytecode into other languages via the Claude Code CLI).
 - `com.vogella.tasks.*`: A sample task management application split into model, services, and UI.
 - `target-platform`: Contains the target definition file (`target-platform.target`) which specifies the Eclipse release and dependencies used for the build.
 - `updatesite`: The Tycho-generated p2 repository for distributing the plugins.

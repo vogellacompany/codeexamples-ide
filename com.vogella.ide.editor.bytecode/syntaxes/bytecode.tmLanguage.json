@@ -1,0 +1,72 @@
+{
+  "scopeName": "source.jvm-bytecode",
+  "name": "JVM Bytecode",
+  "fileTypes": ["bytecode"],
+  "patterns": [
+    {
+      "name": "comment.line.double-slash.jvm-bytecode",
+      "match": "//.*$"
+    },
+    {
+      "comment": "Metadata the disassembler prints below each method",
+      "name": "comment.block.jvm-bytecode",
+      "match": "^\\s*(Line numbers|Local variable table|Local variable type table|Stack map table|Exception Table|Inner classes|Nest Members|Nest Host|Attribute|Record):.*$"
+    },
+    {
+      "name": "comment.block.jvm-bytecode",
+      "match": "^\\s*\\[(pc|inner class info|nest member|nest host)[^\\]]*\\].*$"
+    },
+    {
+      "comment": "Program counter followed by the opcode",
+      "match": "^\\s*(\\d+)\\s+(invoke\\w+)",
+      "captures": {
+        "1": { "name": "constant.numeric.jvm-bytecode" },
+        "2": { "name": "entity.name.function.jvm-bytecode" }
+      }
+    },
+    {
+      "match": "^\\s*(\\d+)\\s+(if\\w*|goto\\w*|jsr\\w*|ret|[ailfd]?return|athrow|tableswitch|lookupswitch)\\b",
+      "captures": {
+        "1": { "name": "constant.numeric.jvm-bytecode" },
+        "2": { "name": "keyword.control.jvm-bytecode" }
+      }
+    },
+    {
+      "match": "^\\s*(\\d+)\\s+([a-z][a-z0-9_]*)",
+      "captures": {
+        "1": { "name": "constant.numeric.jvm-bytecode" },
+        "2": { "name": "keyword.other.jvm-bytecode" }
+      }
+    },
+    {
+      "name": "storage.modifier.jvm-bytecode",
+      "match": "\\b(public|private|protected|static|final|abstract|synchronized|native|transient|volatile|strictfp|class|interface|enum|record|extends|implements|throws)\\b"
+    },
+    {
+      "name": "storage.type.primitive.jvm-bytecode",
+      "match": "\\b(void|int|long|short|byte|char|boolean|float|double)\\b"
+    },
+    {
+      "name": "string.quoted.double.jvm-bytecode",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        { "name": "constant.character.escape.jvm-bytecode", "match": "\\\\." }
+      ]
+    },
+    {
+      "comment": "Local variable name the disassembler appends to load and store instructions",
+      "name": "variable.parameter.jvm-bytecode",
+      "match": "\\[[A-Za-z_$][\\w$]*\\]"
+    },
+    {
+      "comment": "Constant pool index",
+      "name": "comment.line.jvm-bytecode",
+      "match": "\\[\\d+\\]"
+    },
+    {
+      "name": "constant.numeric.jvm-bytecode",
+      "match": "-?\\b\\d+(\\.\\d+)?\\b"
+    }
+  ]
+}
