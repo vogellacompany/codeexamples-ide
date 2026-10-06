@@ -13,16 +13,12 @@ import com.vogella.tasks.model.TaskService;
 public class TaskServiceContextFunction extends ContextFunction {
 	@Override
 	public Object compute(IEclipseContext context, String contextKey) {
+		TaskService taskService = ContextInjectionFactory.make(TransientTaskServiceImpl.class, context);
 
-		TaskService s = ContextInjectionFactory.make(TransientTaskServiceImpl.class, context);
-//		IEventBroker iEventBroker = context.get(IEventBroker.class);
-//
-//		TransientTaskServiceImpl transientTaskServiceImpl = new TransientTaskServiceImpl();
-//		transientTaskServiceImpl.broker = iEventBroker;
+		MApplication app = context.get(MApplication.class);
+		IEclipseContext appCtx = app.getContext();
+		appCtx.set(TaskService.class, taskService);
 
-		MApplication mApplication = context.get(MApplication.class);
-		mApplication.getContext().set(TaskService.class, s);
-
-		return s;
+		return taskService;
 	}
 }

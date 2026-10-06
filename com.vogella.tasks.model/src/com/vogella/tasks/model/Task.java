@@ -73,6 +73,16 @@ public class Task {
 		return "Task [id=" + id + ", summary=" + summary + "]";
 	}
 
+	@Override
+	public int hashCode() {
+		return Long.hashCode(id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return this == obj || (obj instanceof Task other && id == other.id);
+	}
+
 	public Task copy() {
 		return new Task(this.id, this.summary, this.description, this.done, this.dueDate);
 	}

@@ -20,12 +20,10 @@ public interface TaskService {
 	boolean update(Task task);
 
 	/**
-	 * Updates existing task or create new task
-	 * 
-	 * @param task
-	 * @return empty optional if not found, otherwise Optional holder the task
+	 * Returns a copy of the task with the given id.
+	 *
+	 * @return empty optional if not found, otherwise an Optional holding the task
 	 */
-
 	Optional<Task> get(long id);
 
 	/**

@@ -17,10 +17,9 @@ import com.vogella.tasks.model.TaskService;
 
 import jakarta.inject.Inject;
 
-
 public class TransientTaskServiceImpl implements TaskService {
 
-	@Inject // <.>
+	@Inject
 	private IEventBroker broker;
 
 	private static AtomicInteger current = new AtomicInteger(1);
@@ -32,12 +31,6 @@ public class TransientTaskServiceImpl implements TaskService {
 
 	@Override
 	public void consume(Consumer<List<Task>> taskConsumer) {
-		// Simulate Server access delay
-//		try {
-//			TimeUnit.SECONDS.sleep(5);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
 		// always pass a new copy of the data
 		taskConsumer.accept(tasks.stream().map(Task::copy).collect(Collectors.toList()));
 	}
@@ -58,11 +51,11 @@ public class TransientTaskServiceImpl implements TaskService {
 
 		if (!taskOptional.isPresent()) {
 			tasks.add(task);
-			broker.post(TaskEventConstants.TOPIC_TASKS_NEW, Map.of(TaskEventConstants.TOPIC_TASKS_NEW,
-					TaskEventConstants.TOPIC_TASKS_NEW, Task.FIELD_ID, task.getId())); // <.>
+			broker.post(TaskEventConstants.TOPIC_TASKS_NEW, Map.of(TaskEventConstants.TOPIC_TASKS,
+					TaskEventConstants.TOPIC_TASKS_NEW, Task.FIELD_ID, task.getId()));
 		} else {
 			broker.post(TaskEventConstants.TOPIC_TASKS_UPDATE, Map.of(TaskEventConstants.TOPIC_TASKS,
-					TaskEventConstants.TOPIC_TASKS_UPDATE, Task.FIELD_ID, task.getId())); // <.>
+					TaskEventConstants.TOPIC_TASKS_UPDATE, Task.FIELD_ID, task.getId()));
 		}
 		return true;
 	}
@@ -78,7 +71,7 @@ public class TransientTaskServiceImpl implements TaskService {
 		deletedTask.ifPresent(t -> {
 			tasks.remove(t);
 			broker.post(TaskEventConstants.TOPIC_TASKS_DELETE, Map.of(TaskEventConstants.TOPIC_TASKS,
-					TaskEventConstants.TOPIC_TASKS_DELETE, Task.FIELD_ID, t.getId())); // <.>
+					TaskEventConstants.TOPIC_TASKS_DELETE, Task.FIELD_ID, t.getId()));
 		});
 
 		return deletedTask.isPresent();
