@@ -13,6 +13,12 @@
             id="com.vogella.eclipse.css.rainbow"
             label="Rainbow">
       </theme>
+      <stylesheet
+            uri="css/e4-dark_vogella_extensions.css">
+         <themeid
+               refid="org.eclipse.e4.ui.css.theme.e4_dark">
+         </themeid>
+      </stylesheet>
    </extension>
    <extension
          point="org.eclipse.e4.ui.css.core.propertyHandler">
