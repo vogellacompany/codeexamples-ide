@@ -40,5 +40,6 @@
   </fragments>
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_CLFA8CTvEeuOWIw49lO70A" featurename="addons" parentElementId="xpath:/">
     <elements xsi:type="application:Addon" xmi:id="_9FgEgH2sEe6OsaNlBmbCdg" elementId="com.vogella.tasks.ui.addon.addviewstoperspective" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.addon.AddViewsToPerspectiveAddon"/>
+    <elements xsi:type="application:Addon" xmi:id="_o4hf4sGgEfG3W3IxurWPug" elementId="com.vogella.tasks.ui.addon.toolbarsvisibleperperspective" contributionURI="bundleclass://com.vogella.tasks.ui/com.vogella.tasks.ui.addon.ToolbarsVisiblePerPerspectiveAddon"/>
   </fragments>
 </fragment:ModelFragments>

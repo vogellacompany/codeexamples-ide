@@ -50,7 +50,8 @@
   <fragments xsi:type="fragment:StringModelFragment" xmi:id="_lVJSsPsFEeqkSvBVXszopA" featurename="trimContributions" parentElementId="xpath:/">
     <elements xsi:type="menu:TrimContribution" xmi:id="_oL6rgPsFEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.trimcontribution.0" parentId="org.eclipse.ui.main.toolbar">
       <persistedState key="persistState" value="false"/>
-      <children xsi:type="menu:ToolBar" xmi:id="_K1MzsPsGEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.toolbar.0">
+      <children xsi:type="menu:ToolBar" xmi:id="_K1MzsPsGEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.toolbar.main">
+        <tags>perspective:org.eclipse.jdt.ui.JavaPerspective</tags>
         <children xsi:type="menu:HandledToolItem" xmi:id="_MBNT0PsGEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handledtoolitem.fortesting" label="For testing" command="_u1a8AH2qEe6PbdPE_yGgLA"/>
         <children xsi:type="menu:HandledToolItem" xmi:id="_fJZgMPzIEeq2IdzpSWmUtQ" elementId="com.vogella.tasks.ui.handledtoolitem.removetask" label="Remove task" iconURI="platform:/plugin/com.vogella.tasks.ui/icons/pinned_ovr@2x.png" command="_-3Ud4PswEeqkSvBVXszopA"/>
       </children>
