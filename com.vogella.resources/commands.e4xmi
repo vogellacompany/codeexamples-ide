@@ -1,17 +1,36 @@
 <?xml version="1.0" encoding="ASCII"?>
-<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_AG8wAPsAEeqkSvBVXszopA">
-  <imports xsi:type="menu:MenuContribution" xmi:id="_YU4WUPxCEeqln8kdy7q2pg" elementId="com.vogella.tasks.ui.menu.vogella"/>
-  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_bWXusPsAEeqkSvBVXszopA" featurename="commands" parentElementId="xpath:/">
-    <elements xsi:type="commands:Command" xmi:id="_dfYCkPsAEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.command.createlargeproject" commandName="Create large project">
+<fragment:ModelFragments xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:commands="http://www.eclipse.org/ui/2010/UIModel/application/commands" xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/fragment" xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu" xmi:id="_exOaXsGgEfG2dXIxurWPug">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_exOaaMGgEfG2dXIxurWPug" featurename="commands" parentElementId="xpath:/">
+    <elements xsi:type="commands:Command" xmi:id="_exOZZMGgEfG2dXIxurWPug" elementId="com.vogella.resources.command.createlargeproject" commandName="Create large project">
+      <persistedState key="persistState" value="false"/>
+    </elements>
+    <elements xsi:type="commands:Command" xmi:id="_exOaBMGgEfG2dXIxurWPug" elementId="com.vogella.resources.command.closealleditors" commandName="Close Workspace Editors">
+      <persistedState key="persistState" value="false"/>
+    </elements>
+    <elements xsi:type="commands:Command" xmi:id="_exOaLMGgEfG2dXIxurWPug" elementId="com.vogella.resources.command.addtaskmarker" commandName="Add Task Marker">
       <persistedState key="persistState" value="false"/>
     </elements>
   </fragments>
-  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_k0YZ4PsDEeqkSvBVXszopA" featurename="handlers" parentElementId="xpath:/">
-    <elements xsi:type="commands:Handler" xmi:id="_nQoZ4PsDEeqkSvBVXszopA" elementId="com.vogella.tasks.ui.handler.0" contributionURI="bundleclass://com.vogella.resources/com.vogella.resources.handlers.CreateLargeProjectHandler" command="_dfYCkPsAEeqkSvBVXszopA">
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_exOacsGgEfG2dXIxurWPug" featurename="handlers" parentElementId="xpath:/">
+    <elements xsi:type="commands:Handler" xmi:id="_exOZ0sGgEfG2dXIxurWPug" elementId="com.vogella.resources.handler.createlargeproject" contributionURI="bundleclass://com.vogella.resources/com.vogella.resources.handlers.CreateLargeProjectHandler" command="_exOZZMGgEfG2dXIxurWPug">
+      <persistedState key="persistState" value="false"/>
+    </elements>
+    <elements xsi:type="commands:Handler" xmi:id="_exOaDsGgEfG2dXIxurWPug" elementId="com.vogella.resources.handler.closealleditors" contributionURI="bundleclass://com.vogella.resources/com.vogella.resources.handlers.CloseAllEditorsHandler" command="_exOaBMGgEfG2dXIxurWPug">
+      <persistedState key="persistState" value="false"/>
+    </elements>
+    <elements xsi:type="commands:Handler" xmi:id="_exOaQMGgEfG2dXIxurWPug" elementId="com.vogella.resources.handler.addtaskmarker" contributionURI="bundleclass://com.vogella.resources/com.vogella.resources.handlers.AddMarkerHandler" command="_exOaLMGgEfG2dXIxurWPug">
       <persistedState key="persistState" value="false"/>
     </elements>
   </fragments>
-  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_bzE8APsEEeqkSvBVXszopA" featurename="children" parentElementId="com.vogella.tasks.ui.menu.vogella">
-    <elements xsi:type="menu:HandledMenuItem" xmi:id="_cZolMPxCEeqln8kdy7q2pg" elementId="com.vogella.resources.handledmenuitem.0" command="_dfYCkPsAEeqkSvBVXszopA"/>
+  <fragments xsi:type="fragment:StringModelFragment" xmi:id="_exOahsGgEfG2dXIxurWPug" featurename="children" parentElementId="com.vogella.tasks.ui.menu.vogella">
+    <elements xsi:type="menu:HandledMenuItem" xmi:id="_exOZ8MGgEfG2dXIxurWPug" elementId="com.vogella.resources.handledmenuitem.createlargeproject" label="Create large project" command="_exOZZMGgEfG2dXIxurWPug">
+      <persistedState key="persistState" value="false"/>
+    </elements>
+    <elements xsi:type="menu:HandledMenuItem" xmi:id="_exOaIsGgEfG2dXIxurWPug" elementId="com.vogella.resources.handledmenuitem.closealleditors" label="Close Workspace Editors" command="_exOaBMGgEfG2dXIxurWPug">
+      <persistedState key="persistState" value="false"/>
+    </elements>
+    <elements xsi:type="menu:HandledMenuItem" xmi:id="_exOaSsGgEfG2dXIxurWPug" elementId="com.vogella.resources.handledmenuitem.addtaskmarker" label="Add Task Marker" command="_exOaLMGgEfG2dXIxurWPug">
+      <persistedState key="persistState" value="false"/>
+    </elements>
   </fragments>
 </fragment:ModelFragments>
