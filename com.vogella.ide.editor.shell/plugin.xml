@@ -34,7 +34,7 @@
       point="org.eclipse.tm4e.languageconfiguration.languageConfigurations">
    <languageConfiguration
          contentTypeId="com.vogella.ide.editor.shell.content-type"
-         path="language-configurations/json.language-configuration.json">
+         path="language-configurations/shell.language-configuration.json">
    </languageConfiguration>
 </extension>
 
