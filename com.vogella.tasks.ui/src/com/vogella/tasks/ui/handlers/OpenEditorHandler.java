@@ -7,7 +7,7 @@ import org.eclipse.e4.core.di.annotations.CanExecute;
 import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.model.application.MApplication;
-import org.eclipse.e4.ui.model.application.ui.advanced.MArea;
+import org.eclipse.e4.ui.model.application.ui.MUIElement;
 import org.eclipse.e4.ui.model.application.ui.advanced.MPlaceholder;
 import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.model.application.ui.basic.MPartStack;
@@ -23,6 +23,7 @@ import jakarta.inject.Named;
 public class OpenEditorHandler {
 
 	private static final String EDITOR_ID = "com.vogella.tasks.ui.partdescriptor.editor";
+	private static final String EDITOR_AREA_ID = "org.eclipse.ui.editorss";
 
 	@Execute
 	public void execute(@Optional @Named(IServiceConstants.ACTIVE_SELECTION) List<Task> tasks, MApplication application,
@@ -49,7 +50,6 @@ public class OpenEditorHandler {
 			}
 		}
 
-
 		// editor was not open, create it
 		MPart part = partService.createPart(EDITOR_ID);
 
@@ -60,11 +60,14 @@ public class OpenEditorHandler {
 		String header = "ID:" + id + " " + task.getSummary();
 		part.setLabel(header);
 
-		MPlaceholder stack = (MPlaceholder) modelService.find("org.eclipse.ui.editorss", application);
-		MArea ref = (MArea) stack.getRef();
-		if (!ref.getChildren().isEmpty()) {
-			MPartStack mPartSashContainerElement = (MPartStack) ref.getChildren().get(0);
-			mPartSashContainerElement.getChildren().add(part);
+		MUIElement editorArea = modelService.find(EDITOR_AREA_ID, application);
+		if (editorArea instanceof MPlaceholder placeholder) {
+			editorArea = placeholder.getRef();
+		}
+		// the editor area can be split into several stacks, use the first one
+		List<MPartStack> stacks = modelService.findElements(editorArea, null, MPartStack.class);
+		if (!stacks.isEmpty()) {
+			stacks.get(0).getChildren().add(part);
 		}
 		partService.showPart(part, PartState.ACTIVATE);
 	}

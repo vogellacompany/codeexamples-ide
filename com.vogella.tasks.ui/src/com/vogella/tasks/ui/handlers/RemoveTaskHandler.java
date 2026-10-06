@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.vogella.tasks.model.Task;
 import com.vogella.tasks.model.TaskService;
 
-public class RemoveTodoHandler {
+public class RemoveTaskHandler {
 	@Execute
 	public void execute(@Optional TaskService taskService,
 			@Optional @Named(IServiceConstants.ACTIVE_SELECTION) List<Task> tasks,
@@ -21,7 +21,7 @@ public class RemoveTodoHandler {
 		if (tasks != null) {
 			tasks.forEach(t -> taskService.delete(t.getId()));
 		} else {
-			MessageDialog.openInformation(shell, "Deletion not possible", "No todo selected");
+			MessageDialog.openInformation(shell, "Deletion not possible", "No task selected");
 		}
 	}
 }

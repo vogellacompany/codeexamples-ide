@@ -8,14 +8,6 @@
             apply="always"
             uri="commands.e4xmi">
       </fragment>
-      <fragment
-            uri="fragment.e4xmi"
-            apply="always">
-      </fragment>
-      <fragment
-            apply="always"
-            uri="testing.e4xmi">
-      </fragment>
    </extension>
 
 </plugin>

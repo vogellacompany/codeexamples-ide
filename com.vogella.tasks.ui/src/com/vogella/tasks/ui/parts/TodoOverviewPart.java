@@ -101,7 +101,8 @@ public class TodoOverviewPart {
 
 	@Inject
 	@Optional
-	private void subscribeTopicTaskAllTopics() {
+	private void subscribeTopicTaskAllTopics(
+			@UIEventTopic(TaskEventConstants.TOPIC_TASKS_ALLTOPICS) Map<String, String> event) {
 		if (viewer != null) {
 			writableList.clear();
 			updateViewer(taskService.getAll());

@@ -52,7 +52,7 @@ public class AutoCompleteFieldPart {
 				var directories = filterPaths(paths);
 				autoCompleteField.setProposals(directories.toArray(new String[directories.size()]));
 			} catch (IOException ex) {
-				// ignoreO
+				// no proposals for unreadable directories
 			}
 		});
 		var text = WidgetFactory.text(SWT.BORDER).layoutData(GridDataFactory.fillDefaults().grab(true, false).create())
@@ -70,9 +70,7 @@ public class AutoCompleteFieldPart {
 		WidgetFactory.button(SWT.PUSH).onSelect(e -> {
 			taskContentProposalProvider.setProposals(taskService.getAll());
 			contentProposal.refresh();
-
-			// This will work as of the 2020-12 release
-//			contentProposal.openProposalPopup();
+			contentProposal.openProposalPopup();
 		}).text("Press to add the content proposals from service").create(parent);
 	}
 
@@ -92,7 +90,7 @@ public class AutoCompleteFieldPart {
 	}
 
 	private boolean endsWithSeparator(String inputPath, int lastIndex) {
-		return lastIndex == inputPath.length();
+		return lastIndex == inputPath.length() - 1;
 	}
 
 	private String removeFileName(String text, int lastIndex) {
@@ -121,10 +119,10 @@ public class AutoCompleteFieldPart {
 
 	private List<String> filterPaths(Stream<Path> paths) {
 		return paths.filter(path -> {
-			var directoriesInPath = path.toString().split(File.separator);
-			var fileName = directoriesInPath[directoriesInPath.length - 1];
-			var lastDirectory = directoriesInPath[directoriesInPath.length - 2];
-			return !lastDirectory.equals(".") && !fileName.startsWith(".") && Files.isDirectory(path);
+			var parent = path.getParent();
+			var lastDirectory = parent == null || parent.getFileName() == null ? "" : parent.getFileName().toString();
+			return !lastDirectory.equals(".") && !path.getFileName().toString().startsWith(".")
+					&& Files.isDirectory(path);
 		}).map(Path::toString).collect(Collectors.toList());
 	}
 }

@@ -23,11 +23,10 @@ public class CreateTaskPage1 extends WizardPage {
 	@Override
 	public void createControl(Composite parent) {
 		Composite container = new Composite(parent, SWT.NONE);
-		// usage of the new operator
-		// NO automatic dependency injection
-		TodoDetailsPart part = new TodoDetailsPart(); // <.>
-//		part.createControls(container); // <.>
-		part.setTasks(Collections.singletonList(task)); // <.>
+		// created with new, so no dependency injection takes place
+		TodoDetailsPart part = new TodoDetailsPart();
+		part.createControls(container);
+		part.setTasks(Collections.singletonList(task));
 		setPageComplete(true);
 		setControl(container);
 	}

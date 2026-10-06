@@ -4,13 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.databinding.Binding;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.typed.BeanProperties;
 import org.eclipse.core.databinding.observable.value.IObservableValue;
 import org.eclipse.core.databinding.observable.value.WritableValue;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.di.Focus;
+import org.eclipse.e4.ui.di.Persist;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.databinding.swt.typed.WidgetProperties;
 import org.eclipse.jface.layout.GridDataFactory;
@@ -24,6 +25,7 @@ import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Text;
 
 import com.vogella.tasks.model.Task;
+import com.vogella.tasks.model.TaskService;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -38,14 +40,17 @@ public class TodoDetailsPart {
 	private Button btnDone;
 
 	// define a new field
-	private java.util.Optional<Task> task = java.util.Optional.ofNullable(null);
+	private java.util.Optional<Task> task = java.util.Optional.empty();
 
 	// observable placeholder for a task
 	private WritableValue<Task> observableTodo = new WritableValue<>();
 	private DataBindingContext dbc;
-	// <.>
 
-	// pause dirty listener when new Todo selection is set
+	@Inject
+	@Optional
+	private MPart part;
+
+	// pause dirty listener when new selection is set
 	private boolean pauseDirtyListener;
 
 	@PostConstruct
@@ -66,22 +71,18 @@ public class TodoDetailsPart {
 
 		labelFactory.text("Due Date").create(parent);
 
-		// Factory planned for 2020-12 release
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=567110
-
-		dateTime = new DateTime(parent, SWT.BORDER);
-		dateTime.setLayoutData(gdFactory.align(SWT.FILL, SWT.CENTER).grab(false, false).create());
+		dateTime = WidgetFactory.dateTime(SWT.BORDER)
+				.layoutData(gdFactory.align(SWT.FILL, SWT.CENTER).grab(false, false).create()).create(parent);
 
 		labelFactory.text("").create(parent);
 
 		btnDone = WidgetFactory.button(SWT.CHECK).text("Done").create(parent);
 
-		bindData(); // <.>
+		bindData();
 		updateUserInterface(task);
 	}
 
-	private void bindData() { // <.>
-		// this assumes that widget field is called "summary"
+	private void bindData() {
 		if (txtSummary != null && !txtSummary.isDisposed()) {
 
 			dbc = new DataBindingContext();
@@ -94,27 +95,22 @@ public class TodoDetailsPart {
 			fields.forEach((k, v) -> dbc.bindValue(v, BeanProperties.value(k).observeDetail(observableTodo)));
 
 			// set a dirty state if one of the bindings is changed
-			dbc.getBindings().forEach(item -> {
-				Binding binding = item;
-				binding.getTarget().addChangeListener(e -> {
-//					if (!pauseDirtyListener && part != null) { //
-////						part.setDirty(true);
-//					}
-				});
-			});
+			dbc.getBindings().forEach(binding -> binding.getTarget().addChangeListener(e -> {
+				if (!pauseDirtyListener && part != null) {
+					part.setDirty(true);
+				}
+			}));
 		}
 	}
 
-	// Add the following new methods to your code
-
 	@Inject
 	public void setTasks(@Optional @Named(IServiceConstants.ACTIVE_SELECTION) List<Task> tasks) {
-		if (tasks == null || tasks.isEmpty()) {
+		if (tasks == null || tasks.isEmpty() || tasks.get(0) == null) {
 			this.task = java.util.Optional.empty();
 		} else {
 			this.task = java.util.Optional.of(tasks.get(0));
 		}
-		// Remember the task as field update the user interface
+		// remember the task as field and update the user interface
 		updateUserInterface(this.task);
 	}
 
@@ -136,12 +132,19 @@ public class TodoDetailsPart {
 		}
 
 		enableUserInterface(true);
-		// the following check ensures that the user interface is available,
-		// it assumes that you have a text widget called "txtSummary"
+		// the user interface might not yet be created
 		if (txtSummary != null && !txtSummary.isDisposed()) {
-			pauseDirtyListener = true; //
+			pauseDirtyListener = true;
 			this.observableTodo.setValue(task.get());
-			pauseDirtyListener = false; //
+			pauseDirtyListener = false;
+		}
+	}
+
+	@Persist
+	public void save(TaskService taskService) {
+		task.ifPresent(taskService::update);
+		if (part != null) {
+			part.setDirty(false);
 		}
 	}
 
@@ -152,7 +155,9 @@ public class TodoDetailsPart {
 
 	@PreDestroy
 	public void dispose() {
-		dbc.dispose();
+		if (dbc != null) {
+			dbc.dispose();
+		}
 	}
 
 }

@@ -11,22 +11,24 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.e4.ui.di,
  org.eclipse.e4.core.di.extensions,
  org.eclipse.e4.ui.services,
- org.eclipse.e4.ui.model.workbench;bundle-version="2.1.800.v20200828-0938",
- org.eclipse.core.databinding;bundle-version="1.10.0",
- org.eclipse.core.databinding.beans;bundle-version="1.7.0",
- org.eclipse.core.databinding.property;bundle-version="1.8.100",
- org.eclipse.jface.databinding;bundle-version="1.12.0",
- org.eclipse.e4.core.services;bundle-version="2.2.400",
- org.eclipse.osgi.services;bundle-version="3.9.0",
- com.vogella.swt.widgets;bundle-version="1.0.0",
- org.eclipse.ui;bundle-version="3.118.0",
- org.eclipse.e4.core.contexts;bundle-version="1.12.100"
+ org.eclipse.e4.ui.model.workbench,
+ org.eclipse.core.databinding,
+ org.eclipse.core.databinding.beans,
+ org.eclipse.core.databinding.property,
+ org.eclipse.jface.databinding,
+ org.eclipse.e4.core.services,
+ com.vogella.swt.widgets,
+ org.eclipse.ui,
+ org.eclipse.e4.core.contexts
 Bundle-RequiredExecutionEnvironment: JavaSE-25
 Import-Package: com.vogella.tasks.events,
  com.vogella.tasks.model,
  jakarta.annotation;version="[2.1.0,4.0.0)",
- jakarta.inject;version="[2.0.0,3.0.0)"
+ jakarta.inject;version="[2.0.0,3.0.0)",
+ org.osgi.service.component.annotations;version="[1.3.0,2.0.0)";resolution:=optional,
+ org.osgi.service.event
 Automatic-Module-Name: com.vogella.tasks.ui
 Bundle-ActivationPolicy: lazy
+Model-Fragment: fragment.e4xmi
 Service-Component: OSGI-INF/com.vogella.tasks.ui.parts.MeinServerConnection.xml,
  OSGI-INF/com.vogella.tasks.ui.parts.ServerConnection.xml
