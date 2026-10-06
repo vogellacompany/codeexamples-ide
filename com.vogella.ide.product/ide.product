@@ -26,6 +26,7 @@
       <feature id="com.vogella.ide.feature" installMode="root"/>
       <feature id="org.eclipse.platform" installMode="root"/>
       <feature id="org.eclipse.jdt" installMode="root"/>
+      <feature id="org.eclipse.tips.feature" installMode="root"/>
    </features>
 
    <configurations>

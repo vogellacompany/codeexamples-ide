@@ -73,4 +73,8 @@
          id="com.vogella.todo.tips"
          version="0.0.0"/>
 
+   <plugin
+         id="com.vogella.tasks.extendedsupplier"
+         version="0.0.0"/>
+
 </feature>
