@@ -1,8 +1,7 @@
 package com.vogella.resources;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -82,9 +81,7 @@ public class NewTodoProjectWizard extends Wizard implements INewWizard {
         sb.append(LINE_BREAK);
         sb.append("Dependent: ");
         sb.append(dependent);
-        InputStream inputStream = new ByteArrayInputStream(sb.toString().getBytes());
-        // create automatically closes the stream. See JavaDoc
-        todoFile.create(inputStream, IResource.NONE, monitor);
+        todoFile.create(sb.toString().getBytes(StandardCharsets.UTF_8), IResource.NONE, monitor);
     }
 
 }
