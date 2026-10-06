@@ -23,6 +23,9 @@
       <adapter
             type="org.eclipse.ui.model.IWorkbenchAdapter3">
       </adapter>
+      <adapter
+            type="org.eclipse.ui.views.properties.IPropertySource">
+      </adapter>
    </factory>
 </extension>
 
