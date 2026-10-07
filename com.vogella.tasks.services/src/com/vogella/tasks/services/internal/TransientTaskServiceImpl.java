@@ -43,7 +43,7 @@ public class TransientTaskServiceImpl implements TaskService {
 		Optional<Task> taskOptional = findById(newTask.getId());
 
 		// get the actual object or create a new one
-		Task task = taskOptional.orElse(new Task(current.getAndIncrement()));
+		Task task = taskOptional.orElseGet(() -> new Task(current.getAndIncrement()));
 		task.setSummary(newTask.getSummary());
 		task.setDescription(newTask.getDescription());
 		task.setDone(newTask.isDone());
