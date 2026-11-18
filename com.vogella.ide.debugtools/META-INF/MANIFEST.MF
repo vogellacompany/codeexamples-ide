@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Debugtools
 Bundle-SymbolicName: com.vogella.ide.debugtools;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: VOGELLA
+Bundle-Vendor: vogella GmbH
 Require-Bundle: org.eclipse.jface,
  org.eclipse.e4.ui.services,
  org.eclipse.e4.core.di.annotations,

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Services
 Bundle-SymbolicName: com.vogella.tasks.services
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: VOGELLA
+Bundle-Vendor: vogella GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-25
 Automatic-Module-Name: com.vogella.tasks.services
 Import-Package: com.vogella.tasks.events,

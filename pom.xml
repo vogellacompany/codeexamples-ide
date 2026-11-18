@@ -7,13 +7,27 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <!-- PGP signing of the update site is off by default, the CI enables it with -Dgpg.skip=false -->
+    <!-- PGP signing of the update site is off by default, -Dgpg.skip=false enables it -->
     <gpg.skip>true</gpg.skip>
+    <!-- Maven 3.10 pins outputTimestamp to 1980 and Tycho takes the qualifier from it -->
+    <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ss'Z'</maven.build.timestamp.format>
+    <project.build.outputTimestamp>${maven.build.timestamp}</project.build.outputTimestamp>
   </properties>
 
   <build>
     <pluginManagement>
       <plugins>
+        <!-- Tycho does not pin these, so they would otherwise follow the running Maven's defaults -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>3.5.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.5.0</version>
+        </plugin>
         <plugin>
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-p2-director-plugin</artifactId>
@@ -24,6 +38,11 @@
           <artifactId>tycho-surefire-plugin</artifactId>
           <version>${tycho.version}</version>
           <configuration>
+            <!-- without the hint Tycho may pick the junit4 provider and find no JUnit 5 test -->
+            <providerHint>junit5</providerHint>
+            <failIfNoTests>true</failIfNoTests>
+            <!-- keeps a test JVM from taking a quarter of the build server's RAM -->
+            <argLine>-Xmx1g</argLine>
             <dependencies>
               <dependency>
                 <type>eclipse-plugin</type>
@@ -102,13 +121,13 @@
               <arch>x86_64</arch>
             </environment>
             <environment>
-              <os>win32</os>
-              <ws>win32</ws>
-              <arch>x86_64</arch>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>aarch64</arch>
             </environment>
             <environment>
-              <os>macosx</os>
-              <ws>cocoa</ws>
+              <os>win32</os>
+              <ws>win32</ws>
               <arch>x86_64</arch>
             </environment>
             <environment>

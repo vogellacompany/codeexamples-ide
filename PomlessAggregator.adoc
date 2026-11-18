@@ -56,9 +56,9 @@ A hand-written file simply must not start with that marker.
 
 == Required configuration
 
-Two settings make the nested layout work.
+Two settings make a nested layout work.
+Every module of this repository sits at the repository root, so only the second one is set here.
 
-..mvn/maven.config
 [source]
 ----
 -Dtycho.pomless.parent=${maven.multiModuleProjectDirectory}
@@ -69,7 +69,8 @@ That holds for a bundle at the repository root, but not for one nested inside a 
 Pointing the property at the directory that contains `.mvn` makes every pomless module resolve the root pom as its parent, whatever its depth.
 `maven.multiModuleProjectDirectory` is resolved by Maven itself, so the setting keeps working when the build is started from a subdirectory.
 
-The same property can be set per module, as `tycho.pomless.parent` in a bundle's `build.properties`, which takes precedence over the global default.
+The property goes into `.mvn/maven.config` for the whole build, or per module as `tycho.pomless.parent` in a bundle's `build.properties`, which takes precedence over the global default.
+This repository's `.mvn/maven.config` is shared byte for byte with the other vogella Eclipse repositories, so a nested group here would use the per-module form.
 
 .pom.xml
 [source,xml]

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: First
 Bundle-SymbolicName: com.vogella.ide.first;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: VOGELLA
+Bundle-Vendor: vogella GmbH
 Require-Bundle: org.eclipse.osgi,
  org.eclipse.jface,
  org.eclipse.e4.ui.model.workbench,

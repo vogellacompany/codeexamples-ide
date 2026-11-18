@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Parallel Startup Configurator
 Bundle-SymbolicName: com.vogella.ide.parallelstart
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: VOGELLA
+Bundle-Vendor: vogella GmbH
 Bundle-RequiredExecutionEnvironment: JavaSE-25
 Automatic-Module-Name: com.vogella.ide.parallelstart
 Import-Package: org.eclipse.osgi.container;version="1.0.0",
