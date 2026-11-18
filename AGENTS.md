@@ -39,9 +39,7 @@ To build all bundles and the update site, run the following command from the roo
 ### Signing the update site
 
 The `updatesite` module signs its artifacts with PGP via the `tycho-gpg-plugin` (Bouncy Castle signer), the signatures land in the p2 metadata and the jars stay unchanged.
-Signing is skipped by default.
-The CI enables it with `-Dgpg.skip=false`, writes the key from the `MAVEN_GPG_KEY` secret to a file and passes the `MAVEN_GPG_PASSPHRASE` secret, falling back to a throwaway key when the secrets are not set.
-A local signed build works the same way:
+Signing is skipped by default; `-Dgpg.skip=false` enables it, with the key file passed as `-Dtycho.pgp.signer.bc.secretKeys` and the passphrase in `MAVEN_GPG_PASSPHRASE`:
 
 ```bash
 gpg --armor --export-secret-keys release@vogella.com > ~/signing-key.asc

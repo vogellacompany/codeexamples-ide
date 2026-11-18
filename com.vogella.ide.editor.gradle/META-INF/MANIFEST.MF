@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Gradle
 Bundle-SymbolicName: com.vogella.ide.editor.gradle;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: VOGELLA
+Bundle-Vendor: vogella GmbH
 Automatic-Module-Name: com.vogella.ide.editor.gradle
 Bundle-RequiredExecutionEnvironment: JavaSE-25
 Require-Bundle: org.eclipse.text,

@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Page
 Bundle-SymbolicName: com.vogella.preferences.page;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: VOGELLA
+Bundle-Vendor: vogella GmbH
 Automatic-Module-Name: com.vogella.preferences.page
 Bundle-RequiredExecutionEnvironment: JavaSE-25
 Require-Bundle: org.eclipse.ui;bundle-version="3.118.0",

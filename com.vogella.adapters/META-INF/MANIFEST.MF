@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Adapters
 Bundle-SymbolicName: com.vogella.adapters;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: VOGELLA
+Bundle-Vendor: vogella GmbH
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.jface,
  org.eclipse.ui,

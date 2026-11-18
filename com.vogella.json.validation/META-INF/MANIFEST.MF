@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: JSON Schema Validation Example
 Bundle-SymbolicName: com.vogella.json.validation
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: VOGELLA
+Bundle-Vendor: vogella GmbH
 Automatic-Module-Name: com.vogella.json.validation
 Bundle-RequiredExecutionEnvironment: JavaSE-25
 Export-Package: com.vogella.json.validation

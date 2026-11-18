@@ -3,8 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: JSON Schema Validation Example Tests
 Bundle-SymbolicName: com.vogella.json.validation.tests
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: VOGELLA
+Bundle-Vendor: vogella GmbH
 Fragment-Host: com.vogella.json.validation;bundle-version="1.0.0"
-Require-Bundle: junit-jupiter-api;bundle-version="5.11.0"
+Require-Bundle: junit-jupiter-api;bundle-version="[5.14.0,6.0.0)"
 Automatic-Module-Name: com.vogella.json.validation.tests
 Bundle-RequiredExecutionEnvironment: JavaSE-25

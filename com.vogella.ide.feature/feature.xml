@@ -3,7 +3,7 @@
       id="com.vogella.ide.feature"
       label="Feature"
       version="1.0.0.qualifier"
-      provider-name="VOGELLA">
+      provider-name="vogella GmbH">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]

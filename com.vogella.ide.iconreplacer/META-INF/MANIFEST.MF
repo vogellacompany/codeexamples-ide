@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Icon Replacer
 Bundle-SymbolicName: com.vogella.ide.iconreplacer;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Vendor: VOGELLA
+Bundle-Vendor: vogella GmbH
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.equinox.app,
